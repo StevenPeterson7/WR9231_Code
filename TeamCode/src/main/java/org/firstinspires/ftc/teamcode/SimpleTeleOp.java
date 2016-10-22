@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 public class SimpleTeleOp extends OpMode{
     // Declare the motor matrix
     private DcMotor[][] motors = new DcMotor[2][2];
+    // Set default power to 100%
+    private float motorPower = 1.f;
 
     @Override
     public void init(){
@@ -37,12 +39,23 @@ public class SimpleTeleOp extends OpMode{
     }
     @Override
     public void loop(){
+        // Check for and apply changes to motorPower
+        if(gamepad1.dpad_up) motorPower = 1.f;
+        if(gamepad1.dpad_down) motorPower = 0.25f;
+
+        // Make sure the motorPower stays between 0-100% inclusive
+        if(motorPower<0.f) motorPower = 0.f;
+        if(motorPower>1.f) motorPower = 1.f;
+
+        // Tell what the power is
+        telemetry.addData("Motor power (%)", motorPower);
+
         // Loop through front and back motors
         for(DcMotor[] motor : motors){
             // Set left motor power
-            motor[0].setPower(-gamepad1.left_stick_y);
+            motor[0].setPower(-gamepad1.left_stick_y*motorPower);
             // Set right motor power
-            motor[1].setPower(-gamepad1.right_stick_y);
+            motor[1].setPower(-gamepad1.right_stick_y*motorPower);
         }
     }
     @Override
