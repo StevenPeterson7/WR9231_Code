@@ -1,10 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.*;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="SimpleAutonomous",group="Autonomous")
-public class SimpleAutonomous extends OpMode{
+@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="AutonomousRed",group="Autonomous")
+public class AutonomousRed extends OpMode{
     // Declare the motor matrix
     private DcMotor[][] motors = new DcMotor[2][2];
     // Set default power to 100%
@@ -39,9 +39,9 @@ public class SimpleAutonomous extends OpMode{
         }
         for(DcMotor[] motor : motors){
             // Set left motor power
-            motor[0].setPower(1);
+            motor[0].setPower(0);
             // Set right motor power
-            motor[1].setPower(0);
+            motor[1].setPower(1);
         //270 deg turn
         }
         //for 2 seconds
