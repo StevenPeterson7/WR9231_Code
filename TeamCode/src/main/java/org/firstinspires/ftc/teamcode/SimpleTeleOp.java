@@ -1,8 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.*;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @TeleOp(name="SimpleTeleOp", group="TeleOp")
 public class SimpleTeleOp extends OpMode{
@@ -13,19 +14,22 @@ public class SimpleTeleOp extends OpMode{
 
     @Override
     public void init(){
+
+        int F = 0;
+        int B = 1;
+        int L = 0;
+        int R = 1;
+
         // Set up the motor matrix (that sounds cool)
-        motors[0][0] = hardwareMap.dcMotor.get("motorFrontLeft");
-        motors[0][1] = hardwareMap.dcMotor.get("motorFrontRight");
-        motors[1][0] = hardwareMap.dcMotor.get("motorBackLeft");
-        motors[1][1] = hardwareMap.dcMotor.get("motorBackRight");
-        // The motors on the left side of the robot need to be in reverse mode
-        for(DcMotor[] motor : motors){
-            motor[0].setDirection(DcMotor.Direction.REVERSE);
-        }
-        // Being explicit never hurt anyone, right?
-        for(DcMotor[] motor : motors){
-            motor[1].setDirection(DcMotor.Direction.FORWARD);
-        }
+        motors[F][L] = hardwareMap.dcMotor.get("motorFrontLeft");
+        motors[F][R] = hardwareMap.dcMotor.get("motorFrontRight");
+        motors[B][L] = hardwareMap.dcMotor.get("motorBackLeft");
+        motors[B][R] = hardwareMap.dcMotor.get("motorBackRight");
+
+        motors[F][L].setDirection(DcMotor.Direction.FORWARD);
+        motors[F][R].setDirection(DcMotor.Direction.REVERSE);
+        motors[B][L].setDirection(DcMotor.Direction.REVERSE);
+        motors[B][R].setDirection(DcMotor.Direction.FORWARD);
     }
 
     @Override
@@ -40,12 +44,12 @@ public class SimpleTeleOp extends OpMode{
     @Override
     public void loop(){
         // Check for and apply changes to motorPower
-        if(gamepad1.dpad_up) motorPower = 1.f;
+        if(gamepad1.dpad_up) motorPower = 1.0f;
         if(gamepad1.dpad_down) motorPower = 0.25f;
 
         // Make sure the motorPower stays between 0-100% inclusive
-        if(motorPower<0.f) motorPower = 0.f;
-        if(motorPower>1.f) motorPower = 1.f;
+        if(motorPower<0.f) motorPower = 0.0f;
+        if(motorPower>1.f) motorPower = 1.0f;
 
         // Tell what the power is
         telemetry.addData("Motor power (%)", motorPower);
@@ -63,3 +67,4 @@ public class SimpleTeleOp extends OpMode{
 
     }
 }
+
