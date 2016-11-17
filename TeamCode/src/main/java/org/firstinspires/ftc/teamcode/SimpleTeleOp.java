@@ -9,6 +9,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 public class SimpleTeleOp extends OpMode{
     // Declare the motor matrix
     private DcMotor[][] motors = new DcMotor[2][2];
+    // Declare the two lifter motors
+    private DcMotor[] liftMotors = new DcMotor [2];
     // Set default power to 100%
     private float motorPower = 1.f;
 
@@ -30,6 +32,13 @@ public class SimpleTeleOp extends OpMode{
         motors[F][R].setDirection(DcMotor.Direction.REVERSE);
         motors[B][L].setDirection(DcMotor.Direction.REVERSE);
         motors[B][R].setDirection(DcMotor.Direction.FORWARD);
+
+        liftMotors[0] = hardwareMap.dcMotor.get("motorSweeper");
+        liftMotors[1] = hardwareMap.dcMotor.get("motorBelt");
+
+        liftMotors[0].setDirection(DcMotor.Direction.FORWARD);
+        liftMotors[1].setDirection(DcMotor.Direction.FORWARD);
+
     }
 
     @Override
@@ -60,6 +69,20 @@ public class SimpleTeleOp extends OpMode{
             motor[0].setPower(-gamepad1.left_stick_y*motorPower);
             // Set right motor power
             motor[1].setPower(-gamepad1.right_stick_y*motorPower);
+        }
+
+        if(gamepad1.right_bumper){
+            liftMotors[1].setPower(1.0);
+        }
+        else{
+            liftMotors[1].setPower(0.0);
+        }
+
+        if(gamepad1.left_bumper){
+            liftMotors[0].setPower(1.0);
+        }
+        else{
+            liftMotors[0].setPower(0.0);
         }
     }
     @Override
