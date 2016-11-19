@@ -14,6 +14,8 @@ public class SimpleTeleOp extends OpMode{
     // Set default power to 100%
     private float motorPower = 1.f;
 
+    private boolean liftToggle[] = new boolean[2];
+
     @Override
     public void init(){
 
@@ -53,8 +55,8 @@ public class SimpleTeleOp extends OpMode{
     @Override
     public void loop(){
         // Check for and apply changes to motorPower
-        if(gamepad1.dpad_up) motorPower = 1.0f;
-        if(gamepad1.dpad_down) motorPower = 0.25f;
+        if(gamepad1.right_bumper) motorPower += 0.25f;
+        if(gamepad1.left_bumper) motorPower -= 0.25f;
 
         // Make sure the motorPower stays between 0-100% inclusive
         if(motorPower<0.f) motorPower = 0.0f;
@@ -70,19 +72,24 @@ public class SimpleTeleOp extends OpMode{
             // Set right motor power
             motor[1].setPower(-gamepad1.right_stick_y*motorPower);
         }
+        if(gamepad1.a){
+            if(liftToggle[1] == false){
+                liftMotors[1].setPower(1.0);
+            }
+            if(liftToggle[1]){
+                liftToggle[1] = false;
+                liftMotors[1].setPower(0.0);
+            }
+        }
 
-        if(gamepad1.right_bumper){
-            liftMotors[1].setPower(1.0);
-        }
-        else{
-            liftMotors[1].setPower(0.0);
-        }
-
-        if(gamepad1.left_bumper){
-            liftMotors[0].setPower(1.0);
-        }
-        else{
-            liftMotors[0].setPower(0.0);
+        if(gamepad1.b){
+            if(liftToggle[0] == false){
+                liftMotors[0].setPower(1.0);
+            }
+            if(liftToggle[0]){
+                liftToggle[0] = false;
+                liftMotors[0].setPower(0.0);
+            }
         }
     }
     @Override
