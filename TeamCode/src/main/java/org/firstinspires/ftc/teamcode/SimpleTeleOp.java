@@ -10,7 +10,7 @@ public class SimpleTeleOp extends OpMode{
     // Declare the motor matrix
     private DcMotor[][] motors = new DcMotor[2][2];
     // Declare the two lifter motors
-    private DcMotor[] liftMotors = new DcMotor [2];
+    //private DcMotor[] liftMotors = new DcMotor [2];
     // Set default power to 100%
     private float motorPower = 1.f;
 
@@ -30,16 +30,16 @@ public class SimpleTeleOp extends OpMode{
         motors[B][L] = hardwareMap.dcMotor.get("motorBackLeft");
         motors[B][R] = hardwareMap.dcMotor.get("motorBackRight");
 
-        motors[F][L].setDirection(DcMotor.Direction.FORWARD);
-        motors[F][R].setDirection(DcMotor.Direction.REVERSE);
-        motors[B][L].setDirection(DcMotor.Direction.REVERSE);
-        motors[B][R].setDirection(DcMotor.Direction.FORWARD);
+        motors[F][L].setDirection(DcMotor.Direction.REVERSE);
+        motors[F][R].setDirection(DcMotor.Direction.FORWARD);
+        motors[B][L].setDirection(DcMotor.Direction.FORWARD);
+        motors[B][R].setDirection(DcMotor.Direction.REVERSE);
 
-        liftMotors[0] = hardwareMap.dcMotor.get("motorSweeper");
-        liftMotors[1] = hardwareMap.dcMotor.get("motorBelt");
-
-        liftMotors[0].setDirection(DcMotor.Direction.FORWARD);
-        liftMotors[1].setDirection(DcMotor.Direction.FORWARD);
+//        liftMotors[0] = hardwareMap.dcMotor.get("motorSweeper");
+//        liftMotors[1] = hardwareMap.dcMotor.get("motorBelt");
+//
+//        liftMotors[0].setDirection(DcMotor.Direction.FORWARD);
+//        liftMotors[1].setDirection(DcMotor.Direction.FORWARD);
 
     }
 
@@ -55,8 +55,8 @@ public class SimpleTeleOp extends OpMode{
     @Override
     public void loop(){
         // Check for and apply changes to motorPower
-        if(gamepad1.right_bumper) motorPower += 0.25f;
-        if(gamepad1.left_bumper) motorPower -= 0.25f;
+        if(gamepad1.right_bumper) motorPower = 0.25f;
+        if(gamepad1.left_bumper) motorPower = 1.f;
 
         // Make sure the motorPower stays between 0-100% inclusive
         if(motorPower<0.f) motorPower = 0.0f;
@@ -72,25 +72,25 @@ public class SimpleTeleOp extends OpMode{
             // Set right motor power
             motor[1].setPower(-gamepad1.right_stick_y*motorPower);
         }
-        if(gamepad1.a){
-            if(liftToggle[1] == false){
-                liftMotors[1].setPower(1.0);
-            }
-            if(liftToggle[1]){
-                liftToggle[1] = false;
-                liftMotors[1].setPower(0.0);
-            }
-        }
-
-        if(gamepad1.b){
-            if(liftToggle[0] == false){
-                liftMotors[0].setPower(1.0);
-            }
-            if(liftToggle[0]){
-                liftToggle[0] = false;
-                liftMotors[0].setPower(0.0);
-            }
-        }
+//        if(gamepad1.a){
+//            if(liftToggle[1] == false){
+//                liftMotors[1].setPower(1.0);
+//            }
+//            if(liftToggle[1]){
+//                liftToggle[1] = false;
+//                liftMotors[1].setPower(0.0);
+//            }
+//        }
+//
+//        if(gamepad1.b){
+//            if(liftToggle[0] == false){
+//                liftMotors[0].setPower(1.0);
+//            }
+//            if(liftToggle[0]){
+//                liftToggle[0] = false;
+//                liftMotors[0].setPower(0.0);
+//            }
+//        }
     }
     @Override
     public void stop(){
