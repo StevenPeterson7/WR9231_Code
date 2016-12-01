@@ -22,12 +22,14 @@ public class ColorSensorTestOp extends OpMode {
     public void init() {
         // get hardware gyro
         mColorSensor = (ModernRoboticsI2cColorSensor) hardwareMap.colorSensor.get("cs");
+        mColorSensor.enableLed(false);
     }
 
     public void loop() {
         telemetry.addData("red: ", mColorSensor.red());
         telemetry.addData("green: ", mColorSensor.green());
         telemetry.addData("blue: ", mColorSensor.blue());
+
     }
 
     public void stop() {}
