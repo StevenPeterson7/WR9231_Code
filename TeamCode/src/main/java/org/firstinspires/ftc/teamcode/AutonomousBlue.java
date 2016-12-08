@@ -7,8 +7,11 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 public class AutonomousBlue extends OpMode{
     // Declare the motor matrix
     private DcMotor[][] motors = new DcMotor[2][2];
+    // Declare the two lifter motors
+    private DcMotor[] liftMotors = new DcMotor [3];
     // Set default power to 100%
     private float motorPower = 1.f;
+
     @Override
     public void init() {
         int F = 0;
@@ -25,6 +28,23 @@ public class AutonomousBlue extends OpMode{
         motors[B][L].setDirection(DcMotor.Direction.FORWARD);
         motors[B][R].setDirection(DcMotor.Direction.REVERSE);
 
+        liftMotors[0] = hardwareMap.dcMotor.get("motorSweeper");
+        liftMotors[1] = hardwareMap.dcMotor.get("motorBelt");
+        liftMotors[2] = hardwareMap.dcMotor.get("motorLaunch");
+
+        liftMotors[0].setDirection(DcMotor.Direction.REVERSE);
+        liftMotors[1].setDirection(DcMotor.Direction.REVERSE);
+        liftMotors[2].setDirection(DcMotor.Direction.REVERSE);
+
+    }
+
+    @Override
+    public void start() {
+
+    }
+
+    @Override
+    public void loop() {
         //Wait 10 Seconds
         for(DcMotor[] motor : motors){
             // Set left motor power
@@ -32,62 +52,74 @@ public class AutonomousBlue extends OpMode{
             // Set right motor power
             motor[1].setPower(0);
         }
+//        try {
+//            Thread.sleep(10000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
+        for(DcMotor[] motor : motors){
+            // Set left motor power
+            motor[0].setPower(1.0);
+            // Set right motor power
+            motor[1].setPower(1.0);
+        }
+
         try {
-            Thread.sleep(3000);
+            Thread.sleep(750);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        //Drive forward for 1.5 seconds
-        for(DcMotor[] motor : motors) {
+        for(DcMotor[] motor : motors){
             // Set left motor power
-            motor[0].setPower(.5);
+            motor[0].setPower(0.0);
             // Set right motor power
-            motor[1].setPower(.5);
+            motor[1].setPower(1.0);
         }
+
+        try {
+            Thread.sleep(1200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        liftMotors[1].setPower(1.0);
+
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-/*        //270 Degree Turn - 1.5 seconds
-        for(DcMotor[] motor : motors){
-            // Set left motor power
-            motor[0].setPower(0);
-            // Set right motor power
-            motor[1].setPower(1);
-        }
-        try {
-            Thread.sleep(1500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }*/
+        liftMotors[1].setPower(0.0);
 
-/*        //drive forward for 2.25 seconds
-        for(DcMotor[] motor : motors) {
-            // Set left motor power
-            motor[0].setPower(.25);
-            // Set right motor power
-            motor[1].setPower(.25);
-        }
+        liftMotors[2].setPower(1.0);
+
         try {
-            Thread.sleep(2250);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }*/
+        }
+
+        liftMotors[2].setPower(0.0);
+
+        liftMotors[1].setPower(1.0);
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        liftMotors[1].setPower(0.0);
 
         //Stop
-        for(DcMotor[] motor : motors){
+        for(DcMotor[] motor : motors) {
             // Set left motor power
             motor[0].setPower(0);
             // Set right motor power
             motor[1].setPower(0);
         }
-    }
-
-    @Override
-    public void loop() {
-
     }
 }
