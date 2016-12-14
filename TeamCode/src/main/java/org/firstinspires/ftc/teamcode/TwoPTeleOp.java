@@ -75,19 +75,19 @@ public class TwoPTeleOp extends OpMode{
         }
 
         if(gamepad1.a || gamepad2.a){
-            liftMotors[1].setPower(1.0);
+            liftMotors[2].setPower(1.0);
         }
         else{
-            liftMotors[1].setPower(0.0);
+            liftMotors[2].setPower(0.0);
         }
 
         if(gamepad1.b || gamepad2.b){
             liftMotors[0].setPower(1.0);
-            liftMotors[2].setPower(1.0);
+            liftMotors[1].setPower(1.0);
         }
         else{
             liftMotors[0].setPower(0.0);
-            liftMotors[2].setPower(0.0);
+            liftMotors[1].setPower(0.0);
         }
         
     }

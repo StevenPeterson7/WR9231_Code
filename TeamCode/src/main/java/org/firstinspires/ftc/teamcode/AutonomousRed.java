@@ -18,6 +18,7 @@ public class AutonomousRed extends OpMode{
         int B = 1;
         int L = 0;
         int R = 1;
+
         motors[F][L] = hardwareMap.dcMotor.get("motorFrontLeft");
         motors[F][R] = hardwareMap.dcMotor.get("motorFrontRight");
         motors[B][L] = hardwareMap.dcMotor.get("motorBackLeft");
@@ -52,11 +53,11 @@ public class AutonomousRed extends OpMode{
             // Set right motor power
             motor[1].setPower(0);
         }
-//        try {
-//            Thread.sleep(10000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         liftMotors[1].setPower(1.0);
 
@@ -88,33 +89,31 @@ public class AutonomousRed extends OpMode{
 
         liftMotors[1].setPower(0.0);
 
+        for(DcMotor[] motor : motors){
+            // Set left motor power
+            motor[0].setPower(0.0);
+            // Set right motor power
+            motor[1].setPower(1.0);
+        }
 
+        try {
+            Thread.sleep(1500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-//        for(DcMotor[] motor : motors){
-//            // Set left motor power
-//            motor[0].setPower(0.0);
-//            // Set right motor power
-//            motor[1].setPower(1.0);
-//        }
-//
-//        try {
-//            Thread.sleep(1500);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//
-//        for(DcMotor[] motor : motors){
-//            // Set left motor power
-//            motor[0].setPower(1.0);
-//            // Set right motor power
-//            motor[1].setPower(1.0);
-//        }
-//
-//        try {
-//            Thread.sleep(3000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+        for(DcMotor[] motor : motors){
+            // Set left motor power
+            motor[0].setPower(1.0);
+            // Set right motor power
+            motor[1].setPower(1.0);
+        }
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         //Stop
         for(DcMotor[] motor : motors) {
