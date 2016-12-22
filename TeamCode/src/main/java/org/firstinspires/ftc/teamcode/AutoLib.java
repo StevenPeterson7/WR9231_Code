@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
@@ -181,10 +182,10 @@ public class AutoLib {
             if (firstLoopCall())
                 mTimer.start();
 
-            // log some info about this Step every nth call (to not slow things down too much)
-            if (!mTimer.done() && mLoopCount % 100 == 0)        // appears to cycle here at about 3ms/loop
+            // log some info about this Step
+            if (!mTimer.done())        // appears to cycle here at about 3ms/loop
                 mOpMode.telemetry.addData(mName, "time = " + mTimer.remaining());
-            if (mTimer.done())
+            else
                 mOpMode.telemetry.addData(mName, "done");
 
             // return true when time is exhausted
@@ -288,6 +289,89 @@ public class AutoLib {
 
     }
 
+    // a Step that pushes the correct beacon
+
+    static public class BeaconPush extends Step{
+        ModernRoboticsI2cColorSensor mColorSensor;
+        int teamColor;
+
+        public BeaconPush(ModernRoboticsI2cColorSensor cs, int team){
+            int teamColor = team;
+            ModernRoboticsI2cColorSensor mColorSensor = cs;
+
+        }
+    }
+
+        public boolean ColorTest(ModernRoboticsI2cColorSensor cs, int team) {
+            int teamColor = team;
+            ModernRoboticsI2cColorSensor mColorSensor = cs;
+
+            if (teamColor == 0){
+                if (mColorSensor.red() <= 4){
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            }
+
+            if (teamColor == 1){
+                if (mColorSensor.blue() <= 4){
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            }
+
+            return false;
+        }
+
+        public boolean loop() {
+            super.loop();
+
+            if (firstLoopCall()){
+                if {ColorTest( mColorSensor,)
+            }
+
+        }
+    }
+
+    // a Step that drives a Servo to a given position
+    static public class ServoStep extends Step {
+        Servo mServo;
+        double mPosition;          // target position of servo
+        double mTolerance;
+
+        public ServoStep(Servo servo, double position) {
+            mServo = servo;
+            mPosition = position;
+            mTolerance = 0.01;      // 1% of default 0..1 range
+        }
+
+        // if servo is set to non-default range, set tolerance here
+        public void setTolerance(double tolerance) {
+            mTolerance = tolerance;
+        }
+
+        public boolean loop() {
+            super.loop();
+
+            // tell the servo to go to the target position on the first call
+            if (firstLoopCall()) {
+                mServo.setPosition(mPosition);
+            }
+
+            // we're done when the servo gets to the ordered position (within tolerance)
+            boolean done = Math.abs(mPosition-mServo.getPosition()) < mTolerance;
+
+            return done;
+        }
+
+    }
+
+
+
     // a Step that provides Vuforia-based guidance to motors controlled by other concurrent Steps (e.g. encoder or time-based)
     // assumes an even number of concurrent drive motor steps assuming order fr, br, fl, bl driving Squirrely Wheels
     // (i.e. wheels that can move the robot in any direction without yawing the robot itself).
@@ -300,9 +384,10 @@ public class AutoLib {
         private LocationSensor mLocSensor;                  // sensor to use for field location information (e.g. Vuforia)
         private HeadingSensor mYawSensor;                   // sensor to use for robot orientation on field (may be same as LocationSensor)
         private float mError;                               // how close do we have to be to declare "done"
+        private boolean mStop;                              // stop motors when target position is reached
 
         public VuforiaSquirrelyGuideStep(OpMode mode, VectorF targetPosition, LocationSensor locSensor, HeadingSensor yawSensor,
-                                         ArrayList<SetPower> motorSteps, float power, float error)
+                                         ArrayList<SetPower> motorSteps, float power, float error, boolean stop)
         {
             mOpMode = mode;
             mTargetPosition = targetPosition;
@@ -311,6 +396,7 @@ public class AutoLib {
             mMotorSteps = motorSteps;
             mPower = power;
             mError = error;
+            mStop = stop;
         }
 
         private void doSearch()
@@ -325,23 +411,28 @@ public class AutoLib {
 
         public boolean loop()
         {
-            // compute absolute direction vector to target position on field
-            VectorF position = mLocSensor.getLocation();
-            if (position == null) {
+            // check for valid location data - if not, do simple search pattern to try to acquire data
+            if (!mLocSensor.haveLocation()) {
                 doSearch();
                 return false;       // not done
             }
+
+            // compute absolute direction vector to target position on field
+            VectorF position = mLocSensor.getLocation();
             VectorF dirToTarget = mTargetPosition.subtracted(position);
+            dirToTarget.put(2, 0.0f);        // ignore Z when computing distance to target
 
             // compute absolute field heading to target: zero aligned with Y axis, positive CCW, degrees 0/359
             double headingToTarget = Math.atan2(-dirToTarget.get(0), dirToTarget.get(1));
             headingToTarget *= 180.0/Math.PI;       // to degrees
 
-            // get current orientation of the robot on the field
-            if (mYawSensor.haveHeading() == false) {
+            // check for valid heading data - if not, do simple search pattern to try to acquire data
+            if (!mYawSensor.haveHeading()) {
                 doSearch();
                 return false;
             }
+
+            // get current orientation of the robot on the field
             double robotYaw = mYawSensor.getHeading();
 
             // compute relative heading robot should move along
@@ -353,15 +444,23 @@ public class AutoLib {
             double backPower = mp.Back() * mPower;
 
             // reduce motor powers when we're very close to the target position
-            final double slowDist = 254.0;   // start slowing down when we're this close (10")
+            final double slowDist = 3.0*mError;   // start slowing down when we're this close
             double distToTarget = dirToTarget.magnitude();
             if (distToTarget < slowDist) {
                 frontPower *= distToTarget/slowDist;
                 backPower  *= distToTarget/slowDist;
             }
 
+            // are we there yet?
+            boolean bDone = distToTarget < mError;     // within an inch of target position?
+
+            // optionally stop motors when we reach the target position
+            if (bDone && mStop)
+                frontPower = backPower = 0;
+
             // output debug telemetry
-            mOpMode.telemetry.addData("VSGS:", "abs heading: %4.1f  distance: %4.1f", headingToTarget, distToTarget);
+            mOpMode.telemetry.addData("VSGS:", "target position: %s", mTargetPosition.multiplied(1.0f/25.4f).toString());    // inches
+            mOpMode.telemetry.addData("VSGS:", "abs heading: %4.1f  distance: %4.1f", headingToTarget, distToTarget/25.4);   // degrees, inches
 
             // update motors
             // assumed order is fr, br, fl, bl
@@ -370,8 +469,6 @@ public class AutoLib {
             mMotorSteps.get(2).setPower(frontPower);
             mMotorSteps.get(3).setPower(backPower);
 
-            // are we there yet?
-            boolean bDone = distToTarget < mError;     // within an inch of target position?
             return bDone;
         }
     }
@@ -381,7 +478,7 @@ public class AutoLib {
     static public class VuforiaSquirrelyDriveStep extends ConcurrentSequence {
 
         public VuforiaSquirrelyDriveStep(OpMode mode, VectorF targetPosition, LocationSensor locSensor, HeadingSensor yawSensor,
-                                         DcMotor motors[], float power, float error)
+                                         DcMotor motors[], float power, float error, boolean stop)
         {
             // add a concurrent Step to control each motor
             ArrayList<SetPower> steps = new ArrayList<SetPower>();
@@ -394,7 +491,7 @@ public class AutoLib {
 
             // add a concurrent Step to control the motor steps based on Vuforia input -
             // put it at the front of the list so it can update the motors BEFORE their steps run
-            this.preAdd(new VuforiaSquirrelyGuideStep(mode, targetPosition, locSensor, yawSensor, steps, power, error));
+            this.preAdd(new VuforiaSquirrelyGuideStep(mode, targetPosition, locSensor, yawSensor, steps, power, error, stop));
 
         }
 
@@ -417,9 +514,10 @@ public class AutoLib {
         private float mError;                               // how close do we have to be to declare "done"
         private SensorLib.PID mPid;                         // PID controller to compute motor corrections from Vuforia heading data
         private double mPrevTime;                           // time of previous loop() call
+        private boolean mStop;                              // stop motors when target position is reached
 
         public VuforiaGuideStep(OpMode mode, VectorF targetPosition, LocationSensor locSensor, HeadingSensor yawSensor,
-                                         ArrayList<SetPower> motorSteps, float power, float error)
+                                         ArrayList<SetPower> motorSteps, float power, float error, boolean stop)
         {
             mOpMode = mode;
             mTargetPosition = targetPosition;
@@ -428,6 +526,7 @@ public class AutoLib {
             mMotorSteps = motorSteps;
             mPower = power;
             mError = error;
+            mStop = stop;
 
             // parameters of the PID controller for this sequence
             float Kp = 0.035f;        // motor power proportional term correction per degree of deviation
@@ -446,47 +545,77 @@ public class AutoLib {
                 mPrevTime = mOpMode.getRuntime();           // use timer provided by OpMode
             }
 
-            // compute absolute direction vector to target position on field
-            VectorF position = mLocSensor.getLocation();
-            if (position == null)
-                return false;       // not done
-            VectorF dirToTarget = mTargetPosition.subtracted(position);
+            float rightPower = 0;
+            float leftPower = 0;
+            boolean bDone = false;
 
-            // compute absolute field heading to target: zero aligned with Y axis, positive CCW, degrees 0/359
-            float headingToTarget = (float)(Math.atan2(-dirToTarget.get(0), dirToTarget.get(1)));
-            headingToTarget *= 180.0/Math.PI;       // to degrees
-
-            // try to keep the robot facing toward the corner between the sides of the fields with Vuforia targets --
-            // if direction to target is away from that corner of the field, run backwards to the target; otherwise forwards.
-            // i.e. if directionToTarget dot (-1,-1) < 0, then we're heading away from the "good" corner
-            if (-dirToTarget.get(0)-dirToTarget.get(1) < 0) {
-                
+            // check for valid location and heading input --
+            // if either is absent, do a slow circling maneuver to try to acquire
+            if (!mLocSensor.haveLocation() || !mYawSensor.haveHeading()) {
+                rightPower = 0.2f;
+                leftPower  = -rightPower;
             }
 
-            float heading = mYawSensor.getHeading();     // get latest reading from direction sensor
-            // convention is positive angles CCW, wrapping from 359-0
+            else {
+                // compute absolute direction vector to target position on field
+                VectorF position = mLocSensor.getLocation();
+                if (position == null)
+                    return false;       // we have an inconsistency problem but we're not done
 
-            float error = SensorLib.Utils.wrapAngle(heading-headingToTarget);   // deviation from desired heading
-            // deviations to left are positive, to right are negative
+                VectorF dirToTarget = mTargetPosition.subtracted(position);
+                dirToTarget.put(2, 0.0f);        // ignore Z when computing distance to target
 
-            // compute delta time since last call -- used for integration time of PID step
-            double time = mOpMode.getRuntime();
-            double dt = time - mPrevTime;
-            mPrevTime = time;
+                // compute absolute field heading to target: zero aligned with Y axis, positive CCW, degrees 0/359
+                float headingToTarget = (float) (Math.atan2(-dirToTarget.get(0), dirToTarget.get(1)));
+                headingToTarget *= 180.0 / Math.PI;       // to degrees
 
-            // feed error through PID to get motor power correction value
-            float correction = -mPid.loop(error, (float)dt);
+                // try to keep the robot facing toward the corner between the sides of the fields with Vuforia targets --
+                // if direction to target is away from that corner of the field, run backwards to the target; otherwise forwards.
+                // i.e. if directionToTarget dot (-1,-1) < 0, then we're heading away from the "good" corner
+                boolean destAwayFromTargets = dirToTarget.dotProduct(new VectorF(-1, -1, 0)) < 0;
 
-            // compute new right/left motor powers
-            float rightPower = Range.clip(mPower + correction, -1, 1);
-            float leftPower = Range.clip(mPower - correction, -1, 1);
+                float robotHeading = mYawSensor.getHeading();     // get latest reading from direction sensor
+                // convention is positive angles CCW, wrapping from 359-0
 
-            // reduce motor powers when we're very close to the target position
-            final double slowDist = 254.0;   // start slowing down when we're this close (10")
-            double distToTarget = dirToTarget.magnitude();
-            if (distToTarget < slowDist) {
-                leftPower *= distToTarget/slowDist;
-                rightPower  *= distToTarget/slowDist;
+                // if the target position is behind us, reverse the robot orientation direction so
+                // we can compute correction to go in the desired direction toward the target (backwards)
+                if (destAwayFromTargets) {
+                    robotHeading = SensorLib.Utils.wrapAngle(robotHeading + 180);
+                }
+
+                float error = SensorLib.Utils.wrapAngle(robotHeading - headingToTarget);   // deviation from desired heading
+                // deviations to left are positive, to right are negative
+
+                // compute delta time since last call -- used for integration time of PID step
+                double time = mOpMode.getRuntime();
+                double dt = time - mPrevTime;
+                mPrevTime = time;
+
+                // feed error through PID to get motor power correction value
+                float correction = -mPid.loop(error, (float) dt);
+
+                // compute new right/left motor powers
+                float powerDir = (destAwayFromTargets) ? -mPower : mPower;
+                rightPower = Range.clip(powerDir + correction, -1, 1);
+                leftPower = Range.clip(powerDir - correction, -1, 1);
+
+                // reduce motor powers when we're very close to the target position
+                final double slowDist = 3.0*mError;   // start slowing down when we're this close
+                double distToTarget = dirToTarget.magnitude();
+                if (distToTarget < slowDist) {
+                    leftPower *= distToTarget / slowDist;
+                    rightPower *= distToTarget / slowDist;
+                }
+
+                // are we there yet?
+                bDone = distToTarget < mError;     // within given distance of target position?
+
+                // optionally stop motors when we reach the target position
+                if (bDone && mStop)
+                    leftPower = rightPower = 0;
+
+                // output debug telemetry
+                mOpMode.telemetry.addData("VGS:", "abs heading: %4.1f  distance: %4.1f", headingToTarget, distToTarget/25.4);   // degrees, inches
             }
 
             // set the motor powers -- handle both time-based and encoder-based motor Steps
@@ -497,10 +626,8 @@ public class AutoLib {
             }
 
             // output debug telemetry
-            mOpMode.telemetry.addData("VGS:", "abs heading: %4.1f  distance: %4.1f", headingToTarget, distToTarget);
+            mOpMode.telemetry.addData("VGS:", "target position: %s", mTargetPosition.multiplied(1.0f/25.4f).toString());    // inches
 
-            // are we there yet?
-            boolean bDone = distToTarget < mError;     // within an inch of target position?
             return bDone;
         }
     }
@@ -510,7 +637,7 @@ public class AutoLib {
     static public class VuforiaDriveStep extends ConcurrentSequence {
 
         public VuforiaDriveStep(OpMode mode, VectorF targetPosition, LocationSensor locSensor, HeadingSensor yawSensor,
-                                         DcMotor motors[], float power, float error)
+                                         DcMotor motors[], float power, float error, boolean stop)
         {
             // add a concurrent Step to control each motor
             ArrayList<SetPower> steps = new ArrayList<SetPower>();
@@ -523,7 +650,7 @@ public class AutoLib {
 
             // add a concurrent Step to control the motor steps based on Vuforia input
             // put it at the front of the list so it can update the motors BEFORE their steps run
-            this.preAdd(new VuforiaGuideStep(mode, targetPosition, locSensor, yawSensor, steps, power, error));
+            this.preAdd(new VuforiaGuideStep(mode, targetPosition, locSensor, yawSensor, steps, power, error, stop));
 
         }
 
@@ -531,6 +658,33 @@ public class AutoLib {
         // since the motors always return done, the composite step will return "done" when
         // the GuideStep says it's done, i.e. we've reached the target location.
 
+    }
+
+    // a Step that waits for valid location and heading data to be available --- e.g from Vuforia --
+    // when added to either a dead reckoning or gyro-based movement step, it can be used to end that step
+    // when we're close enough to the targets for Vuforia to start being used. The base step should be
+    // of "zero-length" -- i.e. it should always be "done" so the composite step will be "done" as soon as
+    // this step detects valid location and heading data.
+    static public class LocationHeadingWaitStep extends Step {
+
+        private LocationSensor mLocSensor;                  // sensor to use for field location information (e.g. Vuforia)
+        private HeadingSensor mYawSensor;                   // sensor to use for robot orientation on field (may be same as LocationSensor)
+
+        public LocationHeadingWaitStep(LocationSensor locSensor, HeadingSensor yawSensor)
+        {
+            mLocSensor = locSensor;
+            mYawSensor = yawSensor;
+        }
+
+        public boolean loop()
+        {
+            boolean bDone = true;
+            if (mLocSensor != null)
+                bDone &= mLocSensor.haveLocation();
+            if (mYawSensor != null)
+                bDone &= mYawSensor.haveHeading();
+            return bDone;
+        }
     }
 
 
