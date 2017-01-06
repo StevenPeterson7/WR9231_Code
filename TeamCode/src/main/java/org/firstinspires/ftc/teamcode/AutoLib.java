@@ -290,7 +290,6 @@ public class AutoLib {
     }
 
     // a Step that pushes the correct beacon
-
     static public class BeaconPush extends Step{
         ModernRoboticsI2cColorSensor mColorSensor;
         int teamColor;
