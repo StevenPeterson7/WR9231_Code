@@ -26,9 +26,9 @@ public class AutonomousMain extends OpMode {
         mSequence.add(new AutoLib.TimedMotorStep(hw.liftMotors[1],1.0,2,true));
         mSequence.add(new AutoLib.TimedMotorStep(hw.liftMotors[2],1.0,2,true));
         mSequence.add(new AutoLib.MoveByTimeStep(hw.motors,-0.5,.8,true));
-        //mSequence.add(new AutoLib.TurnByTimeStep(hw.motors[0],hw.motors[1],hw.motors[2],hw.motors[3],-.8,-.2,2.0,true));
-        //mSequence.add(new AutoLib.MoveByTimeStep(hw.motors,-0.5,.75,true));
 
+//        mSequence.add(new AutoLib.BeaconPushStep(hw.mColorSensor,0,hw.servos));
+//        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors,-0.5,.8,true));
 
         // start out not-done
         bDone = false;

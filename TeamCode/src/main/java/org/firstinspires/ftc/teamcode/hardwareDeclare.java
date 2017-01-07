@@ -4,6 +4,7 @@ import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
+//import com.qualcomm.robotcore.hardware.CRServo;
 
 public class hardwareDeclare{
     // Declare the motor matrix
@@ -13,7 +14,7 @@ public class hardwareDeclare{
     // Declare Servo Arm
     public Servo[] servos = new Servo [2];
     // Declare the Color Sensor
-    private ModernRoboticsI2cColorSensor mColorSensor;
+    public ModernRoboticsI2cColorSensor mColorSensor;
 
 
     public hardwareDeclare(OpMode opmode) {
@@ -38,6 +39,9 @@ public class hardwareDeclare{
 
         servos[0] = opmode.hardwareMap.servo.get("servoLeft");
         servos[1] = opmode.hardwareMap.servo.get("servoRight");
+
+//        servos[0] = opmode.hardwareMap.crservo.get("servoLeft");
+//        servos[1] = opmode.hardwareMap.crservo.get("servoRight");
 
         mColorSensor = (ModernRoboticsI2cColorSensor) opmode.hardwareMap.colorSensor.get("cs");
 

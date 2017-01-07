@@ -37,8 +37,8 @@ public class MainTeleOp_2p extends OpMode{
             hw.motors[2].setPower(-gamepad1.left_stick_y*motorPower);
             hw.motors[3].setPower(-gamepad1.left_stick_y*motorPower);
             // Set right motor power
-            hw.motors[0].setPower(-gamepad1.left_stick_y*motorPower);
-            hw.motors[1].setPower(-gamepad1.left_stick_y*motorPower);
+            hw.motors[0].setPower(-gamepad1.right_stick_y*motorPower);
+            hw.motors[1].setPower(-gamepad1.right_stick_y*motorPower);
         }
 
         if(gamepad1.a || gamepad2.a){
@@ -56,18 +56,18 @@ public class MainTeleOp_2p extends OpMode{
             hw.liftMotors[0].setPower(0.0);
             hw.liftMotors[1].setPower(0.0);
         }
-        if(gamepad1.left_bumper || gamepad2.left_bumper){
-            hw.servos[0].setPosition(1.0);
+//        if(gamepad1.left_bumper || gamepad2.left_bumper){
+//            hw.servos[0].setPower(1.0);
+//        }
+//        else{
+//            hw.servos[0].setPower(0.0);
+//        }
+        if(gamepad1.y){
+            hw.servos[1].setPosition(0.5);
         }
-        else{
-            hw.servos[0].setPosition(0.0);
-        }
-        if(gamepad1.right_bumper || gamepad2.right_bumper){
-            hw.servos[0].setPosition(1.0);
-        }
-        else{
-            hw.servos[0].setPosition(0.0);
-        }
+        //else{
+        //    hw.servos[1].setPosition(-0.5);
+        //}
         
     }
     @Override
