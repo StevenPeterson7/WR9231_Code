@@ -21,13 +21,13 @@ public class AutonomousMain extends OpMode {
         // create the root Sequence for this autonomous OpMode
         mSequence = new AutoLib.LinearSequence();
 
-        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors,-0.5,.8,true));
-        mSequence.add(new AutoLib.TimedMotorStep(hw.liftMotors[2],1.0,2,true));
-        mSequence.add(new AutoLib.TimedMotorStep(hw.liftMotors[1],1.0,2,true));
-        mSequence.add(new AutoLib.TimedMotorStep(hw.liftMotors[2],1.0,2,true));
-        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors,-0.5,.8,true));
+//        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors,-0.5,.8,true));
+//        mSequence.add(new AutoLib.TimedMotorStep(hw.liftMotors[2],1.0,2,true));
+//        mSequence.add(new AutoLib.TimedMotorStep(hw.liftMotors[1],1.0,2,true));
+//        mSequence.add(new AutoLib.TimedMotorStep(hw.liftMotors[2],1.0,2,true));
+//        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors,-0.5,.8,true));
 
-//        mSequence.add(new AutoLib.BeaconPushStep(hw.mColorSensor,0,hw.servos));
+        mSequence.add(new AutoLib.BeaconPushStep(hw.mColorSensor,0,hw.servos));
 //        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors,-0.5,.8,true));
 
         // start out not-done

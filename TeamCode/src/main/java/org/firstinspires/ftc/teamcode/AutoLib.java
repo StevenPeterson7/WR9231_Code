@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -291,25 +292,24 @@ public class AutoLib {
 
     // a Step that pushes the correct beacon
     static public class BeaconPushStep extends Step{
+        CRServo[] mServos;
         ModernRoboticsI2cColorSensor mColorSensor;
         int mTeamColor;
-        Servo[] mServos;
-        double mTolerance = 0.02;
         int servoMove = 2;
+        Timer mTimer = new Timer(5.0);
+        boolean done = false;
 
         // Red is 0, Blue is 1
-        public BeaconPushStep(ModernRoboticsI2cColorSensor cs, int team, Servo[] servos){
+        public BeaconPushStep(ModernRoboticsI2cColorSensor cs, int team, CRServo[] servos){
             mTeamColor = team;
-            ModernRoboticsI2cColorSensor mColorSensor = cs;
+            mColorSensor = cs;
             mServos = servos;
         }
 
         public int ColorTest() {
 
             if (mColorSensor.red() >= 4 && mColorSensor.blue() < 3){ return 0; }
-
             else if (mColorSensor.blue() >= 4 && mColorSensor.red() < 3){ return 1; }
-
             else return 2;
         }
 
@@ -318,19 +318,22 @@ public class AutoLib {
 
             if (firstLoopCall()){
                 if (ColorTest() == mTeamColor){
-                    mServos[1].setPosition(1.0);
+                    mServos[1].setPower(-1.0);
+                    mTimer.start();
                     servoMove = 1;
                 }
                 else if (ColorTest() != 2){
-                    mServos[0].setPosition(1.0);
+                    mServos[0].setPower(-1.0);
+                    mTimer.start();
                     servoMove = 0;
                 }
             }
 
-            boolean done = Math.abs(1-mServos[servoMove].getPosition()) < mTolerance;
+            done = mTimer.done();
 
             if (done == true) {
-                mServos[servoMove].setPosition(0.0);
+                mServos[0].setPower(0.0);
+                mServos[1].setPower(0.0);
             }
 
             return done;

@@ -3,8 +3,8 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
-//import com.qualcomm.robotcore.hardware.CRServo;
+//import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.CRServo;
 
 public class hardwareDeclare{
     // Declare the motor matrix
@@ -12,7 +12,7 @@ public class hardwareDeclare{
     // Declare the two lifter motors
     public DcMotor[] liftMotors = new DcMotor [3];
     // Declare Servo Arm
-    public Servo[] servos = new Servo [2];
+    public CRServo[] servos = new CRServo[2];
     // Declare the Color Sensor
     public ModernRoboticsI2cColorSensor mColorSensor;
 
@@ -37,11 +37,8 @@ public class hardwareDeclare{
         liftMotors[1].setDirection(DcMotor.Direction.REVERSE);
         liftMotors[2].setDirection(DcMotor.Direction.REVERSE);
 
-        servos[0] = opmode.hardwareMap.servo.get("servoLeft");
-        servos[1] = opmode.hardwareMap.servo.get("servoRight");
-
-//        servos[0] = opmode.hardwareMap.crservo.get("servoLeft");
-//        servos[1] = opmode.hardwareMap.crservo.get("servoRight");
+        servos[0] = opmode.hardwareMap.crservo.get("servoLeft");
+        servos[1] = opmode.hardwareMap.crservo.get("servoRight");
 
         mColorSensor = (ModernRoboticsI2cColorSensor) opmode.hardwareMap.colorSensor.get("cs");
 

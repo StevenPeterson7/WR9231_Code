@@ -21,8 +21,8 @@ public class MainTeleOp_2p extends OpMode{
     @Override
     public void loop(){
         // Check for and apply changes to motorPower
-        if(gamepad1.x) motorPower = 0.25f;
-        if(gamepad1.y) motorPower = 1.f;
+//        if(gamepad1.x) motorPower = 0.25f;
+//        if(gamepad1.y) motorPower = 1.f;
 
         // Make sure the motorPower stays between 0-100% inclusive
         if(motorPower<0.f) motorPower = 0.0f;
@@ -56,18 +56,19 @@ public class MainTeleOp_2p extends OpMode{
             hw.liftMotors[0].setPower(0.0);
             hw.liftMotors[1].setPower(0.0);
         }
-//        if(gamepad1.left_bumper || gamepad2.left_bumper){
-//            hw.servos[0].setPower(1.0);
-//        }
-//        else{
-//            hw.servos[0].setPower(0.0);
-//        }
-        if(gamepad1.y){
-            hw.servos[1].setPosition(0.5);
+
+        if(gamepad1.x){
+            hw.servos[0].setPower(-1.0);
+            hw.servos[1].setPower(-1.0);
         }
-        //else{
-        //    hw.servos[1].setPosition(-0.5);
-        //}
+        else if(gamepad1.y){
+            hw.servos[0].setPower(1.0);
+            hw.servos[1].setPower(1.0);
+        }
+        else{
+            hw.servos[0].setPower(0.0);
+            hw.servos[1].setPower(0.0);
+        }
         
     }
     @Override
