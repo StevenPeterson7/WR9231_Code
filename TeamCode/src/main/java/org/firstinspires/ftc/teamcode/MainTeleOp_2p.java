@@ -21,8 +21,8 @@ public class MainTeleOp_2p extends OpMode{
     @Override
     public void loop(){
         // Check for and apply changes to motorPower
-//        if(gamepad1.x) motorPower = 0.25f;
-//        if(gamepad1.y) motorPower = 1.f;
+        if(gamepad1.right_bumper) motorPower = 0.25f;
+        if(gamepad1.left_bumper) motorPower = 1.f;
 
         // Make sure the motorPower stays between 0-100% inclusive
         if(motorPower<0.f) motorPower = 0.0f;

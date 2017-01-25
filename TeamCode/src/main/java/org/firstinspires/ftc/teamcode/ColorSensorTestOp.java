@@ -11,25 +11,22 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
  * Test hardware color sensor
  */
 
-@Autonomous(name="Test: MR Color Sensor Test 1", group ="Test")
-@Disabled
+@Autonomous(name="Color Sensor Test", group ="Autonomous")
+//@Disabled
+
 public class ColorSensorTestOp extends OpMode {
 
-    private ModernRoboticsI2cColorSensor mColorSensor;
-
-    public ColorSensorTestOp() {
-    }
+    hardwareDeclare hw;
 
     public void init() {
         // get hardware gyro
-        mColorSensor = (ModernRoboticsI2cColorSensor) hardwareMap.colorSensor.get("cs");
-        mColorSensor.enableLed(false);
+        hw = new hardwareDeclare(this);
     }
 
     public void loop() {
-        telemetry.addData("red: ", mColorSensor.red());
-        telemetry.addData("green: ", mColorSensor.green());
-        telemetry.addData("blue: ", mColorSensor.blue());
+        telemetry.addData("red: ", hw.mColorSensor.red());
+        telemetry.addData("green: ", hw.mColorSensor.green());
+        telemetry.addData("blue: ", hw.mColorSensor.blue());
 
     }
 
