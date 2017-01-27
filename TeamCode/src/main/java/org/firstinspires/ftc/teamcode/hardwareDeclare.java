@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 //import com.qualcomm.robotcore.hardware.Servo;
@@ -15,6 +16,8 @@ public class hardwareDeclare{
     public CRServo[] servos = new CRServo[2];
     // Declare the Color Sensor
     public ModernRoboticsI2cColorSensor mColorSensor;
+    public ModernRoboticsI2cGyro gyroH;
+    public SensorLib.CorrectedMRGyro mGyro;
 
 
     public hardwareDeclare(OpMode opmode) {
@@ -42,5 +45,9 @@ public class hardwareDeclare{
 
         mColorSensor = (ModernRoboticsI2cColorSensor) opmode.hardwareMap.colorSensor.get("cs");
 
+        gyroH = (ModernRoboticsI2cGyro) opmode.hardwareMap.gyroSensor.get("gyro");
+
+        mGyro = new SensorLib.CorrectedMRGyro(gyroH);
+        mGyro.calibrate();
     }
 }
