@@ -21,7 +21,7 @@ public class AutonomousBallBlue extends OpMode {
         // create the root Sequence for this autonomous OpMode
         mSequence = new AutoLib.LinearSequence();
 
-        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors,0.5,1.1,true));
+        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors,0.6,1.1,true));
         mSequence.add(new AutoLib.TimedMotorStep(hw.liftMotors[2],0.8,2,true));
         mSequence.add(new AutoLib.TimedMotorStep(hw.liftMotors[1],1.0,2,true));
         mSequence.add(new AutoLib.TimedMotorStep(hw.liftMotors[2],0.8,2,true));
