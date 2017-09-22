@@ -33,7 +33,7 @@ public class hardwareDeclare{
         motors[1].setDirection(DcMotor.Direction.REVERSE);
 
         // Ball Lifter and Launcher Motors
-        liftMotors[0] = opmode.hardwareMap.dcMotor.get("motorSweeper");
+        /*liftMotors[0] = opmode.hardwareMap.dcMotor.get("motorSweeper");
         liftMotors[1] = opmode.hardwareMap.dcMotor.get("motorBelt");
         liftMotors[2] = opmode.hardwareMap.dcMotor.get("motorLaunch");
         liftMotors[0].setDirection(DcMotor.Direction.REVERSE);
@@ -48,6 +48,6 @@ public class hardwareDeclare{
         gyroH = (ModernRoboticsI2cGyro) opmode.hardwareMap.gyroSensor.get("gyro");
 
         mGyro = new SensorLib.CorrectedMRGyro(gyroH);
-        mGyro.calibrate();
+        mGyro.calibrate();*/
     }
 }

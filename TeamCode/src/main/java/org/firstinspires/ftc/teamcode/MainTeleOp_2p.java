@@ -16,6 +16,7 @@ public class MainTeleOp_2p extends OpMode{
         // Get our hardware
         hw = new hardwareDeclare(this);
 
+
     }
 
     @Override
@@ -31,7 +32,7 @@ public class MainTeleOp_2p extends OpMode{
         // Tell what the power is
         telemetry.addData("Motor power (%)", motorPower);
 
-        // Loop through front and back motors
+        // Loop through front and back motors96
         for(DcMotor motor : hw.motors){
             // Set left motor power
             hw.motors[2].setPower(-gamepad1.left_stick_y*motorPower);
