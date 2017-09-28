@@ -42,7 +42,7 @@ public class MainTeleOp_2p extends OpMode{
             hw.motors[1].setPower(-gamepad1.right_stick_y*motorPower);
         }
 
-        if(gamepad1.a || gamepad2.a){
+       /* if(gamepad1.a || gamepad2.a){
             hw.liftMotors[2].setPower(1.0);
         }
         else{
@@ -69,7 +69,7 @@ public class MainTeleOp_2p extends OpMode{
         else{
             hw.servos[0].setPower(0.0);
             hw.servos[1].setPower(0.0);
-        }
+        }*/
         
     }
     @Override
