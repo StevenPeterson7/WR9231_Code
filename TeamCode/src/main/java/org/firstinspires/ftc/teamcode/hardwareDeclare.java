@@ -6,10 +6,13 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 //import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class hardwareDeclare{
     // Declare the motor matrix
     public DcMotor[] motors = new DcMotor[4];
+   // public DcMotor[] testMotor = new DcMotor [1];
+
     // Declare the two lifter motors
     public DcMotor[] liftMotors = new DcMotor [3];
     // Declare Servo Arm
@@ -23,14 +26,15 @@ public class hardwareDeclare{
     public hardwareDeclare(OpMode opmode) {
 
         //Drive Motors
+       // testMotor[0] = opmode.hardwareMap.dcMotor.get("test");
         motors[2] = opmode.hardwareMap.dcMotor.get("motorFrontLeft");
         motors[0] = opmode.hardwareMap.dcMotor.get("motorFrontRight");
         motors[3] = opmode.hardwareMap.dcMotor.get("motorBackLeft");
         motors[1] = opmode.hardwareMap.dcMotor.get("motorBackRight");
-        motors[2].setDirection(DcMotor.Direction.REVERSE);
+        motors[2].setDirection(DcMotor.Direction.FORWARD);
         motors[0].setDirection(DcMotor.Direction.FORWARD);
         motors[3].setDirection(DcMotor.Direction.FORWARD);
-        motors[1].setDirection(DcMotor.Direction.REVERSE);
+        motors[1].setDirection(DcMotor.Direction.FORWARD);
 
         // Ball Lifter and Launcher Motors
         /*liftMotors[0] = opmode.hardwareMap.dcMotor.get("motorSweeper");
