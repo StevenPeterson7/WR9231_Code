@@ -11,10 +11,10 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 public class hardwareDeclare{
     // Declare the motor matrix
     public DcMotor[] motors = new DcMotor[4];
-    public DcMotor[] testMotor = new DcMotor [1];
+    //public DcMotor[] testMotor = new DcMotor [1];
 
     // Declare the two lifter motors
-    public DcMotor[] liftMotors = new DcMotor [3];
+    public DcMotor[] glyphLift = new DcMotor [2];
     // Declare Servo Arm
     public CRServo[] servos = new CRServo[2];
     // Declare the Color Sensor
@@ -26,15 +26,20 @@ public class hardwareDeclare{
     public hardwareDeclare(OpMode opmode) {
 
         //Drive Motors
-        testMotor[0] = opmode.hardwareMap.dcMotor.get("test");
-       /* motors[2] = opmode.hardwareMap.dcMotor.get("motorFrontLeft");
+        //testMotor[0] = opmode.hardwareMap.dcMotor.get("test");
+        motors[2] = opmode.hardwareMap.dcMotor.get("motorFrontLeft");
         motors[0] = opmode.hardwareMap.dcMotor.get("motorFrontRight");
         motors[3] = opmode.hardwareMap.dcMotor.get("motorBackLeft");
         motors[1] = opmode.hardwareMap.dcMotor.get("motorBackRight");
-        motors[2].setDirection(DcMotor.Direction.FORWARD);
+        motors[2].setDirection(DcMotor.Direction.REVERSE);
+        motors[3].setDirection(DcMotor.Direction.REVERSE);
         motors[0].setDirection(DcMotor.Direction.FORWARD);
-        motors[3].setDirection(DcMotor.Direction.FORWARD);
-        motors[1].setDirection(DcMotor.Direction.FORWARD);*/
+        motors[1].setDirection(DcMotor.Direction.FORWARD);
+
+
+        glyphLift[0]=opmode.hardwareMap.dcMotor.get("glyphSpin");
+        glyphLift[1]=opmode.hardwareMap.dcMotor.get("glyphLift");
+
 
         // Ball Lifter and Launcher Motors
         /*liftMotors[0] = opmode.hardwareMap.dcMotor.get("motorSweeper");
