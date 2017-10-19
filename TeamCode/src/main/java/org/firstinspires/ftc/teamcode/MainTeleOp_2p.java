@@ -16,6 +16,7 @@ public class MainTeleOp_2p extends OpMode{
         // Get our hardware
         hw = new hardwareDeclare(this);
 
+
     }
 
     @Override
@@ -31,22 +32,55 @@ public class MainTeleOp_2p extends OpMode{
         // Tell what the power is
         telemetry.addData("Motor power (%)", motorPower);
 
-        // Loop through front and back motors
-        for(DcMotor motor : hw.motors){
+
+        // Loop through front and back motors96
+       // for(DcMotor motor : hw.motors) {
             // Set left motor power
-            hw.motors[2].setPower(-gamepad1.left_stick_y*motorPower);
-            hw.motors[3].setPower(-gamepad1.left_stick_y*motorPower);
+            double powerToLeftMotor = -gamepad1.left_stick_y * motorPower;
+            telemetry.addData("power to  left motor:", powerToLeftMotor);
+            double powerToRightMotor = -gamepad1.right_stick_y * motorPower;
+            telemetry.addData("power to  right motor:", powerToRightMotor);
+            hw.motors[2].setPower(powerToLeftMotor);
+            hw.motors[3].setPower(powerToLeftMotor);
+
+            hw.motors[0].setPower(powerToRightMotor);
             // Set right motor power
-            hw.motors[0].setPower(-gamepad1.right_stick_y*motorPower);
-            hw.motors[1].setPower(-gamepad1.right_stick_y*motorPower);
+            hw.motors[1].setPower(powerToRightMotor);
+        //}
+        telemetry.addData("glyph lift: ", gamepad2.left_stick_y );
+        if(gamepad2.left_stick_y!=0){
+            hw.glyphLift[1].setPower(gamepad2.left_stick_y);
+        }else{
+            hw.glyphLift[1].setPower(0);
+        }
+        telemetry.addData("glyph spin: ", gamepad2.right_stick_x );
+        if(gamepad2.right_stick_x!=0){
+            hw.glyphLift[0].setTargetPosition(90);
+        }else{
+            hw.glyphLift[0].setPower(0);
+        }
+        telemetry.addData("servo position:", hw.glyphLiftArms[0].getPosition());
+        if(gamepad2.a){
+            hw.glyphLiftArms[0].setPosition(90);
+            hw.glyphLiftArms[1].setPosition(90);
+        }else{
+            hw.glyphLiftArms[0].setPosition(0);
+            hw.glyphLiftArms[1].setPosition(0);
         }
 
-        if(gamepad1.a || gamepad2.a){
-            hw.liftMotors[2].setPower(1.0);
+
+
+
+
+
+      /*  if(gamepad1.a || gamepad2.a){
+           // hw.testMotor[0].setPower(1.0);
+            hw.testMotor[0].setPower(1.0);
         }
         else{
-            hw.liftMotors[2].setPower(0.0);
-        }
+           hw.testMotor[0].setPower(0.0);
+        }*/
+        /*
 
         if(gamepad1.b || gamepad2.b){
             hw.liftMotors[0].setPower(1.0);
@@ -68,7 +102,7 @@ public class MainTeleOp_2p extends OpMode{
         else{
             hw.servos[0].setPower(0.0);
             hw.servos[1].setPower(0.0);
-        }
+        }*/
         
     }
     @Override
