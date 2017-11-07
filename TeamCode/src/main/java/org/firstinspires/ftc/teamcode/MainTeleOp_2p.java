@@ -10,7 +10,7 @@ import static java.lang.Math.abs;
 public class MainTeleOp_2p extends OpMode{
 
     hardwareDeclare hw;
-    private float motorPower = 1.f;
+    private float motorPower = 0.25f;
 
     @Override
     public void init(){
@@ -74,10 +74,14 @@ public class MainTeleOp_2p extends OpMode{
 
         if(gamepad2.a){
             hw.glyphLiftArms[0].setPosition(1);
-            hw.glyphLiftArms[1].setPosition(0);
+            hw.glyphLiftArms[1].setPosition(1);
+            hw.glyphLiftArms[2].setPosition(0);
+            hw.glyphLiftArms[3].setPosition(0);
         }else{
             hw.glyphLiftArms[0].setPosition(0.1666);
-            hw.glyphLiftArms[1].setPosition(0.8444);
+            hw.glyphLiftArms[1].setPosition(0.1666);
+            hw.glyphLiftArms[2].setPosition(0.8444);
+            hw.glyphLiftArms[3].setPosition(0.8444);
         }
 
 

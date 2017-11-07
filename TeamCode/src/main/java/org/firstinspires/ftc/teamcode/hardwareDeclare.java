@@ -43,8 +43,11 @@ public class hardwareDeclare{
 
 
 
-       glyphLiftArms[0] = opmode.hardwareMap.servo.get("leftArm");
-        glyphLiftArms[1] = opmode.hardwareMap.servo.get("rightArm");
+       glyphLiftArms[0] = opmode.hardwareMap.servo.get("leftArm1");
+        glyphLiftArms[1] = opmode.hardwareMap.servo.get("leftArm2");
+
+        glyphLiftArms[2] = opmode.hardwareMap.servo.get("rightArm1");
+        glyphLiftArms[3] = opmode.hardwareMap.servo.get("rightArm2");
         // Ball Lifter and Launcher Motors
         /*liftMotors[0] = opmode.hardwareMap.dcMotor.get("motorSweeper");
         liftMotors[1] = opmode.hardwareMap.dcMotor.get("motorBelt");
