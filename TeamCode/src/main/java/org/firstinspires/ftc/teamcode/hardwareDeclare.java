@@ -37,10 +37,13 @@ public class hardwareDeclare{
         motors[0].setDirection(DcMotor.Direction.FORWARD);
         motors[1].setDirection(DcMotor.Direction.FORWARD);
 
-        glyphLift[0]=opmode.hardwareMap.dcMotor.get("glyphSpin");
+       glyphLift[0]=opmode.hardwareMap.dcMotor.get("glyphSpin");
         glyphLift[1]=opmode.hardwareMap.dcMotor.get("glyphLift");
 
-        glyphLiftArms[0] = opmode.hardwareMap.servo.get("leftArm");
+
+
+
+       glyphLiftArms[0] = opmode.hardwareMap.servo.get("leftArm");
         glyphLiftArms[1] = opmode.hardwareMap.servo.get("rightArm");
         // Ball Lifter and Launcher Motors
         /*liftMotors[0] = opmode.hardwareMap.dcMotor.get("motorSweeper");

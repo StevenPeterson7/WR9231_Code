@@ -31,12 +31,12 @@ public class AutonomousMain extends OpMode {
         // create the root Sequence for this autonomous OpMode
         mSequence = new AutoLib.LinearSequence();
 
-        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors,-0.5,.8,true));
+        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors,0.5,1.5,true));
        // mSequence.add(new AutoLib.AzimuthTimedDriveStep(this,0,hw.mGyro,mPID,hw.motors,-.5f,.8f,true));
         //mSequence.add(new AutoLib.TimedMotorStep(hw.liftMotors[2],1.0,2,true));
         //mSequence.add(new AutoLib.TimedMotorStep(hw.liftMotors[1],1.0,2,true));
         //mSequence.add(new AutoLib.TimedMotorStep(hw.liftMotors[2],1.0,2,true));
-        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors,-0.5,.8,true));
+        //mSequence.add(new AutoLib.MoveByEncoderStep(hw.motors, 1, ));
         //mSequence.add(new AutoLib.AzimuthTimedDriveStep(this,0,hw.mGyro,mPID,hw.motors,-.5f,.8f,true));
 
 //        mSequence.add(new AutoLib.BeaconPushStep(hw.mColorSensor,0,hw.servos));

@@ -4,6 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import static java.lang.Math.abs;
+
 @TeleOp(name="MainTeleOp:2P", group="TeleOp")
 public class MainTeleOp_2p extends OpMode{
 
@@ -48,28 +50,35 @@ public class MainTeleOp_2p extends OpMode{
             hw.motors[1].setPower(powerToRightMotor);
         //}
         telemetry.addData("glyph lift: ", gamepad2.left_stick_y );
+        telemetry.addData("glyph lift pos: ", hw.glyphLift[1].getCurrentPosition());
+
         if(gamepad2.left_stick_y!=0){
             hw.glyphLift[1].setPower(gamepad2.left_stick_y);
         }else{
             hw.glyphLift[1].setPower(0);
         }
+
         telemetry.addData("glyph spin: ", gamepad2.right_stick_x );
-        if(gamepad2.right_stick_x!=0){
-            hw.glyphLift[0].setTargetPosition(90);
-        }else{
+        telemetry.addData("glyph spin pos: ", hw.glyphLift[0].getCurrentPosition());
+        if(hw.glyphLift[0].getCurrentPosition()<=450&&gamepad2.right_stick_x>0){
+            hw.glyphLift[0].setPower(gamepad2.right_stick_x * 0.1);
+        }else if(hw.glyphLift[0].getCurrentPosition()>=-450 && gamepad2.right_stick_x < 0) {
+            hw.glyphLift[0].setPower(gamepad2.right_stick_x * 0.1);
+        }else {
             hw.glyphLift[0].setPower(0);
         }
-        telemetry.addData("servo position:", hw.glyphLiftArms[0].getPosition());
+
+
+        telemetry.addData("servo1 position:", hw.glyphLiftArms[0].getPosition());
+        telemetry.addData("servo1 position:", hw.glyphLiftArms[1].getPosition());
+
         if(gamepad2.a){
-            hw.glyphLiftArms[0].setPosition(90);
-            hw.glyphLiftArms[1].setPosition(90);
-        }else{
-            hw.glyphLiftArms[0].setPosition(0);
+            hw.glyphLiftArms[0].setPosition(1);
             hw.glyphLiftArms[1].setPosition(0);
+        }else{
+            hw.glyphLiftArms[0].setPosition(0.1666);
+            hw.glyphLiftArms[1].setPosition(0.8444);
         }
-
-
-
 
 
 
