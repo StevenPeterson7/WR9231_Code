@@ -13,7 +13,7 @@ public class MainTeleOp_2p_2serv extends OpMode{
     public void init(){
 
         // Get our hardware
-        hw = new hardwareDeclare(this);
+        hw = new hardwareDeclare2Servo(this);
 
 
     }
