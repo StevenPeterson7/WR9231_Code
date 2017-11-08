@@ -2,15 +2,12 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
-import static java.lang.Math.abs;
+@TeleOp(name="MainTeleOp:2P4servo", group="TeleOp")
+public class MainTeleOp_2p_2serv extends OpMode{
 
-@TeleOp(name="MainTeleOp:2P", group="TeleOp")
-public class MainTeleOp_2p extends OpMode{
-
-    hardwareDeclare hw;
-    private float motorPower = 1.f;
+    hardwareDeclare2Servo hw;
+    private float motorPower = 0.25f;
 
     @Override
     public void init(){
@@ -74,45 +71,16 @@ public class MainTeleOp_2p extends OpMode{
 
         if(gamepad2.a){
             hw.glyphLiftArms[0].setPosition(1);
-            hw.glyphLiftArms[1].setPosition(0);
+            hw.glyphLiftArms[1].setPosition(1);
+            hw.glyphLiftArms[2].setPosition(0);
+            hw.glyphLiftArms[3].setPosition(0);
         }else{
             hw.glyphLiftArms[0].setPosition(0.1666);
-            hw.glyphLiftArms[1].setPosition(0.8444);
+            hw.glyphLiftArms[1].setPosition(0.1666);
+            hw.glyphLiftArms[2].setPosition(0.8444);
+            hw.glyphLiftArms[3].setPosition(0.8444);
         }
 
-
-
-      /*  if(gamepad1.a || gamepad2.a){
-           // hw.testMotor[0].setPower(1.0);
-            hw.testMotor[0].setPower(1.0);
-        }
-        else{
-           hw.testMotor[0].setPower(0.0);
-        }*/
-        /*
-
-        if(gamepad1.b || gamepad2.b){
-            hw.liftMotors[0].setPower(1.0);
-            hw.liftMotors[1].setPower(1.0);
-        }
-        else{
-            hw.liftMotors[0].setPower(0.0);
-            hw.liftMotors[1].setPower(0.0);
-        }
-
-        if(gamepad1.x){
-            hw.servos[0].setPower(-1.0);
-            hw.servos[1].setPower(-1.0);
-        }
-        else if(gamepad1.y){
-            hw.servos[0].setPower(1.0);
-            hw.servos[1].setPower(1.0);
-        }
-        else{
-            hw.servos[0].setPower(0.0);
-            hw.servos[1].setPower(0.0);
-        }*/
-        
     }
     @Override
     public void stop(){

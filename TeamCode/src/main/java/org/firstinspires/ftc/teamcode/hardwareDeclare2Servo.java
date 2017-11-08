@@ -1,21 +1,17 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-public class hardwareDeclare{
+public class hardwareDeclare2Servo {
     // Declare the motor matrix
     public DcMotor[] motors = new DcMotor[4];
     //public DcMotor[] testMotor = new DcMotor [1];
 
     // Declare the two lifter motors
     public DcMotor[] glyphLift = new DcMotor [2];
-    public Servo[] glyphLiftArms = new Servo[2];
+    public Servo[] glyphLiftArms = new Servo[4];
     // Declare Servo Arm
   //  public CRServo[] servos = new CRServo[2];
     // Declare the Color Sensor
@@ -24,7 +20,7 @@ public class hardwareDeclare{
     //public SensorLib.CorrectedMRGyro mGyro;
 
 
-    public hardwareDeclare(OpMode opmode) {
+    public hardwareDeclare2Servo(OpMode opmode) {
 
         //Drive Motors
         //testMotor[0] = opmode.hardwareMap.dcMotor.get("test");
@@ -45,6 +41,8 @@ public class hardwareDeclare{
 
        glyphLiftArms[0] = opmode.hardwareMap.servo.get("leftArm1");
         glyphLiftArms[1] = opmode.hardwareMap.servo.get("leftArm2");
+        glyphLiftArms[2] = opmode.hardwareMap.servo.get("rightArm1");
+        glyphLiftArms[3] = opmode.hardwareMap.servo.get("rightArm2");
 
         // Ball Lifter and Launcher Motors
         /*liftMotors[0] = opmode.hardwareMap.dcMotor.get("motorSweeper");
