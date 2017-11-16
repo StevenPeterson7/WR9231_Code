@@ -21,28 +21,20 @@ public class RatBotTeleOp_2p extends OpMode{
     @Override
     public void loop(){
         telemetry.addData("motor stuff", hw.motors[0].getPower());
-        if(gamepad1.left_stick_y >0){
-            hw.motors[2].setPower(1);
-            hw.motors[3].setPower(1);
-        }
-        if(gamepad1.right_stick_y >0){
-            hw.motors[0].setPower(1);
-            hw.motors[1].setPower(1);
-        }
-        if(gamepad1.left_stick_y <0){
-            hw.motors[2].setPower(-1);
-            hw.motors[3].setPower(-1);
-        }
-        if(gamepad1.right_stick_y <0){
-            hw.motors[0].setPower(-1);
-            hw.motors[1].setPower(-1);
-        }
-        else {
-            hw.motors[2].setPower(0);
-            hw.motors[3].setPower(0);
-            hw.motors[0].setPower(0);
-            hw.motors[1].setPower(0);
-        }
+        double powerToLeftMotor = -gamepad1.left_stick_y * motorPower;
+        telemetry.addData("power to  left motor:", powerToLeftMotor);
+        double powerToRightMotor = -gamepad1.right_stick_y * motorPower;
+        telemetry.addData("power to  right motor:", powerToRightMotor);
+        hw.motors[2].setPower(powerToLeftMotor);
+        hw.motors[3].setPower(powerToLeftMotor);
+
+        hw.motors[0].setPower(powerToRightMotor);
+        // Set right motor power
+        hw.motors[1].setPower(powerToRightMotor);
+
+        hw.whacker.setPosition(gamepad2.left_stick_y);
+
+        telemetry.addData("position ",hw.whacker.getPosition());
 
 
 

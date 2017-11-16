@@ -3,13 +3,13 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-@Autonomous(name="MainAutonomous", group ="Autonomous")
+@Autonomous(name="MainBlueAutonomous", group ="Autonomous")
 //@Disabled
-public class AutonomousMain extends OpMode {
+public class AutonomousBlueMain extends OpMode {
 
     AutoLib.Sequence mSequence;     // the root of the sequence tree
     boolean bDone;                  // true when the programmed sequence is done
-    hardwareDeclare hw;
+    hardwareDeclare2 hw;
     SensorLib.PID mPID;
 
     float Kp = 0.035f;
@@ -19,12 +19,12 @@ public class AutonomousMain extends OpMode {
 
 
 
-    public AutonomousMain() {
+    public AutonomousBlueMain() {
     }
 
     public void init() {
         // Get our hardware
-        hw = new hardwareDeclare(this);
+        hw = new hardwareDeclare2(this);
 
         mPID = new SensorLib.PID(Kp,Ki,Kd,KiCutoff);
 
@@ -32,6 +32,7 @@ public class AutonomousMain extends OpMode {
         mSequence = new AutoLib.LinearSequence();
 
         mSequence.add(new AutoLib.MoveByTimeStep(hw.motors,0.5,1.5,true));
+        mSequence.add(new AutoLib.knockJewelBlue(hw.mColorSensor, hw.motors));
        // mSequence.add(new AutoLib.AzimuthTimedDriveStep(this,0,hw.mGyro,mPID,hw.motors,-.5f,.8f,true));
         //mSequence.add(new AutoLib.TimedMotorStep(hw.liftMotors[2],1.0,2,true));
         //mSequence.add(new AutoLib.TimedMotorStep(hw.liftMotors[1],1.0,2,true));
@@ -47,6 +48,8 @@ public class AutonomousMain extends OpMode {
     }
 
     public void loop() {
+        telemetry.addData("blue:", hw.mColorSensor.blue());
+        telemetry.addData("red:", hw.mColorSensor.red());
         // until we're done, keep looping through the current Step(s)
         if (!bDone)
             bDone = mSequence.loop();       // returns true when we're done

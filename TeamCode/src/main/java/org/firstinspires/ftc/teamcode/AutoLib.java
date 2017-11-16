@@ -289,7 +289,109 @@ public class AutoLib {
         }
 
     }
+    static public class wait extends Step {
+        Timer mTimer;
+        boolean done=false;
+        public wait (double t){
+            mTimer=new Timer (t);
+        }
+        public boolean loop() {
+            super.loop();
 
+            if (firstLoopCall()){
+               mTimer.start();
+            }
+
+            done = mTimer.done();
+
+            return done;
+        }
+
+    }
+
+    static public class knockJewelRed extends Step {
+        ModernRoboticsI2cColorSensor mColorSensor;
+        DcMotor [] motors;
+        Timer mTimer = new Timer(0.5);
+        boolean done = false;
+        private OpMode mOpMode;                             // needed so we can log output (may be null)
+        public knockJewelRed(ModernRoboticsI2cColorSensor cs, DcMotor [] m, OpMode op) {
+
+            mColorSensor = cs;
+            motors = m;
+            mOpMode=op;
+
+        }
+        public int ColorTest() {
+
+            if (mColorSensor.red()>= mColorSensor.blue()*2){
+
+                mOpMode.telemetry.addData("color: ", "red");
+                return 0;
+            }
+            else if (mColorSensor.blue() >= mColorSensor.red() *2){
+                mOpMode.telemetry.addData("color: ", "blue");
+                return 1;
+            }
+            else return 2;
+        }
+        public boolean loop() {
+            super.loop();
+
+            if (firstLoopCall()){
+                if (ColorTest() == 0){
+                    motors[0].setPower(-0.25);
+                    motors[1].setPower(-0.25);
+                    motors[2].setPower(-0.25);
+                    motors[3].setPower(-0.25);
+
+                    mTimer.start();
+                }
+                else if (ColorTest() ==1){
+                    motors[0].setPower(0.25);
+                    motors[1].setPower(0.25);
+                    motors[2].setPower(0.25);
+                    motors[3].setPower(0.25);
+
+                    mTimer.start();
+                }
+            }
+
+            done = mTimer.done();
+
+            if (done == true) {
+                motors[0].setPower(0);
+                motors[1].setPower(0);
+                motors[2].setPower(0);
+                motors[3].setPower(0);
+            }
+
+            return done;
+        }
+
+
+    }
+    static public class knockJewelBlue extends Step {
+        int colorMeasure=0;
+
+        public knockJewelBlue(ModernRoboticsI2cColorSensor mColorSensor, DcMotor [] motors) {
+
+            if (mColorSensor.blue() > 20 && mColorSensor.blue() > mColorSensor.red())
+
+            {
+                colorMeasure = 1;
+            } else if (mColorSensor.red() > 20 && mColorSensor.red() > mColorSensor.blue())
+
+            {
+                colorMeasure = 2;
+            }
+            if(colorMeasure==1){
+                new AutoLib.MoveByEncoderStep(motors,-0.5,25,true);
+            }else if(colorMeasure==2){
+                new AutoLib.MoveByEncoderStep(motors, 0.5, 25, true);
+            }
+        }
+    }
     // a Step that pushes the correct beacon
     static public class BeaconPushStep extends Step{
         CRServo[] mServos;
