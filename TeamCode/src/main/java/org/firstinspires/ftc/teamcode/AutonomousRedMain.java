@@ -33,13 +33,13 @@ public class AutonomousRedMain extends OpMode {
 
         mSequence.add(new AutoLib.ServoStep(hw.whacker, 0));
         mSequence.add(new AutoLib.wait(1.0));
-        mSequence.add(new AutoLib.knockJewelRed(hw.mColorSensor, hw.motors, this));
+        mSequence.add(new AutoLib.knockJewelBlue(hw.mColorSensor, hw.motors, this));
         mSequence.add(new AutoLib.wait(5.0));
 
         mSequence.add(new AutoLib.ServoStep(hw.whacker, 0.8));
         mSequence.add(new AutoLib.wait(1.0));
 
-        //mSequence.add(new AutoLib.MoveByTimeStep(hw.motors,-0.5,1.5,true));
+        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors,-0.5,1.5,true));
 
 
 

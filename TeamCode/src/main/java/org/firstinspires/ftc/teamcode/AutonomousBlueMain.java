@@ -31,8 +31,16 @@ public class AutonomousBlueMain extends OpMode {
         // create the root Sequence for this autonomous OpMode
         mSequence = new AutoLib.LinearSequence();
 
+
+        mSequence.add(new AutoLib.ServoStep(hw.whacker, 0));
+        mSequence.add(new AutoLib.wait(1.0));
+        mSequence.add(new AutoLib.knockJewelRed(hw.mColorSensor, hw.motors, this));
+        mSequence.add(new AutoLib.wait(5.0));
+
+        mSequence.add(new AutoLib.ServoStep(hw.whacker, 0.8));
+        mSequence.add(new AutoLib.wait(1.0));
+
         mSequence.add(new AutoLib.MoveByTimeStep(hw.motors,0.5,1.5,true));
-        mSequence.add(new AutoLib.knockJewelBlue(hw.mColorSensor, hw.motors));
        // mSequence.add(new AutoLib.AzimuthTimedDriveStep(this,0,hw.mGyro,mPID,hw.motors,-.5f,.8f,true));
         //mSequence.add(new AutoLib.TimedMotorStep(hw.liftMotors[2],1.0,2,true));
         //mSequence.add(new AutoLib.TimedMotorStep(hw.liftMotors[1],1.0,2,true));
