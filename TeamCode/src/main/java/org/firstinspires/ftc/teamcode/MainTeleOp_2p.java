@@ -20,12 +20,15 @@ public class MainTeleOp_2p extends OpMode{
         hw = new hardwareDeclare(this);
         hw.glyphLiftArms[0].setPosition(0);
         hw.glyphLiftArms[1].setPosition(0);
+        hw.ColorSensor.enableLed(false);
 
 
     }
 
     @Override
     public void loop(){
+
+        hw.whacker.setPosition(1);
         // Check for and apply changes to motorPower
         if(gamepad1.right_bumper) motorPower = 0.25f;
         if(gamepad1.left_bumper) motorPower = 1.f;
@@ -74,7 +77,7 @@ public class MainTeleOp_2p extends OpMode{
 
 
         telemetry.addData("servo1 position:", hw.glyphLiftArms[0].getPosition());
-        telemetry.addData("servo1 position:", hw.glyphLiftArms[1].getPosition());
+        telemetry.addData("servo2 position:", hw.glyphLiftArms[1].getPosition());
 
         if(gamepad2.a){
             hw.glyphLiftArms[0].setPosition(1);
@@ -83,6 +86,7 @@ public class MainTeleOp_2p extends OpMode{
             hw.glyphLiftArms[0].setPosition(0);
             hw.glyphLiftArms[1].setPosition(0);
         }
+
 
 
 

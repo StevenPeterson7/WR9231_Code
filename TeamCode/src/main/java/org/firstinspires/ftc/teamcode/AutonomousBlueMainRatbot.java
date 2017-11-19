@@ -3,28 +3,28 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-@Autonomous(name="MainBlueAutonomous", group ="Autonomous")
+@Autonomous(name="MainBlueAutonomousRatbot", group ="Autonomous")
 //@Disabled
-public class AutonomousBlueMain extends OpMode {
+public class AutonomousBlueMainRatbot extends OpMode {
 
     AutoLib.Sequence mSequence;     // the root of the sequence tree
     boolean bDone;                  // true when the programmed sequence is done
-    hardwareDeclare hw;
+    hardwareDeclare2 hw;
     SensorLib.PID mPID;
 
     float Kp = 0.035f;
     float Ki = 0.02f;
     float Kd = 0;
     float KiCutoff = 3.0f;
-    int color=2;
 
 
-    public AutonomousBlueMain() {
+
+    public AutonomousBlueMainRatbot() {
     }
 
     public void init() {
         // Get our hardware
-        hw = new hardwareDeclare(this);
+        hw = new hardwareDeclare2(this);
 
         mPID = new SensorLib.PID(Kp,Ki,Kd,KiCutoff);
 
@@ -32,33 +32,15 @@ public class AutonomousBlueMain extends OpMode {
         mSequence = new AutoLib.LinearSequence();
 
 
-        mSequence.add(new AutoLib.ServoStep(hw.whacker, 0.30));
-        mSequence.add(new AutoLib.wait(2.0));
-        if (hw.ColorSensor.red()>= hw.ColorSensor.blue()*1.25){
-
-
-            color= 0;
-        }
-        else if (hw.ColorSensor.blue() >= hw.ColorSensor.red()*1.25){
-
-            color= 1;
-        }
-        else {
-            color= 2;
-        }
-        mSequence.add(new AutoLib.wait(1));
-        mSequence.add(new AutoLib.knockJewelRed(hw.ColorSensor, hw.motors, this));
+        mSequence.add(new AutoLib.ServoStep(hw.whacker, 0.8));
+        mSequence.add(new AutoLib.wait(1.0));
+        mSequence.add(new AutoLib.knockJewelRedRatbot(hw.mColorSensor, hw.motors, this));
         mSequence.add(new AutoLib.wait(3.0));
 
-        mSequence.add(new AutoLib.ServoStep(hw.whacker, 1));
+        mSequence.add(new AutoLib.ServoStep(hw.whacker, 0));
         mSequence.add(new AutoLib.wait(1.0));
-        if(color==0){
-            mSequence.add(new AutoLib.MoveByTimeStep(hw.motors,.5,1.0,true));
-        }else if(color==1) {
-            mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, 0.5, 1.3, true));
-        }else {
-            mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, .5, 1.1, true));
-        }
+
+        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors,.5,1.0,true));
        // mSequence.add(new AutoLib.AzimuthTimedDriveStep(this,0,hw.mGyro,mPID,hw.motors,-.5f,.8f,true));
         //mSequence.add(new AutoLib.TimedMotorStep(hw.liftMotors[2],1.0,2,true));
         //mSequence.add(new AutoLib.TimedMotorStep(hw.liftMotors[1],1.0,2,true));
@@ -74,15 +56,8 @@ public class AutonomousBlueMain extends OpMode {
     }
 
     public void loop() {
-        telemetry.addData("blue:", hw.ColorSensor.blue());
-        telemetry.addData("red:", hw.ColorSensor.red());
-        if(hw.ColorSensor.red()>hw.ColorSensor.blue()*1.25){
-            telemetry.addData("color: ", "red");
-        }else if(hw.ColorSensor.blue()>hw.ColorSensor.red()*1.25) {
-            telemetry.addData("color: ", "blue");
-        }else{
-            telemetry.addData("color: ", "none");
-        }
+        telemetry.addData("blue:", hw.mColorSensor.blue());
+        telemetry.addData("red:", hw.mColorSensor.red());
         // until we're done, keep looping through the current Step(s)
         if (!bDone)
             bDone = mSequence.loop();       // returns true when we're done
@@ -91,6 +66,4 @@ public class AutonomousBlueMain extends OpMode {
     public void stop() {
         telemetry.addData("stop() called", "");
     }
-
-
 }
