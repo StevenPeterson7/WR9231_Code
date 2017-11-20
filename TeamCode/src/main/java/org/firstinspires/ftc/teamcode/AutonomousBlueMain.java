@@ -11,6 +11,7 @@ public class AutonomousBlueMain extends OpMode {
     boolean bDone;                  // true when the programmed sequence is done
     hardwareDeclare hw;
     SensorLib.PID mPID;
+    public int [] rgb = {0, 0, 0};
 
     float Kp = 0.035f;
     float Ki = 0.02f;
@@ -31,11 +32,13 @@ public class AutonomousBlueMain extends OpMode {
         // create the root Sequence for this autonomous OpMode
         mSequence = new AutoLib.LinearSequence();
 
+        mSequence.add(new AutoLib.ServoStep(hw.whacker, 0.45));
+        mSequence.add(new AutoLib.wait(1.0));
+        mSequence.add(new AutoLib.setColorB(hw.ColorSensor, this));
+        mSequence.add(new AutoLib.wait(1.0));
+        mSequence.add(new AutoLib.ServoStep(hw.whacker, 0.20));
 
-        mSequence.add(new AutoLib.ServoStep(hw.whacker, 0.30));
-        mSequence.add(new AutoLib.wait(2.0));
         if (hw.ColorSensor.red()>= hw.ColorSensor.blue()*1.25){
-
 
             color= 0;
         }
@@ -46,7 +49,7 @@ public class AutonomousBlueMain extends OpMode {
         else {
             color= 2;
         }
-        mSequence.add(new AutoLib.wait(1));
+        mSequence.add(new AutoLib.wait(1.0));
         mSequence.add(new AutoLib.knockJewelRed(hw.ColorSensor, hw.motors, this));
         mSequence.add(new AutoLib.wait(3.0));
 
@@ -83,6 +86,8 @@ public class AutonomousBlueMain extends OpMode {
         }else{
             telemetry.addData("color: ", "none");
         }
+        telemetry.addData("important!!!0:", rgb[0]);
+        telemetry.addData("important!!!2:", rgb[2]);
         // until we're done, keep looping through the current Step(s)
         if (!bDone)
             bDone = mSequence.loop();       // returns true when we're done

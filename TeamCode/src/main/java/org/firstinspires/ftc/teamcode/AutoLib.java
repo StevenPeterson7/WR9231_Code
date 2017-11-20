@@ -311,9 +311,50 @@ public class AutoLib {
 
     }
 
+static public class setColorR extends Step {
+    Timer t = new Timer(0.25);
+    boolean done;
+    public setColorR (ColorSensor colorSensor, AutonomousRedMain op) {
+
+        op.rgb[0] = colorSensor.red();
+        op.rgb[1] = colorSensor.green();
+        op.rgb[2] = colorSensor.blue();
+    }
+    public boolean loop() {
+        super.loop();
+
+        if (firstLoopCall()){
+            t.start();
+        }
+
+        done = t.done();
+        return done;
+    }
+
+}
 
 
+static public class setColorB extends Step {
+    Timer t = new Timer(0.25);
+    boolean done;
+    public setColorB (ColorSensor colorSensor, AutonomousBlueMain op) {
 
+        op.rgb[0]=colorSensor.red();
+        op.rgb[1]=colorSensor.green();
+        op.rgb[2]=colorSensor.blue();
+    }
+    public boolean loop() {
+        super.loop();
+
+        if (firstLoopCall()){
+            t.start();
+        }
+
+        done = t.done();
+        return done;
+    }
+
+}
     int testColor( ColorSensor colorSensor){
         if (colorSensor.red()>= colorSensor.blue()*1.25){
 
@@ -332,8 +373,8 @@ public class AutoLib {
         DcMotor [] motors;
         Timer mTimer = new Timer(0.25);
         boolean done = false;
-        private OpMode mOpMode;                             // needed so we can log output (may be null)
-        public knockJewelRed(ColorSensor cs, DcMotor [] m, OpMode op) {
+        private AutonomousBlueMain mOpMode;                             // needed so we can log output (may be null)
+        public knockJewelRed(ColorSensor cs, DcMotor [] m, AutonomousBlueMain op) {
 
             colorSensor = cs;
             motors = m;
@@ -342,12 +383,12 @@ public class AutoLib {
         }
         public int ColorTest() {
 
-            if (colorSensor.red()>= colorSensor.blue()*1.25){
+            if (colorSensor.red()-mOpMode.rgb[0]>= (colorSensor.blue()-mOpMode.rgb[2])*1.25){
 
                 mOpMode.telemetry.addData("color: ", "red");
                 return 0;
             }
-            else if (colorSensor.blue() >= colorSensor.red()*1.25){
+            else if (colorSensor.blue()-mOpMode.rgb[2] >= (colorSensor.red()-mOpMode.rgb[0])*1.25){
                 mOpMode.telemetry.addData("color: ", "blue");
                 return 1;
             }
@@ -396,8 +437,8 @@ public class AutoLib {
         DcMotor [] motors;
         Timer mTimer = new Timer(0.25);
         boolean done = false;
-        private OpMode mOpMode;                             // needed so we can log output (may be null)
-        public knockJewelBlue(ColorSensor cs, DcMotor [] m, OpMode op) {
+        private AutonomousRedMain mOpMode;                             // needed so we can log output (may be null)
+        public knockJewelBlue(ColorSensor cs, DcMotor [] m, AutonomousRedMain op) {
 
             colorSensor = cs;
             motors = m;
@@ -406,12 +447,12 @@ public class AutoLib {
         }
         public int ColorTest() {
 
-            if (colorSensor.red()>= colorSensor.blue()*1.25){
+            if (colorSensor.red()-mOpMode.rgb[0]>= (colorSensor.blue()-mOpMode.rgb[2])*1.25){
 
                 mOpMode.telemetry.addData("color: ", "red");
                 return 0;
             }
-            else if (colorSensor.blue() >= colorSensor.red()*1.25){
+            else if (colorSensor.blue()-mOpMode.rgb[2] >= (colorSensor.red()-mOpMode.rgb[0])*1.25){
                 mOpMode.telemetry.addData("color: ", "blue");
                 return 1;
             }
