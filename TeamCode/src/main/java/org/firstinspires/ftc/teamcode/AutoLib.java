@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -11,6 +12,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoController;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcontroller.external.samples.SensorREVColorDistance;
 import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 
 import java.lang.reflect.Array;
@@ -289,51 +291,333 @@ public class AutoLib {
         }
 
     }
-
-    // a Step that pushes the correct beacon
-    static public class BeaconPushStep extends Step{
-        CRServo[] mServos;
-        ModernRoboticsI2cColorSensor mColorSensor;
-        int mTeamColor;
-        int servoMove = 2;
-        Timer mTimer = new Timer(5.0);
-        boolean done = false;
-
-        // Red is 0, Blue is 1
-        public BeaconPushStep(ModernRoboticsI2cColorSensor cs, int team, CRServo[] servos){
-            mTeamColor = team;
-            mColorSensor = cs;
-            mServos = servos;
+    static public class wait extends Step {
+        Timer mTimer;
+        boolean done=false;
+        public wait (double t){
+            mTimer=new Timer (t);
         }
-
-        public int ColorTest() {
-
-            if (mColorSensor.red() >= 4 && mColorSensor.blue() < 3){ return 0; }
-            else if (mColorSensor.blue() >= 4 && mColorSensor.red() < 3){ return 1; }
-            else return 2;
-        }
-
         public boolean loop() {
             super.loop();
 
             if (firstLoopCall()){
-                if (ColorTest() == mTeamColor){
-                    mServos[1].setPower(-1.0);
+               mTimer.start();
+            }
+
+            done = mTimer.done();
+
+            return done;
+        }
+
+    }
+
+static public class setColorR extends Step {
+    Timer t = new Timer(0.25);
+    boolean done;
+    public setColorR (ColorSensor colorSensor, AutonomousRedMain op) {
+
+        op.rgb[0] = colorSensor.red();
+        op.rgb[1] = colorSensor.green();
+        op.rgb[2] = colorSensor.blue();
+    }
+    public boolean loop() {
+        super.loop();
+
+        if (firstLoopCall()){
+            t.start();
+        }
+
+        done = t.done();
+        return done;
+    }
+
+}
+
+
+static public class setColorB extends Step {
+    Timer t = new Timer(0.25);
+    boolean done;
+    public setColorB (ColorSensor colorSensor, AutonomousBlueMain op) {
+
+        op.rgb[0]=colorSensor.red();
+        op.rgb[1]=colorSensor.green();
+        op.rgb[2]=colorSensor.blue();
+    }
+    public boolean loop() {
+        super.loop();
+
+        if (firstLoopCall()){
+            t.start();
+        }
+
+        done = t.done();
+        return done;
+    }
+
+}
+    int testColor( ColorSensor colorSensor){
+        if (colorSensor.red()>= colorSensor.blue()*1.25){
+
+
+            return 0;
+        }
+        else if (colorSensor.blue() >= colorSensor.red()*1.25){
+
+            return 1;
+        }
+        else return 2;
+    }
+
+    static public class knockJewelRed extends Step {
+        ColorSensor colorSensor;
+        DcMotor [] motors;
+        Timer mTimer = new Timer(0.25);
+        boolean done = false;
+        private AutonomousBlueMain mOpMode;                             // needed so we can log output (may be null)
+        public knockJewelRed(ColorSensor cs, DcMotor [] m, AutonomousBlueMain op) {
+
+            colorSensor = cs;
+            motors = m;
+            mOpMode = op;
+
+        }
+        public int ColorTest() {
+
+            if (colorSensor.red()-mOpMode.rgb[0]>= (colorSensor.blue()-mOpMode.rgb[2])*1.25){
+
+                mOpMode.telemetry.addData("color: ", "red");
+                return 0;
+            }
+            else if (colorSensor.blue()-mOpMode.rgb[2] >= (colorSensor.red()-mOpMode.rgb[0])*1.25){
+                mOpMode.telemetry.addData("color: ", "blue");
+                return 1;
+            }
+            else return 2;
+        }
+        public boolean loop() {
+            super.loop();
+
+            if (firstLoopCall()){
+                if (ColorTest() == 0){
+                    motors[0].setPower(-0.25);
+                    motors[1].setPower(-0.25);
+                    motors[2].setPower(-0.25);
+                    motors[3].setPower(-0.25);
+
                     mTimer.start();
-                    servoMove = 1;
                 }
-                else if (ColorTest() != 2){
-                    mServos[0].setPower(-1.0);
+                else if (ColorTest() ==1) {
+                    motors[0].setPower(0.25);
+                    motors[1].setPower(0.25);
+                    motors[2].setPower(0.25);
+                    motors[3].setPower(0.25);
+
                     mTimer.start();
-                    servoMove = 0;
+                }else{
+                    mTimer.start();
                 }
             }
 
             done = mTimer.done();
 
             if (done == true) {
-                mServos[0].setPower(0.0);
-                mServos[1].setPower(0.0);
+                motors[0].setPower(0);
+                motors[1].setPower(0);
+                motors[2].setPower(0);
+                motors[3].setPower(0);
+            }
+
+            return done;
+        }
+
+
+    }
+    static public class knockJewelBlue extends Step {
+        ColorSensor colorSensor;
+        DcMotor [] motors;
+        Timer mTimer = new Timer(0.25);
+        boolean done = false;
+        private AutonomousRedMain mOpMode;                             // needed so we can log output (may be null)
+        public knockJewelBlue(ColorSensor cs, DcMotor [] m, AutonomousRedMain op) {
+
+            colorSensor = cs;
+            motors = m;
+            mOpMode=op;
+
+        }
+        public int ColorTest() {
+
+            if (colorSensor.red()-mOpMode.rgb[0]>= (colorSensor.blue()-mOpMode.rgb[2])*1.25){
+
+                mOpMode.telemetry.addData("color: ", "red");
+                return 0;
+            }
+            else if (colorSensor.blue()-mOpMode.rgb[2] >= (colorSensor.red()-mOpMode.rgb[0])*1.25){
+                mOpMode.telemetry.addData("color: ", "blue");
+                return 1;
+            }
+            else return 2;
+        }
+        public boolean loop() {
+            super.loop();
+
+            if (firstLoopCall()){
+                if (ColorTest() == 1){
+                    motors[0].setPower(-0.25);
+                    motors[1].setPower(-0.25);
+
+                    motors[2].setPower(-0.25);
+                    motors[3].setPower(-0.25);
+
+                    mTimer.start();
+                }
+                else if (ColorTest() ==0){
+                    motors[0].setPower(0.25);
+                    motors[1].setPower(0.25);
+                    motors[2].setPower(0.25);
+                    motors[3].setPower(0.25);
+
+                    mTimer.start();
+                }
+            }
+
+            done = mTimer.done();
+
+            if (done == true) {
+                motors[0].setPower(0);
+                motors[1].setPower(0);
+                motors[2].setPower(0);
+                motors[3].setPower(0);
+            }
+
+            return done;
+        }
+    }
+
+
+
+
+
+
+    static public class knockJewelRedRatbot extends Step {
+        ModernRoboticsI2cColorSensor mColorSensor;
+        DcMotor [] motors;
+        Timer mTimer = new Timer(0.25);
+        boolean done = false;
+        private OpMode mOpMode;                             // needed so we can log output (may be null)
+        public knockJewelRedRatbot(ModernRoboticsI2cColorSensor cs, DcMotor [] m, OpMode op) {
+
+            mColorSensor = cs;
+            motors = m;
+            mOpMode=op;
+
+        }
+        public int ColorTest() {
+
+            if (mColorSensor.red()>= mColorSensor.blue()*2){
+
+                mOpMode.telemetry.addData("color: ", "red");
+                return 0;
+            }
+            else if (mColorSensor.blue() >= mColorSensor.red() *2){
+                mOpMode.telemetry.addData("color: ", "blue");
+                return 1;
+            }
+            else return 2;
+        }
+        public boolean loop() {
+            super.loop();
+
+            if (firstLoopCall()){
+                if (ColorTest() == 0){
+                    motors[0].setPower(-0.25);
+                    motors[1].setPower(-0.25);
+                    motors[2].setPower(-0.25);
+                    motors[3].setPower(-0.25);
+
+                    mTimer.start();
+                }
+                else if (ColorTest() ==1) {
+                    motors[0].setPower(0.25);
+                    motors[1].setPower(0.25);
+                    motors[2].setPower(0.25);
+                    motors[3].setPower(0.25);
+
+                    mTimer.start();
+                }else{
+                    mTimer.start();
+                }
+            }
+
+            done = mTimer.done();
+
+            if (done == true) {
+                motors[0].setPower(0);
+                motors[1].setPower(0);
+                motors[2].setPower(0);
+                motors[3].setPower(0);
+            }
+
+            return done;
+        }
+
+
+    }
+    static public class knockJewelBlueRatbot extends Step {
+        ModernRoboticsI2cColorSensor mColorSensor;
+        DcMotor [] motors;
+        Timer mTimer = new Timer(0.25);
+        boolean done = false;
+        private OpMode mOpMode;                             // needed so we can log output (may be null)
+        public knockJewelBlueRatbot(ModernRoboticsI2cColorSensor cs, DcMotor [] m, OpMode op) {
+
+            mColorSensor = cs;
+            motors = m;
+            mOpMode=op;
+
+        }
+        public int ColorTest() {
+
+            if (mColorSensor.red()>= mColorSensor.blue()*2){
+
+                mOpMode.telemetry.addData("color: ", "red");
+                return 0;
+            }
+            else if (mColorSensor.blue() >= mColorSensor.red() *2){
+                mOpMode.telemetry.addData("color: ", "blue");
+                return 1;
+            }
+            else return 2;
+        }
+        public boolean loop() {
+            super.loop();
+
+            if (firstLoopCall()){
+                if (ColorTest() == 1){
+                    motors[0].setPower(-0.25);
+                    motors[1].setPower(-0.25);
+                    motors[2].setPower(-0.25);
+                    motors[3].setPower(-0.25);
+
+                    mTimer.start();
+                }
+                else if (ColorTest() ==0){
+                    motors[0].setPower(0.25);
+                    motors[1].setPower(0.25);
+                    motors[2].setPower(0.25);
+                    motors[3].setPower(0.25);
+
+                    mTimer.start();
+                }
+            }
+
+            done = mTimer.done();
+
+            if (done == true) {
+                motors[0].setPower(0);
+                motors[1].setPower(0);
+                motors[2].setPower(0);
+                motors[3].setPower(0);
             }
 
             return done;
