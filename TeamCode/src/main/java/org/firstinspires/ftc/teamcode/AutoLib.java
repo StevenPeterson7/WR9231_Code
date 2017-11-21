@@ -403,6 +403,8 @@ static public class setColorB extends Step {
                     motors[1].setPower(-0.25);
                     motors[2].setPower(-0.25);
                     motors[3].setPower(-0.25);
+                    mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, .5, 1.3, true));
+
 
                     mTimer.start();
                 }
@@ -411,9 +413,12 @@ static public class setColorB extends Step {
                     motors[1].setPower(0.25);
                     motors[2].setPower(0.25);
                     motors[3].setPower(0.25);
+                    mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, .5, 0.9, true));
+
 
                     mTimer.start();
                 }else{
+                    mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, .5, 1.0, true));
                     mTimer.start();
                 }
             }
@@ -468,6 +473,7 @@ static public class setColorB extends Step {
 
                     motors[2].setPower(-0.25);
                     motors[3].setPower(-0.25);
+                    mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, -.5, 0.9, true));
 
                     mTimer.start();
                 }
@@ -476,8 +482,13 @@ static public class setColorB extends Step {
                     motors[1].setPower(0.25);
                     motors[2].setPower(0.25);
                     motors[3].setPower(0.25);
+                    mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, -.5, 1.3, true));
 
                     mTimer.start();
+                }
+                else{
+                    mTimer.start();
+                    mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, -0.5, 1.0, true));
                 }
             }
 

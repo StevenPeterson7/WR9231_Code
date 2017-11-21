@@ -12,7 +12,7 @@ public class AutonomousRedMain extends OpMode {
     hardwareDeclare hw;
     SensorLib.PID mPID;
     public int [] rgb= {0, 0, 0};
-    int color=2;
+    public int color=2;
 
     float Kp = 0.035f;
     float Ki = 0.02f;
@@ -38,31 +38,19 @@ public class AutonomousRedMain extends OpMode {
         mSequence.add(new AutoLib.setColorR(hw.ColorSensor, this));
         mSequence.add(new AutoLib.wait(1.0));
         mSequence.add(new AutoLib.ServoStep(hw.whacker, 0.20));
-
-        if (hw.ColorSensor.red()>= hw.ColorSensor.blue()*1.25){
-
-            color= 0;
-        }
-        else if (hw.ColorSensor.blue() >= hw.ColorSensor.red()*1.25){
-
-            color= 1;
-        }
-        else {
-            color= 2;
-        }
         mSequence.add(new AutoLib.wait(1.0));
         mSequence.add(new AutoLib.knockJewelBlue(hw.ColorSensor, hw.motors, this));
         mSequence.add(new AutoLib.wait(5.0));
 
         mSequence.add(new AutoLib.ServoStep(hw.whacker, 1));
         mSequence.add(new AutoLib.wait(1.0));
-        if(color==0){
+       /* if(color==0){
             mSequence.add(new AutoLib.MoveByTimeStep(hw.motors,-.5,1.3,true));
         }else if(color==1) {
-            mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, -0.5, 1.0, true));
-        }else {
-            mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, -.5, 1.2, true));
-        }
+            mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, -0.5, 0.5, true));
+        }else {*/
+           // mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, -.5, 1.2, true));
+        //}
 
 
 

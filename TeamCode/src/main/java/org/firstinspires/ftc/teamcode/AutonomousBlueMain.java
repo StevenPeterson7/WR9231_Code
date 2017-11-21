@@ -38,30 +38,14 @@ public class AutonomousBlueMain extends OpMode {
         mSequence.add(new AutoLib.wait(1.0));
         mSequence.add(new AutoLib.ServoStep(hw.whacker, 0.20));
 
-        if (hw.ColorSensor.red()>= hw.ColorSensor.blue()*1.25){
 
-            color= 0;
-        }
-        else if (hw.ColorSensor.blue() >= hw.ColorSensor.red()*1.25){
-
-            color= 1;
-        }
-        else {
-            color= 2;
-        }
         mSequence.add(new AutoLib.wait(1.0));
         mSequence.add(new AutoLib.knockJewelRed(hw.ColorSensor, hw.motors, this));
         mSequence.add(new AutoLib.wait(3.0));
 
         mSequence.add(new AutoLib.ServoStep(hw.whacker, 1));
         mSequence.add(new AutoLib.wait(1.0));
-        if(color==0){
-            mSequence.add(new AutoLib.MoveByTimeStep(hw.motors,.5,1.0,true));
-        }else if(color==1) {
-            mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, 0.5, 1.3, true));
-        }else {
-            mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, .5, 1.1, true));
-        }
+
        // mSequence.add(new AutoLib.AzimuthTimedDriveStep(this,0,hw.mGyro,mPID,hw.motors,-.5f,.8f,true));
         //mSequence.add(new AutoLib.TimedMotorStep(hw.liftMotors[2],1.0,2,true));
         //mSequence.add(new AutoLib.TimedMotorStep(hw.liftMotors[1],1.0,2,true));
