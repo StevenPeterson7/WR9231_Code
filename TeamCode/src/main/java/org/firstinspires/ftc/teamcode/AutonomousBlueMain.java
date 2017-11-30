@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+
 @Autonomous(name="MainBlueAutonomous", group ="Autonomous")
 //@Disabled
 public class AutonomousBlueMain extends OpMode {
@@ -18,6 +20,7 @@ public class AutonomousBlueMain extends OpMode {
     float Kd = 0;
     float KiCutoff = 3.0f;
     int color=2;
+    Orientation angles;
 
 
     public AutonomousBlueMain() {
@@ -46,6 +49,12 @@ public class AutonomousBlueMain extends OpMode {
         mSequence.add(new AutoLib.ServoStep(hw.whacker, 1));
         mSequence.add(new AutoLib.wait(1.0));
 
+        angles.firstAngle=0.25f;
+
+        //mSequence.add(new AutoLib.turnByGyroHeading(hw.motors, this, hw.imu, angles));
+
+       // mSequence.add(new AutoLib.identifyVuMark(this));
+
        // mSequence.add(new AutoLib.AzimuthTimedDriveStep(this,0,hw.mGyro,mPID,hw.motors,-.5f,.8f,true));
         //mSequence.add(new AutoLib.TimedMotorStep(hw.liftMotors[2],1.0,2,true));
         //mSequence.add(new AutoLib.TimedMotorStep(hw.liftMotors[1],1.0,2,true));
@@ -61,15 +70,9 @@ public class AutonomousBlueMain extends OpMode {
     }
 
     public void loop() {
-        telemetry.addData("blue:", hw.ColorSensor.blue());
-        telemetry.addData("red:", hw.ColorSensor.red());
-        if(hw.ColorSensor.red()>hw.ColorSensor.blue()*1.25){
-            telemetry.addData("color: ", "red");
-        }else if(hw.ColorSensor.blue()>hw.ColorSensor.red()*1.25) {
-            telemetry.addData("color: ", "blue");
-        }else{
-            telemetry.addData("color: ", "none");
-        }
+        telemetry.addData("blue:", hw.ColorSensor.blue()-rgb[2]);
+        telemetry.addData("red:", hw.ColorSensor.red()-rgb[0]);
+        telemetry.addData("power", hw.motors[0].getPower());
         telemetry.addData("important!!!0:", rgb[0]);
         telemetry.addData("important!!!2:", rgb[2]);
         // until we're done, keep looping through the current Step(s)

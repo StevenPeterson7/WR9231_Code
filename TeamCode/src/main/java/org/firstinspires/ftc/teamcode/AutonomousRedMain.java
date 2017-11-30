@@ -40,7 +40,8 @@ public class AutonomousRedMain extends OpMode {
         mSequence.add(new AutoLib.ServoStep(hw.whacker, 0.20));
         mSequence.add(new AutoLib.wait(1.0));
         mSequence.add(new AutoLib.knockJewelBlue(hw.ColorSensor, hw.motors, this));
-        mSequence.add(new AutoLib.wait(5.0));
+        mSequence.add(new AutoLib.wait(2.0));
+        //mSequence.add(new AutoLib.GyroGuideStep(this, ))
 
         mSequence.add(new AutoLib.ServoStep(hw.whacker, 1));
         mSequence.add(new AutoLib.wait(1.0));
@@ -71,15 +72,10 @@ public class AutonomousRedMain extends OpMode {
     }
 
     public void loop() {
-        telemetry.addData("blue:", hw.ColorSensor.blue());
-        telemetry.addData("red:", hw.ColorSensor.red());
-        if(hw.ColorSensor.red()>hw.ColorSensor.blue()*1.25){
-            telemetry.addData("color: ", "red");
-        }else if(hw.ColorSensor.blue()>hw.ColorSensor.red()*1.25) {
-            telemetry.addData("color: ", "blue");
-        }else{
-            telemetry.addData("color: ", "none");
-        }
+        telemetry.addData("blue:", hw.ColorSensor.blue()-rgb[2]);
+        telemetry.addData("red:", hw.ColorSensor.red()-rgb[0]);
+        telemetry.addData("power", hw.motors[0].getPower());
+
         telemetry.addData("important!!!0:", rgb[0]);
         telemetry.addData("important!!!2:", rgb[2]);
 

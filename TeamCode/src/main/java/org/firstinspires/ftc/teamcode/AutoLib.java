@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -14,6 +15,10 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcontroller.external.samples.SensorREVColorDistance;
 import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -372,7 +377,9 @@ static public class setColorB extends Step {
         ColorSensor colorSensor;
         DcMotor [] motors;
         Timer mTimer = new Timer(0.25);
+        Timer nTimer = new Timer (0.25);
         boolean done = false;
+        boolean secondLoopStart=false;
         private AutonomousBlueMain mOpMode;                             // needed so we can log output (may be null)
         public knockJewelRed(ColorSensor cs, DcMotor [] m, AutonomousBlueMain op) {
 
@@ -403,7 +410,7 @@ static public class setColorB extends Step {
                     motors[1].setPower(-0.25);
                     motors[2].setPower(-0.25);
                     motors[3].setPower(-0.25);
-                    mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, .5, 1.3, true));
+                   // mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, .5, 1.3, true));
 
 
                     mTimer.start();
@@ -413,19 +420,48 @@ static public class setColorB extends Step {
                     motors[1].setPower(0.25);
                     motors[2].setPower(0.25);
                     motors[3].setPower(0.25);
-                    mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, .5, 0.9, true));
+                   // mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, .5, 0.9, true));
 
 
                     mTimer.start();
                 }else{
-                    mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, .5, 1.0, true));
+                   // mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, .5, 1.0, true));
                     mTimer.start();
                 }
             }
 
-            done = mTimer.done();
+            if(mTimer.done()&&secondLoopStart){
+                secondLoopStart=false;
+                if (ColorTest() == 1){
+                    motors[0].setPower(-0.25);
+                    motors[1].setPower(-0.25);
 
-            if (done == true) {
+                    motors[2].setPower(-0.25);
+                    motors[3].setPower(-0.25);
+                    //mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, -.5, 0.9, true));
+
+                    nTimer.start();
+                }
+                else if (ColorTest() ==0){
+                    motors[0].setPower(0.25);
+                    motors[1].setPower(0.25);
+                    motors[2].setPower(0.25);
+                    motors[3].setPower(0.25);
+                    //mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, -.5, 1.3, true));
+
+                    nTimer.start();
+                }
+                else{
+                    nTimer.start();
+                    //mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, -0.5, 1.0, true));
+                }
+            }
+            if(mTimer.done()){
+                secondLoopStart=true;
+            }
+            done = nTimer.done();
+
+            if (done == true&&mTimer.done()) {
                 motors[0].setPower(0);
                 motors[1].setPower(0);
                 motors[2].setPower(0);
@@ -441,7 +477,9 @@ static public class setColorB extends Step {
         ColorSensor colorSensor;
         DcMotor [] motors;
         Timer mTimer = new Timer(0.25);
+        Timer nTimer = new Timer (0.25);
         boolean done = false;
+        boolean secondLoopStart =false;
         private AutonomousRedMain mOpMode;                             // needed so we can log output (may be null)
         public knockJewelBlue(ColorSensor cs, DcMotor [] m, AutonomousRedMain op) {
 
@@ -473,7 +511,7 @@ static public class setColorB extends Step {
 
                     motors[2].setPower(-0.25);
                     motors[3].setPower(-0.25);
-                    mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, -.5, 0.9, true));
+                  //  mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, -.5, 0.9, true));
 
                     mTimer.start();
                 }
@@ -482,19 +520,49 @@ static public class setColorB extends Step {
                     motors[1].setPower(0.25);
                     motors[2].setPower(0.25);
                     motors[3].setPower(0.25);
-                    mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, -.5, 1.3, true));
+                 //   mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, -.5, 1.3, true));
 
                     mTimer.start();
                 }
                 else{
                     mTimer.start();
-                    mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, -0.5, 1.0, true));
+                   // mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, -0.5, 1.0, true));
                 }
             }
 
-            done = mTimer.done();
+            if(mTimer.done()&&secondLoopStart){
+                secondLoopStart=false;
+                if (ColorTest() == 1){
+                    motors[0].setPower(0.25);
+                    motors[1].setPower(0.25);
 
-            if (done == true) {
+                    motors[2].setPower(0.25);
+                    motors[3].setPower(0.25);
+                    //mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, -.5, 0.9, true));
+
+                    nTimer.start();
+                }
+                else if (ColorTest() ==0){
+                    motors[0].setPower(-0.25);
+                    motors[1].setPower(-0.25);
+                    motors[2].setPower(-0.25);
+                    motors[3].setPower(-0.25);
+                    //mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, -.5, 1.3, true));
+
+                    nTimer.start();
+                }
+                else{
+                    nTimer.start();
+                    //mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, -0.5, 1.0, true));
+                }
+            }
+            if(mTimer.done()){
+                secondLoopStart=true;
+            }
+            done = nTimer.done();
+
+
+            if (done == true&&mTimer.done()) {
                 motors[0].setPower(0);
                 motors[1].setPower(0);
                 motors[2].setPower(0);
@@ -515,7 +583,8 @@ static public class setColorB extends Step {
         DcMotor [] motors;
         Timer mTimer = new Timer(0.25);
         boolean done = false;
-        private OpMode mOpMode;                             // needed so we can log output (may be null)
+        private OpMode mOpMode;
+        // needed so we can log output (may be null)
         public knockJewelRedRatbot(ModernRoboticsI2cColorSensor cs, DcMotor [] m, OpMode op) {
 
             mColorSensor = cs;
@@ -1593,6 +1662,98 @@ static public class setColorB extends Step {
             
             return servo;
         }
+    }
+    static public class turnByGyroHeading extends Step {
+        BNO055IMU mIMU;
+        DcMotor [] motors;
+        boolean done = false;
+        private OpMode mOpMode;                             // needed so we can log output (may be null)
+        Orientation mTargetHeading;
+
+        public turnByGyroHeading( DcMotor [] m, OpMode op, BNO055IMU imu, Orientation targetHeading) {
+
+            motors = m;
+            mOpMode = op;
+            mIMU = imu;
+            mTargetHeading = targetHeading;
+
+        }
+
+        public void turnLeft(){
+            motors[0].setPower(0.1);
+            motors[1].setPower(0.1);
+            motors[0].setPower(-0.1);
+            motors[0].setPower(-0.1);
+
+
+        }
+        public void turnRight(){
+            motors[0].setPower(-0.1);
+            motors[1].setPower(-0.1);
+            motors[0].setPower(0.1);
+            motors[0].setPower(0.1);
+        }
+
+        public boolean loop() {
+            super.loop();
+
+            if (firstLoopCall()){
+
+
+            }
+            if(mIMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle > mTargetHeading.firstAngle*1.05) {
+                turnLeft();
+
+            }else if(mIMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle < mTargetHeading.firstAngle*0.95){
+                turnRight();
+
+            }else{
+                done=true;
+            }
+
+            if (done == true) {
+                motors[0].setPower(0);
+                motors[1].setPower(0);
+                motors[2].setPower(0);
+                motors[3].setPower(0);
+            }
+
+            return done;
+        }
+
+
+    }
+    static public class identifyVuMark extends Step {
+
+        boolean done = true;
+        private OpMode mOpMode;                             // needed so we can log output (may be null)
+        Timer mTimer= new Timer (0.5);
+
+        public identifyVuMark(OpMode op) {
+
+            mOpMode = op;
+
+        }
+
+
+
+        public boolean loop() {
+            super.loop();
+
+            if (firstLoopCall()){
+
+
+            }
+
+
+            if (done == true) {
+
+            }
+
+            return done;
+        }
+
+
     }
 
 }

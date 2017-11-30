@@ -1,11 +1,17 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
+
 import static java.lang.Math.abs;
+import static java.lang.Math.pow;
 
 @TeleOp(name="MainTeleOp:2P", group="TeleOp")
 public class MainTeleOp_2p extends OpMode{
@@ -21,6 +27,7 @@ public class MainTeleOp_2p extends OpMode{
         hw.glyphLiftArms[0].setPosition(0);
         hw.glyphLiftArms[1].setPosition(0);
         hw.ColorSensor.enableLed(false);
+
 
 
     }
@@ -45,9 +52,9 @@ public class MainTeleOp_2p extends OpMode{
         // Loop through front and back motors96
        // for(DcMotor motor : hw.motors) {
             // Set left motor power
-            double powerToLeftMotor = -gamepad1.left_stick_y * motorPower;
+            double powerToLeftMotor = pow(-gamepad1.left_stick_y, 3) * motorPower;
             telemetry.addData("power to  left motor:", powerToLeftMotor);
-            double powerToRightMotor = -gamepad1.right_stick_y * motorPower;
+            double powerToRightMotor = pow(-gamepad1.right_stick_y, 3)* motorPower;
             telemetry.addData("power to  right motor:", powerToRightMotor);
             hw.motors[2].setPower(powerToLeftMotor);
             hw.motors[3].setPower(powerToLeftMotor);
@@ -60,7 +67,7 @@ public class MainTeleOp_2p extends OpMode{
         telemetry.addData("glyph lift pos: ", hw.glyphLift[1].getCurrentPosition());
 
         if(gamepad2.left_stick_y!=0){
-            hw.glyphLift[1].setPower(gamepad2.left_stick_y);
+            hw.glyphLift[1].setPower(pow(gamepad2.left_stick_y,3));
         }else{
             hw.glyphLift[1].setPower(0);
         }
@@ -78,6 +85,9 @@ public class MainTeleOp_2p extends OpMode{
 
         telemetry.addData("servo1 position:", hw.glyphLiftArms[0].getPosition());
         telemetry.addData("servo2 position:", hw.glyphLiftArms[1].getPosition());
+
+        //
+        // telemetry.addData("gyro: ", hw.imu.getPosition());
 
         if(gamepad2.a){
             hw.glyphLiftArms[0].setPosition(1);

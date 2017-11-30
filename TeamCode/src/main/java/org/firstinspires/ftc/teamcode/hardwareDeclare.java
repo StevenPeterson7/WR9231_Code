@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.graphics.drawable.GradientDrawable;
+
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -8,10 +12,18 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.sun.tools.javac.util.Position;
+
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
 import static com.qualcomm.robotcore.hardware.Servo.Direction.REVERSE;
 
 public class hardwareDeclare{
+    //BNO055IMU imu;
+    Orientation angles;
+    Acceleration gravity;
     // Declare the motor matrix
     public DcMotor[] motors = new DcMotor[4];
     //public DcMotor[] testMotor = new DcMotor [1];
@@ -37,20 +49,35 @@ public class hardwareDeclare{
         motors[3] = opmode.hardwareMap.dcMotor.get("motorBackLeft");
         motors[1] = opmode.hardwareMap.dcMotor.get("motorBackRight");
         motors[2].setDirection(DcMotor.Direction.REVERSE);
-        motors[3].setDirection(DcMotor.Direction.FORWARD);
+        motors[3].setDirection(DcMotor.Direction.REVERSE);
         motors[0].setDirection(DcMotor.Direction.FORWARD);
         motors[1].setDirection(DcMotor.Direction.FORWARD);
 
-       glyphLift[0]=opmode.hardwareMap.dcMotor.get("glyphSpin");
+        glyphLift[0]=opmode.hardwareMap.dcMotor.get("glyphSpin");
         glyphLift[1]=opmode.hardwareMap.dcMotor.get("glyphLift");
 
 
 
+      /*  BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
+        parameters.loggingEnabled = true;
+        parameters.loggingTag = "IMU";
+        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+        imu = opmode.hardwareMap.get(BNO055IMU.class, "imu");
+        imu.initialize(parameters);*/
 
-       glyphLiftArms[0] = opmode.hardwareMap.servo.get("leftArm");
+        //imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
+
+
+
+
+
+        glyphLiftArms[0] = opmode.hardwareMap.servo.get("leftArm");
         glyphLiftArms[1] = opmode.hardwareMap.servo.get("rightArm");
         glyphLiftArms[1].setDirection(REVERSE);
-       glyphLiftArms[0].scaleRange(.1666,1);
+        glyphLiftArms[0].scaleRange(.1666,1);
         glyphLiftArms[1].scaleRange(0,0.8444);
 
 
