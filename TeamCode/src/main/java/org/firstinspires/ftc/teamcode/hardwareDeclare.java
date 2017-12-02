@@ -21,7 +21,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import static com.qualcomm.robotcore.hardware.Servo.Direction.REVERSE;
 
 public class hardwareDeclare{
-    //BNO055IMU imu;
+    BNO055IMU imu;
     Orientation angles;
     Acceleration gravity;
     // Declare the motor matrix
@@ -58,17 +58,7 @@ public class hardwareDeclare{
 
 
 
-      /*  BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
-        parameters.loggingEnabled = true;
-        parameters.loggingTag = "IMU";
-        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
         imu = opmode.hardwareMap.get(BNO055IMU.class, "imu");
-        imu.initialize(parameters);*/
-
-        //imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
 
 

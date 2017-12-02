@@ -7,6 +7,9 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
@@ -27,7 +30,14 @@ public class MainTeleOp_2p extends OpMode{
         hw.glyphLiftArms[0].setPosition(0);
         hw.glyphLiftArms[1].setPosition(0);
         hw.ColorSensor.enableLed(false);
-
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
+        parameters.loggingEnabled      = true;
+        parameters.loggingTag          = "IMU";
+        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+        hw.imu.initialize(parameters);
 
 
     }
@@ -52,10 +62,13 @@ public class MainTeleOp_2p extends OpMode{
         // Loop through front and back motors96
        // for(DcMotor motor : hw.motors) {
             // Set left motor power
-            double powerToLeftMotor = pow(-gamepad1.left_stick_y, 3) * motorPower;
+            double powerToLeftMotor = -gamepad1.left_stick_y * motorPower;
+            powerToLeftMotor=pow(powerToLeftMotor, 3);
             telemetry.addData("power to  left motor:", powerToLeftMotor);
-            double powerToRightMotor = pow(-gamepad1.right_stick_y, 3)* motorPower;
+            double powerToRightMotor = -gamepad1.right_stick_y* motorPower;
             telemetry.addData("power to  right motor:", powerToRightMotor);
+            powerToRightMotor=pow(powerToRightMotor, 3);
+
             hw.motors[2].setPower(powerToLeftMotor);
             hw.motors[3].setPower(powerToLeftMotor);
 
@@ -74,7 +87,7 @@ public class MainTeleOp_2p extends OpMode{
 
         telemetry.addData("glyph spin: ", gamepad2.right_stick_x );
         telemetry.addData("glyph spin pos: ", hw.glyphLift[0].getCurrentPosition());
-        if(hw.glyphLift[0].getCurrentPosition()<=450&&gamepad2.right_stick_x>0){
+        if(hw.glyphLift[0].getCurrentPosition() <= 450 && gamepad2.right_stick_x > 0){
             hw.glyphLift[0].setPower(gamepad2.right_stick_x * 0.2);
         }else if(hw.glyphLift[0].getCurrentPosition()>=-450 && gamepad2.right_stick_x < 0) {
             hw.glyphLift[0].setPower(gamepad2.right_stick_x * 0.2);
@@ -87,7 +100,7 @@ public class MainTeleOp_2p extends OpMode{
         telemetry.addData("servo2 position:", hw.glyphLiftArms[1].getPosition());
 
         //
-        // telemetry.addData("gyro: ", hw.imu.getPosition());
+         telemetry.addData("gyro: ", hw.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle);
 
         if(gamepad2.a){
             hw.glyphLiftArms[0].setPosition(1);
