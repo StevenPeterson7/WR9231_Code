@@ -10,6 +10,9 @@ import static java.lang.Math.abs;
 @TeleOp(name="MainTeleOp:2P", group="TeleOp")
 public class MainTeleOp_2p extends OpMode{
 
+    double lPos=0;
+    double rPos=0;
+
     hardwareDeclare hw;
     private float motorPower = 1.f;
 
@@ -18,8 +21,8 @@ public class MainTeleOp_2p extends OpMode{
 
         // Get our hardware
         hw = new hardwareDeclare(this);
-        hw.glyphLiftArms[0].setPosition(0);
-        hw.glyphLiftArms[1].setPosition(0);
+        hw.glyphLiftArms[0].setPosition(lPos);
+        hw.glyphLiftArms[1].setPosition(rPos);
         hw.ColorSensor.enableLed(false);
 
 
@@ -79,13 +82,40 @@ public class MainTeleOp_2p extends OpMode{
         telemetry.addData("servo1 position:", hw.glyphLiftArms[0].getPosition());
         telemetry.addData("servo2 position:", hw.glyphLiftArms[1].getPosition());
 
-        if(gamepad2.a){
-            hw.glyphLiftArms[0].setPosition(1);
-            hw.glyphLiftArms[1].setPosition(1);
+       /* if(gamepad2.a){
+
+            lPos=1;
+            rPos=1;
         }else{
-            hw.glyphLiftArms[0].setPosition(0);
-            hw.glyphLiftArms[1].setPosition(0);
+
+            lPos=0;
+            rPos=0;
+
+        }*/
+        if(lPos<0){
+            lPos=0;
         }
+        if(rPos<0){
+            rPos=0;
+        }
+        if(lPos>1){
+            lPos=1;
+        }
+        if(rPos>1){
+            rPos=1;
+        }
+            lPos-=gamepad2.right_trigger/20;
+            rPos-=gamepad2.right_trigger/20;
+
+            lPos+=gamepad2.left_trigger/20;
+            rPos+=gamepad2.left_trigger/20;
+        //we can change it to use the stick positions to either set position or set change in position
+        //left stick could control the left arm
+
+        hw.glyphLiftArms[0].setPosition(lPos);
+        hw.glyphLiftArms[1].setPosition(rPos);
+
+        telemetry.addData("right trigger", gamepad2.right_trigger);
 
 
 
