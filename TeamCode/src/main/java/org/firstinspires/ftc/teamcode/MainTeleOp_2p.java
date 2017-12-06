@@ -62,21 +62,23 @@ public class MainTeleOp_2p extends OpMode{
         telemetry.addData("glyph lift: ", gamepad2.left_stick_y );
         telemetry.addData("glyph lift pos: ", hw.glyphLift[1].getCurrentPosition());
 
-        if(gamepad2.left_stick_y!=0){
-            hw.glyphLift[1].setPower(gamepad2.left_stick_y);
+        if(gamepad2.a){
+            hw.glyphLift[1].setPower(0.3333);
+        }else if (gamepad2.b){
+                hw.glyphLift[1].setPower(-0.3333);
         }else{
-            hw.glyphLift[1].setPower(0);
+                hw.glyphLift[1].setPower(0);
         }
 
         telemetry.addData("glyph spin: ", gamepad2.right_stick_x );
         telemetry.addData("glyph spin pos: ", hw.glyphLift[0].getCurrentPosition());
-        if(hw.glyphLift[0].getCurrentPosition()<=450&&gamepad2.right_stick_x>0){
-            hw.glyphLift[0].setPower(gamepad2.right_stick_x * 0.2);
-        }else if(hw.glyphLift[0].getCurrentPosition()>=-450 && gamepad2.right_stick_x < 0) {
-            hw.glyphLift[0].setPower(gamepad2.right_stick_x * 0.2);
-        }else {
-            hw.glyphLift[0].setPower(0);
-        }
+        double powerToSpinMotor;
+       // if(hw.glyphLift[0].getCurrentPosition()<=450&&gamepad2.right_stick_x>0){
+        powerToSpinMotor=(gamepad2.right_trigger* 0.2)-(gamepad2.left_trigger*0.2);
+            hw.glyphLift[0].setPower(powerToSpinMotor);
+
+
+
 
 
         telemetry.addData("servo1 position:", hw.glyphLiftArms[0].getPosition());
@@ -104,11 +106,10 @@ public class MainTeleOp_2p extends OpMode{
         if(rPos>1){
             rPos=1;
         }
-            lPos-=gamepad2.right_trigger/20;
-            rPos-=gamepad2.right_trigger/20;
+            lPos-=gamepad2.left_stick_x/20;
+            rPos-=gamepad2.right_stick_x/20;
 
-            lPos+=gamepad2.left_trigger/20;
-            rPos+=gamepad2.left_trigger/20;
+
         //we can change it to use the stick positions to either set position or set change in position
         //left stick could control the left arm
 
@@ -117,40 +118,6 @@ public class MainTeleOp_2p extends OpMode{
 
         telemetry.addData("right trigger", gamepad2.right_trigger);
 
-
-
-
-      /*  if(gamepad1.a || gamepad2.a){
-           // hw.testMotor[0].setPower(1.0);
-            hw.testMotor[0].setPower(1.0);
-        }
-        else{
-           hw.testMotor[0].setPower(0.0);
-        }*/
-        /*
-
-        if(gamepad1.b || gamepad2.b){
-            hw.liftMotors[0].setPower(1.0);
-            hw.liftMotors[1].setPower(1.0);
-        }
-        else{
-            hw.liftMotors[0].setPower(0.0);
-            hw.liftMotors[1].setPower(0.0);
-        }
-
-        if(gamepad1.x){
-            hw.servos[0].setPower(-1.0);
-            hw.servos[1].setPower(-1.0);
-        }
-        else if(gamepad1.y){
-            hw.servos[0].setPower(1.0);
-            hw.servos[1].setPower(1.0);
-        }
-        else{
-            hw.servos[0].setPower(0.0);
-            hw.servos[1].setPower(0.0);
-        }*/
-        
     }
     @Override
     public void stop(){
