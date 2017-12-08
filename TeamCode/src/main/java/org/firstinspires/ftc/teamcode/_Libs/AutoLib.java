@@ -1,4 +1,6 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode._Libs;
+
+import android.graphics.Bitmap;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
@@ -19,10 +21,15 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
+import org.firstinspires.ftc.teamcode.AutonomousBlueMain;
+import org.firstinspires.ftc.teamcode.AutonomousRedMain;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by phanau on 12/14/15.
@@ -316,7 +323,7 @@ public class AutoLib {
 
     }
 
-static public class setColorR extends Step {
+    static public class setColorR extends Step {
     Timer t = new Timer(0.25);
     boolean done;
     public setColorR (ColorSensor colorSensor, AutonomousRedMain op) {
@@ -338,8 +345,7 @@ static public class setColorR extends Step {
 
 }
 
-
-static public class setColorB extends Step {
+    static public class setColorB extends Step {
     Timer t = new Timer(0.25);
     boolean done;
     public setColorB (ColorSensor colorSensor, AutonomousBlueMain op) {
@@ -360,6 +366,7 @@ static public class setColorB extends Step {
     }
 
 }
+
     int testColor( ColorSensor colorSensor){
         if (colorSensor.red()>= colorSensor.blue()*1.25){
 
@@ -574,10 +581,6 @@ static public class setColorB extends Step {
     }
 
 
-
-
-
-
     static public class knockJewelRedRatbot extends Step {
         ModernRoboticsI2cColorSensor mColorSensor;
         DcMotor [] motors;
@@ -703,6 +706,431 @@ static public class setColorB extends Step {
             return done;
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    static public class turnByGyroHeading extends Step {
+        BNO055IMU mIMU;
+        DcMotor [] motors;
+        boolean done = false;
+        private OpMode mOpMode;                             // needed so we can log output (may be null)
+        Orientation mTargetHeading;
+
+        public turnByGyroHeading( DcMotor [] m, OpMode op, BNO055IMU imu, Orientation targetHeading) {
+
+            motors = m;
+            mOpMode = op;
+            mIMU = imu;
+            mTargetHeading = targetHeading;
+
+        }
+
+        public void turnLeft(){
+            motors[0].setPower(0.1);
+            motors[1].setPower(0.1);
+            motors[0].setPower(-0.1);
+            motors[0].setPower(-0.1);
+
+
+        }
+        public void turnRight(){
+            motors[0].setPower(-0.1);
+            motors[1].setPower(-0.1);
+            motors[0].setPower(0.1);
+            motors[0].setPower(0.1);
+        }
+
+        public boolean loop() {
+            super.loop();
+
+            if (firstLoopCall()){
+
+
+            }
+            if(mIMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle > mTargetHeading.firstAngle*1.05) {
+                turnLeft();
+
+            }else if(mIMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle < mTargetHeading.firstAngle*0.95){
+                turnRight();
+
+            }else{
+                done=true;
+            }
+
+            if (done == true) {
+                motors[0].setPower(0);
+                motors[1].setPower(0);
+                motors[2].setPower(0);
+                motors[3].setPower(0);
+            }
+
+            return done;
+        }
+
+
+    }
+
+
+    static public class identifyVuMark extends Step {
+
+        boolean done = true;
+        private OpMode mOpMode;                             // needed so we can log output (may be null)
+        Timer mTimer= new Timer (0.5);
+        public identifyVuMark(OpMode op) {
+            mOpMode = op;
+        }
+        public boolean loop() {
+            super.loop();
+            if (firstLoopCall()){
+            }
+            if (done == true) {
+            }
+
+            return done;
+        }
+    }
+    /**
+     * This OpMode uses a Step that uses the VuforiaLib_FTC2017 library to determine
+     * which column of the shelves to fill first, then
+     * moves the robot under gyro control while using the camera to look for the
+     * correct Cryptobox to stop at.
+     */
+
+// define an interface through which a Step (or anything else) can be told the
+// identity of the Vuforia target that we should use
+    public interface SetMark {
+        public void setMark(String s);
+    }
+
+    static public class VuforiaGetMarkStep extends AutoLib.Step {
+
+        VuforiaLib_FTC2017 mVLib;
+        OpMode mOpMode;
+        SetMark mSMStep;
+
+        public VuforiaGetMarkStep(OpMode opMode, VuforiaLib_FTC2017 VLib, SetMark step) {
+            mOpMode = opMode;
+            mVLib = VLib;
+            mSMStep = step;
+        }
+
+        public boolean loop() {
+            super.loop();
+            mVLib.loop();       // update recognition info
+            RelicRecoveryVuMark vuMark = mVLib.getVuMark();
+            boolean found = (vuMark != RelicRecoveryVuMark.UNKNOWN);
+            if (found) {
+                // Found an instance of the template -- tell "MoveTo.. step which one
+                mSMStep.setMark(vuMark.toString());
+            }
+            return found;       // done?
+        }
+    }
+
+    static public class BlueFilter implements CameraLib.Filter {
+        public int map(int hue) {
+            // map 4 (cyan) to 5 (blue)
+            if (hue == 4)
+                return 5;
+            else
+                return hue;
+        }
+    }
+
+    // simple data class containing info about image of one column of cryptobox
+    static public class ColumnHit {
+        int mStart;
+        int mEnd;
+        public ColumnHit(int start, int end) {
+            mStart = start;  mEnd = end;
+        }
+        public int start() { return mStart; }
+        public int end() { return mEnd; }
+        public int mid() { return (mStart+mEnd)/2; }
+    }
+
+    // this is a guide step that uses camera image data to
+// guide the robot to the indicated bin of the cryptobox
+//
+   static public class GoToCryptoBoxGuideStep extends AutoLib.MotorGuideStep implements SetMark {
+
+        VuforiaLib_FTC2017 mVLib;
+        String mVuMarkString;
+        OpMode mOpMode;
+        int mCBColumn;                      // which Cryptobox column we're looking for
+        Pattern mPattern;                   // compiled regexp pattern we'll use to find the pattern we're looking for
+        int mColumnOffset;                  // number of columns that have left the left-edge of the frame
+
+        CameraLib.Filter mBlueFilter;       // filter to map cyan to blue
+
+        ArrayList<ColumnHit> mPrevColumns;  // detected columns on previous pass
+
+        SensorLib.PID mPid;                 // proportional–integral–derivative controller (PID controller)
+        double mPrevTime;                   // time of previous loop() call
+        ArrayList<AutoLib.SetPower> mMotorSteps;   // the motor steps we're guiding - assumed order is right ... left ...
+        float mPower;                      // base power setting for motors
+
+        public GoToCryptoBoxGuideStep(OpMode opMode, VuforiaLib_FTC2017 VLib, String pattern, float power) {
+            mOpMode = opMode;
+            mCBColumn = 1;     // if we never get a cryptobox directive from Vuforia, go for the first bin
+            mPattern = Pattern.compile(pattern);    // look for the given pattern of column colors
+            mBlueFilter = new BlueFilter();
+            mVLib = VLib;
+            mMotorSteps = null;     // this will be filled in by call from parent step
+            mPower = power;
+            mPrevColumns = null;
+            mColumnOffset = 0;
+
+            // construct a default PID controller for correcting heading errors
+            final float Kp = 0.2f;         // degree heading proportional term correction per degree of deviation
+            final float Ki = 0.0f;         // ... integrator term
+            final float Kd = 0.0f;         // ... derivative term
+            final float KiCutoff = 3.0f;   // maximum angle error for which we update integrator
+            mPid = new SensorLib.PID(Kp, Ki, Kd, KiCutoff);
+
+        }
+
+        public void setMark(String s) {
+            mVuMarkString = s;
+
+            // compute index of column that forms the left side of the desired bin.
+            // this assumes the camera is mounted to the left of the carried block.
+            if (mVuMarkString == "LEFT")
+                mCBColumn = 0;
+            else
+            if (mVuMarkString == "CENTER")
+                mCBColumn = 1;
+            else
+            if (mVuMarkString == "RIGHT")
+                mCBColumn = 2;
+
+            // if the camera is on the right side of the block, we want the right edge of the bin.
+            final boolean bCameraOnRight = true;
+            if (bCameraOnRight)
+                mCBColumn++;
+        }
+
+        public void set(ArrayList<AutoLib.SetPower> motorSteps){
+            mMotorSteps = motorSteps;
+        }
+
+        public boolean loop() {
+            super.loop();
+
+            final int minDoneCount = 5;      // require "done" test to succeed this many consecutive times
+            int doneCount = 0;
+
+            // initialize previous-time on our first call -> dt will be zero on first call
+            if (firstLoopCall()) {
+                mPrevTime = mOpMode.getRuntime();           // use timer provided by OpMode
+            }
+
+            mOpMode.telemetry.addData("VuMark", "%s found", mVuMarkString);
+
+            // get most recent frame from camera (through Vuforia)
+            //RectF rect = new RectF(0,0.25f,1f,0.75f);      // middle half of the image should be enough
+            //Bitmap bitmap = mVLib.getBitmap(rect, 4);                      // get cropped, downsampled image from Vuforia
+            Bitmap bitmap = mVLib.getBitmap(8);                       // get uncropped, downsampled image from Vuforia
+            CameraLib.CameraImage frame = new CameraLib.CameraImage(bitmap);       // .. and wrap it in a CameraImage
+
+            if (bitmap != null && frame != null) {
+                // look for cryptobox columns
+                // get unfiltered view of colors (hues) by full-image-height column bands
+                final int bandSize = 4;
+                String colString = frame.columnHue(bandSize);
+
+                // log debug info ...
+                mOpMode.telemetry.addData("hue columns", colString);
+
+                // look for occurrences of given pattern of column colors
+                ArrayList<ColumnHit> columns = new ArrayList<ColumnHit>(8);       // array of column start/end indices
+
+                for (int i=0; i<colString.length(); i++) {
+                    // starting at position (i), look for the given pattern in the encoded (rgbcymw) scanline
+                    Matcher m = mPattern.matcher(colString.substring(i));
+                    if (m.lookingAt()) {
+                        // add start/end info about this hit to the array
+                        columns.add(new ColumnHit(i+m.start(), i+m.end()-1));
+
+                        // skip over this match
+                        i += m.end();
+                    }
+                }
+
+                // report the matches in telemetry
+                for (ColumnHit h : columns) {
+                    mOpMode.telemetry.addData("found ", "%s from %d to %d", mPattern.pattern(), h.start(), h.end());
+                }
+
+                int nCol = columns.size();
+
+                // compute average distance between columns = distance between outermost / #bins
+                float avgBinWidth = nCol>1 ? (float)(columns.get(nCol-1).end() - columns.get(0).start()) / (float)(nCol-1) : 0;
+
+                // try to handle case where a column has left (or entered) the left-edge of the frame between the prev view and this one
+                if (mPrevColumns != null  &&  mPrevColumns.size()>0  &&  nCol>0  && avgBinWidth > 0) {
+
+                    // if the left-most column of the previous frame started at the left edge of the frame
+                    // and the left edge of the current left-most column is about a bin-width to the right of the right edge of the
+                    // left-most column of the previous frame
+                    // then it's probably the case that the current left-most column is actually the second column of the previous frame.
+                    if (mPrevColumns.get(0).start() == 0 && columns.get(0).start() > (mPrevColumns.get(0).end()+0.5*avgBinWidth)) {
+                        mColumnOffset++;
+                    }
+
+                    // if the left-most column of the previous frame was not near the left edge of the frame
+                    // but now there is a column at the left edge, then one probably entered the frame.
+                    if (mColumnOffset > 0 && mPrevColumns.get(0).start() > 0.5*avgBinWidth  &&  columns.get(0).start() == 0) {
+                        mColumnOffset--;
+                    }
+                }
+
+                mOpMode.telemetry.addData("data", "avgWidth= %f  mColOff=%d", avgBinWidth, mColumnOffset);
+
+                // if we found some columns, try to correct course using their positions in the image
+                if (mCBColumn >= mColumnOffset && nCol > mCBColumn-mColumnOffset) {
+                    // to start, we need to see all four columns to know where we're going ...
+                    // after that, we try to match up the columns visible in this view with those from the previous pass
+                    // TBD
+
+                    // compute camera offset from near-side column of target bin (whichever side camera is to the block holder)
+
+
+                    final float cameraOffset = 0.2f;        // e.g. camera is 0.2 x bin width to the right of block centerline
+
+
+
+                    float cameraBinOffset = avgBinWidth * cameraOffset;
+                    // camera target is center of target column + camera offset in image-string space
+                    float cameraTarget = columns.get(mCBColumn-mColumnOffset).mid() + cameraBinOffset;
+
+                    // the above computed target point should be in the middle of the image if we're on course -
+                    // if not, correct our course to center it --
+                    // compute fractional error = fraction of image offset of target from center = [-1 .. +1]
+                    float error = (cameraTarget - (float)colString.length()/2.0f) / ((float)colString.length()/2.0f);
+
+                    // compute motor correction from error through PID --
+                    // for now, convert image-string error to angle and use standard "gyro" PID
+                    final float cameraHalfFOVdeg = 28.0f;       // half angle FOV is about 28 degrees
+                    float angError = error * cameraHalfFOVdeg;
+
+                    mOpMode.telemetry.addData("data", "target=%f  error=%f angError=%f", cameraTarget, error, angError);
+
+                    // compute delta time since last call -- used for integration time of PID step
+                    double time = mOpMode.getRuntime();
+                    double dt = time - mPrevTime;
+                    mPrevTime = time;
+
+                    // feed error through PID to get motor power correction value
+                    float correction = -mPid.loop(error, (float)dt);
+
+                    // compute new right/left motor powers
+                    float rightPower = mPower + correction;
+                    float leftPower = mPower - correction;
+
+                    // normalize so neither has magnitude > 1
+                    float norm = AutoLib.normalize(rightPower, leftPower);
+                    rightPower *= norm;
+                    leftPower *= norm;
+
+                    // set the motor powers -- handle both time-based and encoder-based motor Steps
+                    // assumed order is right motors followed by an equal number of left motors
+                    int i = 0;
+                    for (AutoLib.SetPower ms : mMotorSteps) {
+                        ms.setPower((i++ < mMotorSteps.size()/2) ? rightPower : leftPower);
+                    }
+
+                    mOpMode.telemetry.addData("motors", "left=%f right=%f", leftPower, rightPower);
+                }
+
+                // when we're really close ... i.e. when the bin width is really big ... we're done
+                if (nCol > 1 && avgBinWidth > colString.length()/2) {          // for now, when bin width > 1/2 FOV
+                    // require completion test to pass some min number of times in a row to believe it
+                    if (++doneCount >= minDoneCount) {
+                        // stop all the motors and return "done"
+                        for (AutoLib.SetPower ms : mMotorSteps) {
+                            ms.setPower(0.0);
+                        }
+                        return true;
+                    }
+                }
+                else
+                    doneCount = 0;         // reset the "done" counter
+
+                mOpMode.telemetry.addData("data", "doneCount=%d", doneCount);
+
+                // save column hits for next pass to help handle columns leaving the field of view of
+                // the camera as we get close.
+                mPrevColumns = columns;
+
+            }
+
+            return false;  // haven't found anything yet
+        }
+
+        public void stop() {
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // a Step that drives a Servo to a given position
     static public class ServoStep extends Step {
@@ -1267,11 +1695,173 @@ static public class setColorB extends Step {
 
     }
 
+    /// some utility functions
+
     // linear interpolation
     private static double lerp (double x, double x0, double x1, double y0, double y1)
     {
         return ((x-x0)/(x1-x0))*(y1-y0) + y0;
     }
+
+    // return normalization factor that makes max magnitude of any argument 1
+    static public float normalize(float a, float b)
+    {
+        float m = Math.max(Math.abs(a), Math.abs(b));
+        return (m > 1.0f) ? 1.0f/m : 1.0f;
+    }
+
+    static public float normalize(float a, float b, float c, float d)
+    {
+        float m = Math.max(Math.max(Math.abs(a), Math.abs(b)), Math.max(Math.abs(c), Math.abs(d)));
+        return (m > 1.0f) ? 1.0f/m : 1.0f;
+    }
+
+    // return normalization factor that makes max magnitude of any argument 1
+    static public double normalize(double a, double b)
+    {
+        double m = Math.max(Math.abs(a), Math.abs(b));
+        return (m > 1.0) ? 1.0/m : 1.0;
+    }
+
+    static public double normalize(double a, double b, double c, double d)
+    {
+        double m = Math.max(Math.max(Math.abs(a), Math.abs(b)), Math.max(Math.abs(c), Math.abs(d)));
+        return (m > 1.0) ? 1.0/m : 1.0;
+    }
+
+    static public float normalize(float[] a)
+    {
+        float m = 0;
+        for (float x : a)
+            m = Math.max(m, Math.abs(x));
+        return (m > 1.0f) ? 1.0f/m : 1.0f;
+    }
+
+    static public double normalize(double[] a)
+    {
+        double m = 0;
+        for (double x : a)
+            m = Math.max(m, Math.abs(x));
+        return (m > 1.0) ? 1.0/m : 1.0;
+    }
+    // some Steps that use various sensor input to control other Steps
+
+    // interface for setting the current power of either kind of MotorStep
+    public interface SetMotorSteps {
+        public void set(ArrayList<AutoLib.SetPower> motorsteps);
+    }
+
+    static public abstract class MotorGuideStep extends AutoLib.Step implements SetMotorSteps {
+        public void set(ArrayList<AutoLib.SetPower> motorsteps){}
+    }
+
+
+    // a Step that provides gyro-based guidance to motors controlled by other concurrent Steps (e.g. encoder or time-based)
+    // assumes an even number of concurrent drive motor steps in order right ..., left ...
+    // this step tries to keep the robot on the given course by adjusting the left vs. right motors to change the robot's heading.
+
+
+    // a Step that waits for valid location and heading data to be available --- e.g from Vuforia --
+    // when added to either a dead reckoning or gyro-based movement step, it can be used to end that step
+    // when we're close enough to the targets for Vuforia to start being used. The base step should be
+    // of "zero-length" -- i.e. it should always be "done" so the composite step will be "done" as soon as
+    // this step detects valid location and heading data.
+
+
+    // a Step that returns true iff the given HeadingSensor reports a heading within some tolerance of a desired heading.
+    static public class GyroTestHeadingStep extends Step {
+        private HeadingSensor mSensor;
+        private double mHeading;
+        private double mTolerance;
+
+        public GyroTestHeadingStep(HeadingSensor sensor, double heading, double tol){
+            mSensor = sensor;
+            mHeading = heading;
+            mTolerance = tol;
+        }
+
+        public boolean loop() {
+            super.loop();
+
+            if (mSensor.haveHeading())
+                return (Math.abs(mSensor.getHeading()-mHeading) < mTolerance);
+            else
+                return false;
+        }
+    }
+
+    // a Step that stops the given set of motor control steps and terminates
+    // when the given DistanceSensor reports less than a given distance (in mm).
+    // pass in an empty set of motors to just do the test (e.g. for use with WaitTimeTestStep).
+   /*static public class DistanceSensorGuideStep extends Step {
+
+        private OpMode mOpMode;                     // for telemetry output (optional)
+        private DistanceSensor mDistanceSensor;     // distance sensor to read
+        private float mDistance;                    // stopping distance
+        private ArrayList<SetPower> mSteps;         // motors to stop at given distance
+
+        public DistanceSensorGuideStep(OpMode opmode, DistanceSensor ds, float distance, ArrayList<SetPower> steps)
+        {
+            mOpMode = opmode;
+            mDistanceSensor = ds;
+            mDistance = distance;
+            mSteps = steps;
+        }
+
+        public boolean loop()
+        {
+            super.loop();
+
+            boolean have = mDistanceSensor.haveDistance();
+            float dist = mDistanceSensor.getDistance();
+            boolean done = have && (dist < mDistance);
+            if (done)
+                for (SetPower step : mSteps)
+                    step.setPower(0);
+            if (mOpMode != null) {
+                mOpMode.telemetry.addData("DSGS: ", "have = %b  dist(mm) = %2.1f  (in) = %2.1f  done = %b", have, dist, dist/25.4f, done);
+            }
+            return done;
+        }
+    }*/
+
+    // a generic Step that uses a MotorGuideStep to steer the robot while driving along a given path
+    // until the terminatorStep tells us that we're there, thereby terminating this step.
+    static public class GuidedTerminatedDriveStep extends AutoLib.ConcurrentSequence {
+
+        public GuidedTerminatedDriveStep(OpMode mode, AutoLib.MotorGuideStep guideStep, AutoLib.MotorGuideStep terminatorStep, DcMotor[] motors)
+        {
+            // add a concurrent Step to control each motor
+            ArrayList<AutoLib.SetPower> steps = new ArrayList<AutoLib.SetPower>();
+            for (DcMotor em : motors)
+                if (em != null) {
+                    AutoLib.TimedMotorStep step = new AutoLib.TimedMotorStep(em, 0, 0, false);
+                    // the guide or terminator Step will stop the motors and complete the sequence
+                    this.add(step);
+                    steps.add(step);
+                }
+
+            // if there's a separate terminator step, tell it about the motor steps and add it to the sequence
+            if (terminatorStep != null) {
+                terminatorStep.set(steps);
+                this.preAdd(terminatorStep);
+            }
+
+            // tell the guideStep about the motor Steps it should control
+            guideStep.set(steps);
+
+            // add a concurrent Step to control the motor steps based on sensor (gyro, camera, etc.) input
+            // put it at the front of the list so it can update the motors BEFORE their steps run
+            // and BEFORE the terminatorStep might try to turn the motors off.
+            this.preAdd(guideStep);
+        }
+
+        // the base class loop function does all we need -- it will return "done" when
+        // all the motors are done.
+
+    }
+
+
 
     // some utilities to support "Squirrely Wheels" that move the robot sideways
     // when front and back wheels turn in opposite directions
@@ -1663,98 +2253,7 @@ static public class setColorB extends Step {
             return servo;
         }
     }
-    static public class turnByGyroHeading extends Step {
-        BNO055IMU mIMU;
-        DcMotor [] motors;
-        boolean done = false;
-        private OpMode mOpMode;                             // needed so we can log output (may be null)
-        Orientation mTargetHeading;
 
-        public turnByGyroHeading( DcMotor [] m, OpMode op, BNO055IMU imu, Orientation targetHeading) {
-
-            motors = m;
-            mOpMode = op;
-            mIMU = imu;
-            mTargetHeading = targetHeading;
-
-        }
-
-        public void turnLeft(){
-            motors[0].setPower(0.1);
-            motors[1].setPower(0.1);
-            motors[0].setPower(-0.1);
-            motors[0].setPower(-0.1);
-
-
-        }
-        public void turnRight(){
-            motors[0].setPower(-0.1);
-            motors[1].setPower(-0.1);
-            motors[0].setPower(0.1);
-            motors[0].setPower(0.1);
-        }
-
-        public boolean loop() {
-            super.loop();
-
-            if (firstLoopCall()){
-
-
-            }
-            if(mIMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle > mTargetHeading.firstAngle*1.05) {
-                turnLeft();
-
-            }else if(mIMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle < mTargetHeading.firstAngle*0.95){
-                turnRight();
-
-            }else{
-                done=true;
-            }
-
-            if (done == true) {
-                motors[0].setPower(0);
-                motors[1].setPower(0);
-                motors[2].setPower(0);
-                motors[3].setPower(0);
-            }
-
-            return done;
-        }
-
-
-    }
-    static public class identifyVuMark extends Step {
-
-        boolean done = true;
-        private OpMode mOpMode;                             // needed so we can log output (may be null)
-        Timer mTimer= new Timer (0.5);
-
-        public identifyVuMark(OpMode op) {
-
-            mOpMode = op;
-
-        }
-
-
-
-        public boolean loop() {
-            super.loop();
-
-            if (firstLoopCall()){
-
-
-            }
-
-
-            if (done == true) {
-
-            }
-
-            return done;
-        }
-
-
-    }
 
 }
 
