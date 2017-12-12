@@ -798,10 +798,10 @@ public class AutoLib {
 
 
             }
-            if(mIMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle > mTargetHeading*1.05) {
+            if(mIMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle > mTargetHeading + 1) {
                 turnLeft();
 
-            }else if(mIMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle < mTargetHeading*0.95){
+            }else if(mIMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle < mTargetHeading - 1){
                 turnRight();
 
             }else{
