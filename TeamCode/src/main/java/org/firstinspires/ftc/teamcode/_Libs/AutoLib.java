@@ -386,7 +386,9 @@ public class AutoLib {
         Timer mTimer = new Timer(0.25);
         Timer nTimer = new Timer (0.25);
         boolean done = false;
-        boolean secondLoopStart=false;
+        boolean firstLoopStart=true;
+        boolean secondLoopStart = true;
+        int color=3;
         private AutonomousBlueMain mOpMode;                             // needed so we can log output (may be null)
         public knockJewelRed(ColorSensor cs, DcMotor [] m, AutonomousBlueMain op) {
 
@@ -411,8 +413,14 @@ public class AutoLib {
         public boolean loop() {
             super.loop();
 
-            if (firstLoopCall()){
-                if (ColorTest() == 0){
+            if (firstLoopStart){
+                firstLoopStart=false;
+                color=ColorTest();
+                //0-red
+                //1-blue
+                //2-indeterminate
+                if (color == 0){
+
                     motors[0].setPower(-0.25);
                     motors[1].setPower(-0.25);
                     motors[2].setPower(-0.25);
@@ -422,7 +430,8 @@ public class AutoLib {
 
                     mTimer.start();
                 }
-                else if (ColorTest() ==1) {
+                else if (color ==1) {
+
                     motors[0].setPower(0.25);
                     motors[1].setPower(0.25);
                     motors[2].setPower(0.25);
@@ -431,15 +440,14 @@ public class AutoLib {
 
 
                     mTimer.start();
-                }else{
-                   // mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, .5, 1.0, true));
+                }else if(color == 2){
                     mTimer.start();
                 }
             }
 
             if(mTimer.done()&&secondLoopStart){
                 secondLoopStart=false;
-                if (ColorTest() == 1){
+                if (color == 1){
                     motors[0].setPower(-0.25);
                     motors[1].setPower(-0.25);
 
@@ -449,7 +457,7 @@ public class AutoLib {
 
                     nTimer.start();
                 }
-                else if (ColorTest() ==0){
+                else if (color ==0){
                     motors[0].setPower(0.25);
                     motors[1].setPower(0.25);
                     motors[2].setPower(0.25);
@@ -458,24 +466,25 @@ public class AutoLib {
 
                     nTimer.start();
                 }
-                else{
+                else if (color==2){
                     nTimer.start();
                     //mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, -0.5, 1.0, true));
                 }
             }
-            if(mTimer.done()){
-                secondLoopStart=true;
-            }
+
             done = nTimer.done();
 
-            if (done == true&&mTimer.done()) {
+            if (done && mTimer.done()) {
                 motors[0].setPower(0);
                 motors[1].setPower(0);
                 motors[2].setPower(0);
                 motors[3].setPower(0);
+                return true;
             }
+            mOpMode.telemetry.addData("mTimer: ", mTimer.done());
+            mOpMode.telemetry.addData("nTimer: ", nTimer.done());
 
-            return done;
+            return false;
         }
 
 
@@ -486,7 +495,9 @@ public class AutoLib {
         Timer mTimer = new Timer(0.25);
         Timer nTimer = new Timer (0.25);
         boolean done = false;
-        boolean secondLoopStart =false;
+        int color=3;
+        boolean firstLoopStart=true;
+        boolean secondLoopStart =true;
         private AutonomousRedMain mOpMode;                             // needed so we can log output (may be null)
         public knockJewelBlue(ColorSensor cs, DcMotor [] m, AutonomousRedMain op) {
 
@@ -510,9 +521,13 @@ public class AutoLib {
         }
         public boolean loop() {
             super.loop();
-
-            if (firstLoopCall()){
-                if (ColorTest() == 1){
+            if (firstLoopStart){
+                color=ColorTest();
+                //0-red
+                //1-blue
+                //2-indeterminate
+                firstLoopStart=false;
+                if (color == 1){
                     motors[0].setPower(-0.25);
                     motors[1].setPower(-0.25);
 
@@ -522,7 +537,7 @@ public class AutoLib {
 
                     mTimer.start();
                 }
-                else if (ColorTest() ==0){
+                else if (color ==0){
                     motors[0].setPower(0.25);
                     motors[1].setPower(0.25);
                     motors[2].setPower(0.25);
@@ -531,7 +546,7 @@ public class AutoLib {
 
                     mTimer.start();
                 }
-                else{
+                else if (color==2){
                     mTimer.start();
                    // mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, -0.5, 1.0, true));
                 }
@@ -539,7 +554,7 @@ public class AutoLib {
 
             if(mTimer.done()&&secondLoopStart){
                 secondLoopStart=false;
-                if (ColorTest() == 1){
+                if (color == 1){
                     motors[0].setPower(0.25);
                     motors[1].setPower(0.25);
 
@@ -549,7 +564,7 @@ public class AutoLib {
 
                     nTimer.start();
                 }
-                else if (ColorTest() ==0){
+                else if (color ==0){
                     motors[0].setPower(-0.25);
                     motors[1].setPower(-0.25);
                     motors[2].setPower(-0.25);
@@ -558,25 +573,27 @@ public class AutoLib {
 
                     nTimer.start();
                 }
-                else{
+                else if (color==2){
                     nTimer.start();
                     //mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, -0.5, 1.0, true));
                 }
             }
-            if(mTimer.done()){
-                secondLoopStart=true;
-            }
+
             done = nTimer.done();
 
 
-            if (done == true&&mTimer.done()) {
+            if (done && mTimer.done()) {
                 motors[0].setPower(0);
                 motors[1].setPower(0);
                 motors[2].setPower(0);
                 motors[3].setPower(0);
+                return true;
             }
+            mOpMode.telemetry.addData("mTimer: ", mTimer.done());
+            mOpMode.telemetry.addData("nTimer: ", nTimer.done());
 
-            return done;
+
+            return false;
         }
     }
 
@@ -743,14 +760,14 @@ public class AutoLib {
 
 
 
-    static public class turnByGyroHeading extends Step {
+    static public class turnToGyroHeading extends Step {
         BNO055IMU mIMU;
         DcMotor [] motors;
         boolean done = false;
         private OpMode mOpMode;                             // needed so we can log output (may be null)
-        Orientation mTargetHeading;
+        float mTargetHeading;// -180 to 180
 
-        public turnByGyroHeading( DcMotor [] m, OpMode op, BNO055IMU imu, Orientation targetHeading) {
+        public turnToGyroHeading( DcMotor [] m, OpMode op, BNO055IMU imu, float targetHeading) {
 
             motors = m;
             mOpMode = op;
@@ -762,16 +779,16 @@ public class AutoLib {
         public void turnLeft(){
             motors[0].setPower(0.1);
             motors[1].setPower(0.1);
-            motors[0].setPower(-0.1);
-            motors[0].setPower(-0.1);
+            motors[2].setPower(-0.1);
+            motors[3].setPower(-0.1);
 
 
         }
         public void turnRight(){
             motors[0].setPower(-0.1);
             motors[1].setPower(-0.1);
-            motors[0].setPower(0.1);
-            motors[0].setPower(0.1);
+            motors[2].setPower(0.1);
+            motors[3].setPower(0.1);
         }
 
         public boolean loop() {
@@ -781,10 +798,10 @@ public class AutoLib {
 
 
             }
-            if(mIMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle > mTargetHeading.firstAngle*1.05) {
+            if(mIMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle > mTargetHeading*1.05) {
                 turnLeft();
 
-            }else if(mIMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle < mTargetHeading.firstAngle*0.95){
+            }else if(mIMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle < mTargetHeading*0.95){
                 turnRight();
 
             }else{
@@ -886,7 +903,7 @@ public class AutoLib {
     // this is a guide step that uses camera image data to
 // guide the robot to the indicated bin of the cryptobox
 //
-   static public class GoToCryptoBoxGuideStep extends AutoLib.MotorGuideStep implements SetMark {
+    static public class GoToCryptoBoxGuideStep extends AutoLib.MotorGuideStep implements SetMark {
 
         VuforiaLib_FTC2017 mVLib;
         String mVuMarkString;
@@ -964,7 +981,7 @@ public class AutoLib {
             // get most recent frame from camera (through Vuforia)
             //RectF rect = new RectF(0,0.25f,1f,0.75f);      // middle half of the image should be enough
             //Bitmap bitmap = mVLib.getBitmap(rect, 4);                      // get cropped, downsampled image from Vuforia
-            Bitmap bitmap = mVLib.getBitmap(8);                       // get uncropped, downsampled image from Vuforia
+            Bitmap bitmap = mVLib.getBitmap(8);                      // get uncropped, downsampled image from Vuforia
             CameraLib.CameraImage frame = new CameraLib.CameraImage(bitmap);       // .. and wrap it in a CameraImage
 
             if (bitmap != null && frame != null) {
@@ -1028,12 +1045,7 @@ public class AutoLib {
                     // TBD
 
                     // compute camera offset from near-side column of target bin (whichever side camera is to the block holder)
-
-
                     final float cameraOffset = 0.2f;        // e.g. camera is 0.2 x bin width to the right of block centerline
-
-
-
                     float cameraBinOffset = avgBinWidth * cameraOffset;
                     // camera target is center of target column + camera offset in image-string space
                     float cameraTarget = columns.get(mCBColumn-mColumnOffset).mid() + cameraBinOffset;
@@ -1105,6 +1117,7 @@ public class AutoLib {
         public void stop() {
         }
     }
+
 
 
 

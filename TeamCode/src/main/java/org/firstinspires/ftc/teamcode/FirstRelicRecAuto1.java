@@ -59,7 +59,7 @@ import java.util.regex.Pattern;
 
 
 
-//@Autonomous(name="FirstRelicRecAuto1", group ="Auto")
+@Autonomous(name="FirstRelicRecAuto1", group ="Auto")
 //@Disabled
 public class FirstRelicRecAuto1 extends OpMode {
 
@@ -75,9 +75,9 @@ public class FirstRelicRecAuto1 extends OpMode {
     public void init(boolean bLookForBlue)
     {
         // get the hardware
-        hardwareDeclare hw;
+        hardwareDeclare2 hw;
 
-        hw=new hardwareDeclare(this);
+        hw=new hardwareDeclare2(this);
 
 
         // get the motors: depending on the factory we created above, these may be
@@ -100,11 +100,12 @@ public class FirstRelicRecAuto1 extends OpMode {
         mSequence = new AutoLib.LinearSequence();
         // make a step that guides the motion step by looking for a particular (red or blue) Cryptobox
         // it also implements the SetMark interface so VuforiaGetMarkStep can call it to tell which box to go for
-        AutoLib.MotorGuideStep guideStep  = new AutoLib.GoToCryptoBoxGuideStep(this, mVLib, bLookForBlue ? "^b+" : "^r+", 0.6f);
+        AutoLib.MotorGuideStep guideStep  = new AutoLib.GoToCryptoBoxGuideStep(this, mVLib, bLookForBlue ? "^b+" : "^r+", 0.1f);
         // make and add to the sequence the step that looks for the Vuforia marker and sets the column (Left,Center,Right)
         // the motion terminator step should look for
 
         mSequence.add(new AutoLib.VuforiaGetMarkStep(this, mVLib, (AutoLib.SetMark)guideStep));
+        mSequence.add(new AutoLib.wait(3));
         // make and add the Step that goes to the indicated Cryptobox bin
         mSequence.add(new AutoLib.GuidedTerminatedDriveStep(this, guideStep, null, mMotors));
         // make and add a step that tells us we're done

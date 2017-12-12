@@ -21,14 +21,16 @@ public class MainTeleOp_2p extends OpMode{
 
     hardwareDeclare hw;
     private float motorPower = 1.f;
+    double lPos=0;
+    double rPos=0;
 
     @Override
     public void init(){
 
         // Get our hardware
         hw = new hardwareDeclare(this);
-        hw.glyphLiftArms[0].setPosition(0);
-        hw.glyphLiftArms[1].setPosition(0);
+        hw.glyphLiftArms[0].setPosition(lPos);
+        hw.glyphLiftArms[1].setPosition(rPos);
         hw.ColorSensor.enableLed(false);
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
@@ -63,11 +65,11 @@ public class MainTeleOp_2p extends OpMode{
        // for(DcMotor motor : hw.motors) {
             // Set left motor power
             double powerToLeftMotor = -gamepad1.left_stick_y * motorPower;
-            powerToLeftMotor=pow(powerToLeftMotor, 3);
+           // powerToLeftMotor=pow(powerToLeftMotor, 3);
             telemetry.addData("power to  left motor:", powerToLeftMotor);
             double powerToRightMotor = -gamepad1.right_stick_y* motorPower;
             telemetry.addData("power to  right motor:", powerToRightMotor);
-            powerToRightMotor=pow(powerToRightMotor, 3);
+          //  powerToRightMotor=pow(powerToRightMotor, 3);
 
             hw.motors[2].setPower(powerToLeftMotor);
             hw.motors[3].setPower(powerToLeftMotor);
@@ -102,15 +104,30 @@ public class MainTeleOp_2p extends OpMode{
         //
          telemetry.addData("gyro: ", hw.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle);
 
-        if(gamepad2.a){
-            hw.glyphLiftArms[0].setPosition(1);
-            hw.glyphLiftArms[1].setPosition(1);
-        }else{
-            hw.glyphLiftArms[0].setPosition(0);
-            hw.glyphLiftArms[1].setPosition(0);
+        if(lPos<0){
+            lPos=0;
         }
+        if(rPos<0){
+            rPos=0;
+        }
+        if(lPos>1){
+                lPos=1;
+            }
+        if(rPos>1){
+                rPos=1;
+            }
+        lPos-=gamepad2.right_trigger/20;
+        rPos-=gamepad2.right_trigger/20;
 
+        lPos+=gamepad2.left_trigger/20;
+        rPos+=gamepad2.left_trigger/20;
+                //we can change it to use the stick positions to either set position or set change in position
+                       //left stick could control the left arm
 
+        hw.glyphLiftArms[0].setPosition(lPos);
+        hw.glyphLiftArms[1].setPosition(rPos);
+
+                       telemetry.addData("right trigger", gamepad2.right_trigger);
 
 
       /*  if(gamepad1.a || gamepad2.a){

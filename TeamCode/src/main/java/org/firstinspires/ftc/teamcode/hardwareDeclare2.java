@@ -10,8 +10,8 @@ public class hardwareDeclare2 {
     // Declare the motor matrix
     public DcMotor[] motors = new DcMotor[4];
     //public DcMotor[] testMotor = new DcMotor [1];
-    public Servo whacker;
-    public ModernRoboticsI2cColorSensor mColorSensor;
+   //public Servo whacker;
+    //public ModernRoboticsI2cColorSensor mColorSensor;
     // Declare the two lifter motors
    /* public DcMotor[] glyphLift = new DcMotor [2];
     public DcMotor [] relicArm = new DcMotor[2];
@@ -32,12 +32,12 @@ public class hardwareDeclare2 {
         motors[0] = opmode.hardwareMap.dcMotor.get("motorFrontRight");
         motors[3] = opmode.hardwareMap.dcMotor.get("motorBackLeft");
         motors[1] = opmode.hardwareMap.dcMotor.get("motorBackRight");
-        motors[2].setDirection(DcMotor.Direction.FORWARD);
-        motors[3].setDirection(DcMotor.Direction.FORWARD);
-        motors[0].setDirection(DcMotor.Direction.FORWARD);
-        motors[1].setDirection(DcMotor.Direction.FORWARD);
-        mColorSensor = (ModernRoboticsI2cColorSensor) opmode.hardwareMap.colorSensor.get("cs");
-        whacker = opmode.hardwareMap.servo.get("whacker");
+        motors[2].setDirection(DcMotor.Direction.REVERSE);
+        motors[3].setDirection(DcMotor.Direction.REVERSE);
+        motors[0].setDirection(DcMotor.Direction.REVERSE);
+        motors[1].setDirection(DcMotor.Direction.REVERSE);
+       // mColorSensor = (ModernRoboticsI2cColorSensor) opmode.hardwareMap.colorSensor.get("cs");
+       // whacker = opmode.hardwareMap.servo.get("whacker");
 
 
     }

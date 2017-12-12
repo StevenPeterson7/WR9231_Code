@@ -44,10 +44,10 @@ public class hardwareDeclare{
 
         //Drive Motors
         //testMotor[0] = opmode.hardwareMap.dcMotor.get("test");
-        motors[2] = opmode.hardwareMap.dcMotor.get("motorFrontLeft");
-        motors[0] = opmode.hardwareMap.dcMotor.get("motorFrontRight");
-        motors[3] = opmode.hardwareMap.dcMotor.get("motorBackLeft");
-        motors[1] = opmode.hardwareMap.dcMotor.get("motorBackRight");
+        motors[2] = opmode.hardwareMap.dcMotor.get("frontLeft");
+        motors[0] = opmode.hardwareMap.dcMotor.get("frontRight");
+        motors[3] = opmode.hardwareMap.dcMotor.get("backLeft");
+        motors[1] = opmode.hardwareMap.dcMotor.get("backRight");
         motors[2].setDirection(DcMotor.Direction.REVERSE);
         motors[3].setDirection(DcMotor.Direction.REVERSE);
         motors[0].setDirection(DcMotor.Direction.FORWARD);
@@ -67,7 +67,7 @@ public class hardwareDeclare{
         glyphLiftArms[0] = opmode.hardwareMap.servo.get("leftArm");
         glyphLiftArms[1] = opmode.hardwareMap.servo.get("rightArm");
         glyphLiftArms[1].setDirection(REVERSE);
-        glyphLiftArms[0].scaleRange(.1666,1);
+        glyphLiftArms[0].scaleRange(0,0.844);
         glyphLiftArms[1].scaleRange(0,0.8444);
 
 

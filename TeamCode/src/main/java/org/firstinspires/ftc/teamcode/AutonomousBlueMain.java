@@ -50,7 +50,9 @@ public class AutonomousBlueMain extends OpMode {
         mSequence.add(new AutoLib.ServoStep(hw.whacker, 1));
         mSequence.add(new AutoLib.wait(1.0));
 
-        angles.firstAngle=0.25f;
+        mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, 90f));//turn 90 degrees to the left
+
+
 
         //mSequence.add(new AutoLib.turnByGyroHeading(hw.motors, this, hw.imu, angles));
 

@@ -32,9 +32,9 @@ public class RatBotTeleOp_2p extends OpMode{
         // Set right motor power
         hw.motors[1].setPower(powerToRightMotor);
 
-        hw.whacker.setPosition(gamepad2.left_stick_y);
+        //hw.whacker.setPosition(gamepad2.left_stick_y);
 
-        telemetry.addData("position ",hw.whacker.getPosition());
+        //telemetry.addData("position ",hw.whacker.getPosition());
 
 
 

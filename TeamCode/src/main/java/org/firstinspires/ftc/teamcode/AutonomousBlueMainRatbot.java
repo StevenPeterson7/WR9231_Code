@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode._Libs.AutoLib;
+
 @Autonomous(name="MainBlueAutonomousRatbot", group ="Autonomous")
 //@Disabled
 public class AutonomousBlueMainRatbot extends OpMode {
@@ -32,12 +34,12 @@ public class AutonomousBlueMainRatbot extends OpMode {
         mSequence = new AutoLib.LinearSequence();
 
 
-        mSequence.add(new AutoLib.ServoStep(hw.whacker, 0.8));
+       // mSequence.add(new AutoLib.ServoStep(hw.whacker, 0.8));
         mSequence.add(new AutoLib.wait(1.0));
-        mSequence.add(new AutoLib.knockJewelRedRatbot(hw.mColorSensor, hw.motors, this));
+       // mSequence.add(new AutoLib.knockJewelRedRatbot(hw.mColorSensor, hw.motors, this));
         mSequence.add(new AutoLib.wait(3.0));
 
-        mSequence.add(new AutoLib.ServoStep(hw.whacker, 0));
+       // mSequence.add(new AutoLib.ServoStep(hw.whacker, 0));
         mSequence.add(new AutoLib.wait(1.0));
 
         mSequence.add(new AutoLib.MoveByTimeStep(hw.motors,.5,1.0,true));
@@ -56,8 +58,8 @@ public class AutonomousBlueMainRatbot extends OpMode {
     }
 
     public void loop() {
-        telemetry.addData("blue:", hw.mColorSensor.blue());
-        telemetry.addData("red:", hw.mColorSensor.red());
+       // telemetry.addData("blue:", hw.mColorSensor.blue());
+       // telemetry.addData("red:", hw.mColorSensor.red());
         // until we're done, keep looping through the current Step(s)
         if (!bDone)
             bDone = mSequence.loop();       // returns true when we're done

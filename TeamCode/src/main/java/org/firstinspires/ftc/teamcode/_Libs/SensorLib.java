@@ -199,7 +199,7 @@ public class SensorLib {
     }
 
     // class that wraps UltrasonicSensor in a DistanceSensor interface
-    static public class UltrasonicDistanceSensor implements DistanceSensor {
+   /* static public class UltrasonicDistanceSensor implements DistanceSensor {
 
         private UltrasonicSensor mSensor;
 
@@ -218,5 +218,5 @@ public class SensorLib {
             final float UUtoMM = 0.3f*25.4f;    // "Ultrasonic Units" appear to be ~0.3"
             return (float)mSensor.getUltrasonicLevel() * UUtoMM;
         }
-    }
+    }*/
 }
