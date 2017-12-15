@@ -141,7 +141,7 @@ public class VuforiaLib_FTC2017 implements HeadingSensor, LocationSensor {
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(R.id.cameraMonitorViewId);
         parameters.vuforiaLicenseKey =
                 (licenseKey != null && licenseKey.length() > 0) ? licenseKey :
-                "ARf809H/////AAAAGRswBQwUCUJ5nqfgZxGbDEQ8oO7YP5GdnbReYr8ZHinqQ74OsP7UdOxNZJDmhaF2OeGD20jpSexpr2CcXGSGuHXNB2p9Z6zUNLDTfEggL+yg4ujefoqdkSpCqZf1medpwh3KXcK76FcfSJuqEudik2PC6kQW/cqJXnnHofVrrDTzJmWMnK3hlqTMjig81DEPMAHbRnA5wn7Eu0irnmqqboWyOlQ0xTF+P4LVuxaOUFlQC8zPqkr1Gvzvix45paWtyuLCnS9YDWMvI1jIM4giMrTRCT0lG8F+vkuKMiK647KJp9QIsFdWQ0ecQhau3ODNQ03pcTzprVN72b9VObpv6FNBpjGKRAcA59xlZiM2l6fc";
+                        "AU8Kasv/////AAAAGSxUejHevUBRskcdp7rCVVF3vA+6lgm3KL0uT0htVmSkIig00Om+V+RsG3zpYnlF4gU0paEuktNczisFD/23jnSj/LtxSe93gMKiMUHjRGrNXN2NLZohBt9ZVXRilSCUwlYLQvJo7L1AMJSaE6L2OsEZDCN2EGl6bXY6GYiG8e96AP0brA70MnNQwyuQz/zLlud0oBErG6ivbO6kf98BYen68+wGcYkfCP0/iZo9E4W2Ls/a3LZmZjXPSJ9E2zmT+vziDfg22TaL5OqQ4hizGAKlgshdAqDN22ak6ztcMIYmDOlihhgKQX/cd6BgQju2sfyKgJhhCCdcLodSRTBDpn+X5Is+/2pO6N03p4UBsT17";
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
         this.vuforia = new myVuforiaLocalizerImpl(parameters); // ClassFactory.createVuforiaLocalizer(parameters);
 

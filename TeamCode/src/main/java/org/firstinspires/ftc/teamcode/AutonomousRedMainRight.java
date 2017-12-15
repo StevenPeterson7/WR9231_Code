@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
@@ -31,6 +33,15 @@ public class AutonomousRedMainRight extends AutonomousRedMain {
     public void init() {
         // Get our hardware
         hw = new hardwareDeclare(this);
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
+        parameters.loggingEnabled      = true;
+        parameters.loggingTag          = "IMU";
+        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+        hw.imu.initialize(parameters);
+
         mVLib = new VuforiaLib_FTC2017();
         mVLib.init(this, null);
 
@@ -38,7 +49,7 @@ public class AutonomousRedMainRight extends AutonomousRedMain {
 
         // create the root Sequence for this autonomous OpMode
         mSequence = new AutoLib.LinearSequence();
-        AutoLib.MotorGuideStep guideStep  = new AutoLib.GoToCryptoBoxGuideStep(this, mVLib, "^r+", 0.1f);
+        AutoLib.MotorGuideStep guideStep  = new AutoLib.GoToCryptoBoxGuideStep(this, mVLib, "^r+", 0.175f);
 
 
         mSequence.add(new AutoLib.ServoStep(hw.whacker, 0.45));
@@ -55,7 +66,7 @@ public class AutonomousRedMainRight extends AutonomousRedMain {
         mSequence.add(new AutoLib.ServoStep(hw.whacker, 1));
         mSequence.add(new AutoLib.wait(1.5));
 
-        mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, -90f));//turn 90 degrees to the left
+        mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, -100f));//turn 90 degrees to the left
         mSequence.add(new AutoLib.VuforiaGetMarkStep(this, mVLib, (AutoLib.SetMark)guideStep));
         mSequence.add(new AutoLib.wait(3));
         mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, 135f));//turn 225 degrees to the right
@@ -71,6 +82,13 @@ public class AutonomousRedMainRight extends AutonomousRedMain {
 
 
         bDone = false;
+    }
+
+    @Override public void start()
+    {
+
+        // start Vuforia scanning
+        mVLib.start();
     }
 
     public void loop() {

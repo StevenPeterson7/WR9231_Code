@@ -766,6 +766,7 @@ public class AutoLib {
         boolean done = false;
         private OpMode mOpMode;                             // needed so we can log output (may be null)
         float mTargetHeading;// -180 to 180
+        double motorPower=0.4;
 
         public turnToGyroHeading( DcMotor [] m, OpMode op, BNO055IMU imu, float targetHeading) {
 
@@ -777,18 +778,18 @@ public class AutoLib {
         }
 
         public void turnLeft(){
-            motors[0].setPower(0.1);
-            motors[1].setPower(0.1);
-            motors[2].setPower(-0.1);
-            motors[3].setPower(-0.1);
+            motors[0].setPower(motorPower);
+            motors[1].setPower(motorPower);
+            motors[2].setPower(-motorPower);
+            motors[3].setPower(-motorPower);
 
 
         }
         public void turnRight(){
-            motors[0].setPower(-0.1);
-            motors[1].setPower(-0.1);
-            motors[2].setPower(0.1);
-            motors[3].setPower(0.1);
+            motors[0].setPower(-motorPower);
+            motors[1].setPower(-motorPower);
+            motors[2].setPower(motorPower);
+            motors[3].setPower(motorPower);
         }
 
         public boolean loop() {
@@ -989,6 +990,9 @@ public class AutoLib {
                 // get unfiltered view of colors (hues) by full-image-height column bands
                 final int bandSize = 4;
                 String colString = frame.columnHue(bandSize);
+
+                colString = new StringBuilder(colString).reverse().toString();//if the phone is upside down, the string needs to be reversed
+
 
                 // log debug info ...
                 mOpMode.telemetry.addData("hue columns", colString);

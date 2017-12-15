@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -14,6 +16,7 @@ public class AutonomousBlueMainStraight extends AutonomousBlueMain {
     AutoLib.Sequence mSequence;     // the root of the sequence tree
     boolean bDone;                  // true when the programmed sequence is done
     hardwareDeclare hw;
+
     SensorLib.PID mPID;
     public int [] rgb = {0, 0, 0};
 
@@ -33,6 +36,16 @@ public class AutonomousBlueMainStraight extends AutonomousBlueMain {
         // Get our hardware
         hw = new hardwareDeclare(this);
 
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
+        parameters.loggingEnabled      = true;
+        parameters.loggingTag          = "IMU";
+        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+        hw.imu.initialize(parameters);
+
+
         mVLib = new VuforiaLib_FTC2017();
         mVLib.init(this, null);
 
@@ -41,7 +54,7 @@ public class AutonomousBlueMainStraight extends AutonomousBlueMain {
 
         // create the root Sequence for this autonomous OpMode
         mSequence = new AutoLib.LinearSequence();
-        AutoLib.MotorGuideStep guideStep  = new AutoLib.GoToCryptoBoxGuideStep(this, mVLib, "^b+", 0.1f);
+        AutoLib.MotorGuideStep guideStep  = new AutoLib.GoToCryptoBoxGuideStep(this, mVLib, "^b+", 0.175f);
 
 
         mSequence.add(new AutoLib.ServoStep(hw.whacker, 0.45));
@@ -58,7 +71,7 @@ public class AutonomousBlueMainStraight extends AutonomousBlueMain {
         mSequence.add(new AutoLib.ServoStep(hw.whacker, 1));
         mSequence.add(new AutoLib.wait(1.5));
 
-        mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, 90f));//turn 90 degrees to the left
+        mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, 100f));//turn 90 degrees to the left
         mSequence.add(new AutoLib.VuforiaGetMarkStep(this, mVLib, (AutoLib.SetMark)guideStep));
         mSequence.add(new AutoLib.wait(3));
         mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, -15f));//turn 105 degrees to the right
@@ -70,6 +83,13 @@ public class AutonomousBlueMainStraight extends AutonomousBlueMain {
 
         bDone = false;
     }
+    @Override public void start()
+    {
+
+        // start Vuforia scanning
+        mVLib.start();
+    }
+
 
     public void loop() {
         telemetry.addData("blue:", hw.ColorSensor.blue()-rgb[2]);

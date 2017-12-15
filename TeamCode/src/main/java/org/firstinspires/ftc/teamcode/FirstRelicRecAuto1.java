@@ -100,7 +100,7 @@ public class FirstRelicRecAuto1 extends OpMode {
         mSequence = new AutoLib.LinearSequence();
         // make a step that guides the motion step by looking for a particular (red or blue) Cryptobox
         // it also implements the SetMark interface so VuforiaGetMarkStep can call it to tell which box to go for
-        AutoLib.MotorGuideStep guideStep  = new AutoLib.GoToCryptoBoxGuideStep(this, mVLib, bLookForBlue ? "^b+" : "^r+", 0.1f);
+        AutoLib.MotorGuideStep guideStep  = new AutoLib.GoToCryptoBoxGuideStep(this, mVLib, bLookForBlue ? "^b+" : "^r+", 0f);
         // make and add to the sequence the step that looks for the Vuforia marker and sets the column (Left,Center,Right)
         // the motion terminator step should look for
 
