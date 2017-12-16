@@ -925,6 +925,7 @@ static public class raiseLift extends Step{
             if (found) {
                 // Found an instance of the template -- tell "MoveTo.. step which one
                 mSMStep.setMark(vuMark.toString());
+
             }
             return found;       // done?
         }
@@ -1076,7 +1077,7 @@ static public class raiseLift extends Step{
                 float avgBinWidth = nCol>1 ? (float)(columns.get(nCol-1).end() - columns.get(0).start()) / (float)(nCol-1) : 0;
 
                 // try to handle case where a column has left (or entered) the left-edge of the frame between the prev view and this one
-                if (mPrevColumns != null  &&  mPrevColumns.size()>0  &&  nCol>0  && avgBinWidth > 0) {
+                /*if (mPrevColumns != null  &&  mPrevColumns.size()>0  &&  nCol>0  && avgBinWidth > 0) {
 
                     // if the left-most column of the previous frame started at the left edge of the frame
                     // and the left edge of the current left-most column is about a bin-width to the right of the right edge of the
@@ -1090,6 +1091,23 @@ static public class raiseLift extends Step{
                     // but now there is a column at the left edge, then one probably entered the frame.
                     if (mColumnOffset > 0 && mPrevColumns.get(0).start() > 0.5*avgBinWidth  &&  columns.get(0).start() == 0) {
                         mColumnOffset--;
+                    }
+                }*/
+                if(mPrevColumns !=null && mPrevColumns.size()>1 && nCol>1){
+                    //if the leftmost column in the current frame is closer to the second column of the previous frame than to the leftmost
+                    if(Math.abs(mPrevColumns.get(1).mid()-columns.get(0).mid())< Math.abs(mPrevColumns.get(0).mid()-columns.get(0).mid())){
+
+                        if(mColumnOffset<4){
+                            mColumnOffset++;
+                        }
+                    }
+                    //if the leftmost column in the previous frame is closer to the second column of the previous frame than to the leftmost
+
+                    else if(Math.abs(mPrevColumns.get(0).mid()-columns.get(1).mid())< Math.abs(mPrevColumns.get(0).mid()-columns.get(0).mid())){
+
+                        if(mColumnOffset>0){
+                            mColumnOffset--;
+                        }
                     }
                 }
 

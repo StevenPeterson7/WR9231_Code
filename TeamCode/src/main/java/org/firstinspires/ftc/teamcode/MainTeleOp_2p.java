@@ -89,9 +89,9 @@ public class MainTeleOp_2p extends OpMode{
 
         telemetry.addData("glyph spin: ", gamepad2.right_stick_x );
         telemetry.addData("glyph spin pos: ", hw.glyphLift[0].getCurrentPosition());
-        if(hw.glyphLift[0].getCurrentPosition() <= 450 && gamepad2.right_stick_x > 0){
+        if(hw.glyphLift[0].getCurrentPosition() <= 475 && gamepad2.right_stick_x > 0){
             hw.glyphLift[0].setPower(gamepad2.right_stick_x * 0.2);
-        }else if(hw.glyphLift[0].getCurrentPosition()>=-450 && gamepad2.right_stick_x < 0) {
+        }else if(hw.glyphLift[0].getCurrentPosition()>=-475 && gamepad2.right_stick_x < 0) {
             hw.glyphLift[0].setPower(gamepad2.right_stick_x * 0.2);
         }else {
             hw.glyphLift[0].setPower(0);

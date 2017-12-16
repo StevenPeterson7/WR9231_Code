@@ -67,7 +67,7 @@ public class AutonomousBlueMainLeft extends AutonomousBlueMain {
         mSequence.add(new AutoLib.ServoStep(hw.whacker, 1));
         mSequence.add(new AutoLib.wait(1.5));
 
-        mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, 100f));//turn 90 degrees to the left
+        mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, 110f));//turn 90 degrees to the left
         mSequence.add(new AutoLib.VuforiaGetMarkStep(this, mVLib, (AutoLib.SetMark)guideStep));
         mSequence.add(new AutoLib.wait(3));
         mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, -45f));//turn 135 degrees to the right
