@@ -82,7 +82,7 @@ public class MainTeleOp_2p extends OpMode{
         telemetry.addData("glyph lift pos: ", hw.glyphLift[1].getCurrentPosition());
 
         if(gamepad2.left_stick_y!=0){
-            hw.glyphLift[1].setPower(pow(gamepad2.left_stick_y,3));
+            hw.glyphLift[1].setPower(pow(gamepad2.left_stick_y,3));//goes up to 8600
         }else{
             hw.glyphLift[1].setPower(0);
         }
@@ -116,11 +116,16 @@ public class MainTeleOp_2p extends OpMode{
         if(rPos>1){
                 rPos=1;
             }
-        lPos-=gamepad2.right_trigger/20;
-        rPos-=gamepad2.right_trigger/20;
+        if(gamepad2.right_bumper){
+            rPos-=0.07;
+        }
+        if(gamepad2.left_bumper){
+            lPos-=0.07;
+        }
 
-        lPos+=gamepad2.left_trigger/20;
-        rPos+=gamepad2.left_trigger/20;
+
+        lPos+=gamepad2.left_trigger/15;
+        rPos+=gamepad2.right_trigger/15;
                 //we can change it to use the stick positions to either set position or set change in position
                        //left stick could control the left arm
 

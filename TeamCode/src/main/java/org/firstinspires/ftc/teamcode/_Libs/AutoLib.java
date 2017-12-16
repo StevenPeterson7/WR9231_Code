@@ -383,8 +383,8 @@ public class AutoLib {
     static public class knockJewelRed extends Step {
         ColorSensor colorSensor;
         DcMotor [] motors;
-        Timer mTimer = new Timer(0.25);
-        Timer nTimer = new Timer (0.25);
+        Timer mTimer = new Timer(0.35);
+        Timer nTimer = new Timer (0.55);
         boolean done = false;
         boolean firstLoopStart=true;
         boolean secondLoopStart = true;
@@ -492,8 +492,8 @@ public class AutoLib {
     static public class knockJewelBlue extends Step {
         ColorSensor colorSensor;
         DcMotor [] motors;
-        Timer mTimer = new Timer(0.25);
-        Timer nTimer = new Timer (0.25);
+        Timer mTimer = new Timer(0.35);
+        Timer nTimer = new Timer (0.55);
         boolean done = false;
         int color=3;
         boolean firstLoopStart=true;
@@ -752,12 +752,63 @@ public class AutoLib {
 
 
 
+static public class raiseLift extends Step{
+        DcMotor [] glyphLift;
+        boolean done = false;
+        private OpMode mOpMode;
+        int targetHeight;
+        int startHeight;
+
+        public raiseLift(DcMotor [] lift, int h, OpMode op){
+            glyphLift=lift;
+            targetHeight=h;
+            startHeight=glyphLift[1].getCurrentPosition();
+            mOpMode=op;
+        }
+    public boolean loop() {
+        super.loop();
+
+        if(glyphLift[1].getCurrentPosition()-startHeight < targetHeight-5){
+            glyphLift[1].setPower(0.15);
+        }else if(glyphLift[1].getCurrentPosition()-startHeight > targetHeight+5){
+            glyphLift[1].setPower(-0.15);
+        }else{
+            glyphLift[1].setPower(0);
+            return true;
+        }
+
+
+        return false;
+    }
+}
 
 
 
+/*static public class pickUpGlyph extends ConcurrentSequence {
+        DcMotor [] motors;
+        boolean done=false;
+        private OpMode mOpMode;
+        DcMotor [] glyphLift;
+        Servo [] arms;
+        raiseLift rLift;
 
+        public pickUpGlyph(DcMotor [] m, OpMode op, DcMotor [] lift, Servo [] a){
+            motors = m;
+            mOpMode = op;
+            glyphLift = lift;
+            arms = a;
+            ServoStep moveL=new ServoStep(arms[0], 1);
+            ServoStep moveR=new ServoStep(arms[1], 1);
+            raiseLift raiseL=new raiseLift(glyphLift, -250, mOpMode);
+            this.add(moveL);
+            this.add(moveR);
+            this.add(raiseL);
+            this
 
+        }
 
+}
+*/
 
 
     static public class turnToGyroHeading extends Step {
@@ -921,6 +972,8 @@ public class AutoLib {
         double mPrevTime;                   // time of previous loop() call
         ArrayList<AutoLib.SetPower> mMotorSteps;   // the motor steps we're guiding - assumed order is right ... left ...
         float mPower;                      // base power setting for motors
+        int doneCount = 0;
+        int numPrevColumn=0;
 
         public GoToCryptoBoxGuideStep(OpMode opMode, VuforiaLib_FTC2017 VLib, String pattern, float power) {
             mOpMode = opMode;
@@ -934,7 +987,7 @@ public class AutoLib {
             mColumnOffset = 0;
 
             // construct a default PID controller for correcting heading errors
-            final float Kp = 0.2f;         // degree heading proportional term correction per degree of deviation
+            final float Kp = 0.5f;         // degree heading proportional term correction per degree of deviation
             final float Ki = 0.0f;         // ... integrator term
             final float Kd = 0.0f;         // ... derivative term
             final float KiCutoff = 3.0f;   // maximum angle error for which we update integrator
@@ -957,7 +1010,7 @@ public class AutoLib {
                 mCBColumn = 2;
 
             // if the camera is on the right side of the block, we want the right edge of the bin.
-            final boolean bCameraOnRight = true;
+            final boolean bCameraOnRight = false;
             if (bCameraOnRight)
                 mCBColumn++;
         }
@@ -970,7 +1023,7 @@ public class AutoLib {
             super.loop();
 
             final int minDoneCount = 5;      // require "done" test to succeed this many consecutive times
-            int doneCount = 0;
+
 
             // initialize previous-time on our first call -> dt will be zero on first call
             if (firstLoopCall()) {
@@ -1049,7 +1102,7 @@ public class AutoLib {
                     // TBD
 
                     // compute camera offset from near-side column of target bin (whichever side camera is to the block holder)
-                    final float cameraOffset = 0.2f;        // e.g. camera is 0.2 x bin width to the right of block centerline
+                    final float cameraOffset = -0.33f;        // e.g. camera is 0.2 x bin width to the right of block centerline
                     float cameraBinOffset = avgBinWidth * cameraOffset;
                     // camera target is center of target column + camera offset in image-string space
                     float cameraTarget = columns.get(mCBColumn-mColumnOffset).mid() + cameraBinOffset;
@@ -1093,8 +1146,18 @@ public class AutoLib {
                     mOpMode.telemetry.addData("motors", "left=%f right=%f", leftPower, rightPower);
                 }
 
-                // when we're really close ... i.e. when the bin width is really big ... we're done
-                if (nCol > 1 && avgBinWidth > colString.length()/2) {          // for now, when bin width > 1/2 FOV
+              /*  if(nCol==0&&numPrevColumn!=0){
+                    if (++doneCount >= minDoneCount) {
+                        // stop all the motors and return "done"
+                        for (AutoLib.SetPower ms : mMotorSteps) {
+                            ms.setPower(0.0);
+                        }
+                        return true;
+                    }
+
+                }// when we're really close ... i.e. when the bin width is really big ... we're done*/
+               // else if (nCol > 1 && avgBinWidth > colString.length()/2) {          // for now, when bin width > 1/2 FOV
+                if (nCol > 1 && avgBinWidth > colString.length()/2) {
                     // require completion test to pass some min number of times in a row to believe it
                     if (++doneCount >= minDoneCount) {
                         // stop all the motors and return "done"
@@ -1104,9 +1167,14 @@ public class AutoLib {
                         return true;
                     }
                 }
-                else
+                else {
                     doneCount = 0;         // reset the "done" counter
-
+                   /* if(mPrevColumns!=null) {
+                        numPrevColumn = mPrevColumns.size();
+                    }else{
+                        numPrevColumn=0;
+                    }*/
+                }
                 mOpMode.telemetry.addData("data", "doneCount=%d", doneCount);
 
                 // save column hits for next pass to help handle columns leaving the field of view of
