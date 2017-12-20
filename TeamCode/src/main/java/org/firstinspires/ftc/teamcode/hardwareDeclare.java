@@ -68,7 +68,7 @@ public class hardwareDeclare{
         glyphLiftArms[1] = opmode.hardwareMap.servo.get("rightArm");
         glyphLiftArms[1].setDirection(REVERSE);
         glyphLiftArms[0].scaleRange(0,0.844);
-        glyphLiftArms[1].scaleRange(0,0.8444);
+        glyphLiftArms[1].scaleRange(0,0.844);
 
 
         // Ball Lifter and Launcher Motors
