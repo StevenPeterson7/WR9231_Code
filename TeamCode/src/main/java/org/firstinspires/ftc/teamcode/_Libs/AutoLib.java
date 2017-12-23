@@ -1212,7 +1212,161 @@ static public class raiseLift extends Step{
 
 
 
+    static public class GoToCryptoBoxColumn extends Step{
 
+        VuforiaLib_FTC2017 mVLib;
+        String mVuMarkString;
+        OpMode mOpMode;
+        int mCBColumn;                      // which Cryptobox column we're looking for
+        Pattern mPattern;                   // compiled regexp pattern we'll use to find the pattern we're looking for
+        int mColumnOffset;                  // number of columns that have left the left-edge of the frame
+        DcMotor [] motors;
+
+        CameraLib.Filter mBlueFilter;       // filter to map cyan to blue
+
+        ArrayList<ColumnHit> mPrevColumns;  // detected columns on previous pass
+
+        SensorLib.PID mPid;                 // proportional–integral–derivative controller (PID controller)
+        double mPrevTime;                   // time of previous loop() call
+        //ArrayList<AutoLib.SetPower> mMotorSteps;   // the motor steps we're guiding - assumed order is right ... left ...
+        float mPower;                      // base power setting for motors
+        int doneCount = 0;
+        int numPrevColumn=0;
+
+        public GoToCryptoBoxColumn(OpMode opMode, VuforiaLib_FTC2017 VLib, String pattern, DcMotor [] m, float power) {
+            mOpMode = opMode;
+            mCBColumn = 1;     // if we never get a cryptobox directive from Vuforia, go for the first bin
+            mPattern = Pattern.compile(pattern);    // look for the given pattern of column colors
+            mBlueFilter = new BlueFilter();
+            mVLib = VLib;
+            motors=m;
+            if(pattern=="^r+"){
+                mPower = -power;
+            }
+            else{
+                mPower = power;
+            }
+
+            mPrevColumns = null;
+            mColumnOffset = 0;
+
+            // construct a default PID controller for correcting heading errors
+            final float Kp = 0.5f;         // degree heading proportional term correction per degree of deviation
+            final float Ki = 0.0f;         // ... integrator term
+            final float Kd = 0.0f;         // ... derivative term
+            final float KiCutoff = 3.0f;   // maximum angle error for which we update integrator
+            mPid = new SensorLib.PID(Kp, Ki, Kd, KiCutoff);
+
+        }
+
+        public void setMark(String s) {
+            mVuMarkString = s;
+
+            // compute index of column that forms the left side of the desired bin.
+            // this assumes the camera is mounted to the left of the carried block.
+            if (mVuMarkString == "LEFT")
+                mCBColumn = 0;
+            else
+            if (mVuMarkString == "CENTER")
+                mCBColumn = 1;
+            else
+            if (mVuMarkString == "RIGHT")
+                mCBColumn = 2;
+
+            // if the camera is on the right side of the block, we want the right edge of the bin.
+            final boolean bCameraOnRight = false;
+            if (bCameraOnRight)
+                mCBColumn++;
+        }
+
+       // public void set(ArrayList<AutoLib.SetPower> motorSteps){
+       //     mMotorSteps = motorSteps;
+       // }
+
+        public boolean loop() {
+            super.loop();
+
+            final int minDoneCount = 5;      // require "done" test to succeed this many consecutive times
+
+
+            // initialize previous-time on our first call -> dt will be zero on first call
+            if (firstLoopCall()) {
+                setMark(mVLib.toString());
+                mPrevTime = mOpMode.getRuntime();           // use timer provided by OpMode
+                motors[0].setPower(mPower);
+                motors[1].setPower(mPower);
+                motors[2].setPower(mPower);
+                motors[3].setPower(mPower);
+
+
+            }
+
+            mOpMode.telemetry.addData("VuMark", "%s found", mVuMarkString);
+
+            // get most recent frame from camera (through Vuforia)
+            //RectF rect = new RectF(0,0.25f,1f,0.75f);      // middle half of the image should be enough
+            //Bitmap bitmap = mVLib.getBitmap(rect, 4);                      // get cropped, downsampled image from Vuforia
+            Bitmap bitmap = mVLib.getBitmap(8);                      // get uncropped, downsampled image from Vuforia
+            CameraLib.CameraImage frame = new CameraLib.CameraImage(bitmap);       // .. and wrap it in a CameraImage
+
+            if (bitmap != null && frame != null) {
+                // look for cryptobox columns
+                // get unfiltered view of colors (hues) by full-image-height column bands
+                final int bandSize = 4;
+                String colString = frame.columnHue(bandSize);
+
+               // colString = new StringBuilder(colString).reverse().toString();//if the phone is upside down, the string needs to be reversed
+
+
+                // log debug info ...
+                mOpMode.telemetry.addData("hue columns", colString);
+
+                // look for occurrences of given pattern of column colors
+                ArrayList<ColumnHit> columns = new ArrayList<ColumnHit>(8);       // array of column start/end indices
+
+                for (int i=0; i<colString.length(); i++) {
+                    // starting at position (i), look for the given pattern in the encoded (rgbcymw) scanline
+                    Matcher m = mPattern.matcher(colString.substring(i));
+                    if (m.lookingAt()) {
+                        // add start/end info about this hit to the array
+                        columns.add(new ColumnHit(i+m.start(), i+m.end()-1));
+
+                        // skip over this match
+                        i += m.end();
+                    }
+                }
+
+                // report the matches in telemetry
+                for (ColumnHit h : columns) {
+                    mOpMode.telemetry.addData("found ","%s from %d to %d", mPattern.pattern(), h.start(), h.end());
+                }
+
+                int nCol = columns.size();
+
+                // compute average distance between columns = distance between outermost / #bins
+                float avgBinWidth = nCol>1 ? (float)(columns.get(nCol-1).end() - columns.get(0).start()) / (float)(nCol-1) : 0;
+
+
+
+
+                mOpMode.telemetry.addData("data", "avgWidth= %f  mColOff=%d", avgBinWidth, mColumnOffset);
+
+
+
+                mOpMode.telemetry.addData("data", "doneCount=%d", doneCount);
+
+                // save column hits for next pass to help handle columns leaving the field of view of
+                // the camera as we get close.
+                mPrevColumns = columns;
+
+            }
+
+            return false;  // haven't found anything yet
+        }
+
+        public void stop() {
+        }
+    }
 
 
 
