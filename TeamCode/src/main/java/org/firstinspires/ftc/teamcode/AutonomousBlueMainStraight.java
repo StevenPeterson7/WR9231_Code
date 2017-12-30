@@ -54,7 +54,7 @@ public class AutonomousBlueMainStraight extends AutonomousBlueMain {
 
         // create the root Sequence for this autonomous OpMode
         mSequence = new AutoLib.LinearSequence();
-        AutoLib.MotorGuideStep guideStep  = new AutoLib.GoToCryptoBoxGuideStep(this, mVLib, "^b+", 0.175f);
+       /* AutoLib.MotorGuideStep guideStep  = new AutoLib.GoToCryptoBoxGuideStep(this, mVLib, "^b+", 0.175f);
 
 
         mSequence.add(new AutoLib.ServoStep(hw.whacker, 0.45));
@@ -79,7 +79,8 @@ public class AutonomousBlueMainStraight extends AutonomousBlueMain {
         // make and add the Step that goes to the indicated Cryptobox bin
         mSequence.add(new AutoLib.GuidedTerminatedDriveStep(this, guideStep, null, hw.motors));
         // make and add a step that tells us we're done
-        mSequence.add(new AutoLib.LogTimeStep(this,"Done!", 5));
+        mSequence.add(new AutoLib.LogTimeStep(this,"Done!", 5));*/
+       mSequence.add(new AutoLib.driveUntilCryptoColumn(this, mVLib, "^b+", 0.135f, 2, true, hw.imu, hw.motors));
 
         bDone = false;
     }

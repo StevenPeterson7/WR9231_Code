@@ -956,6 +956,136 @@ static public class raiseLift extends Step{
     // this is a guide step that uses camera image data to
 // guide the robot to the indicated bin of the cryptobox
 //
+    static public class driveUntilCryptoColumn extends Step{
+
+        VuforiaLib_FTC2017 mVLib;
+        OpMode mOpMode;
+        int targetColumn;
+        int currentColumn;
+
+        String mVuMarkString;
+        Pattern mPattern;
+        ArrayList<ColumnHit> mPrevColumns;  // detected columns on previous pass
+        ArrayList<ColumnHit> columnList;
+
+        CameraLib.Filter mBlueFilter;
+
+        SensorLib.PID mPid;
+        float mPower;
+        BNO055IMU mImu;
+        boolean blue;
+        DcMotor [] motors;
+
+        public driveUntilCryptoColumn(OpMode op, VuforiaLib_FTC2017 VLib, String pattern, float power, int tColumn, boolean b, BNO055IMU imu, DcMotor [] m){
+            mOpMode=op;
+            mVLib=VLib;
+            motors=m;
+            blue=b;
+            if(b){
+                mPower=power;
+            }else {
+                mPower=-power;
+            }
+            targetColumn=tColumn;
+            mPattern=Pattern.compile(pattern);
+            final float Kp = 0.2f;         // degree heading proportional term correction per degree of deviation
+            final float Ki = 0.0f;         // ... integrator term
+            final float Kd = 0.0f;         // ... derivative term
+            final float KiCutoff = 3.0f;   // maximum angle error for which we update integrator
+            mPid = new SensorLib.PID(Kp, Ki, Kd, KiCutoff);
+            mImu=imu;
+
+        }
+
+        public boolean loop() {
+            super.loop();
+
+
+            if (firstLoopCall()){
+                motors[0].setPower(mPower);
+                motors[1].setPower(mPower);
+                motors[2].setPower(mPower);
+                motors[3].setPower(mPower);
+
+            }
+            Bitmap bitmap = mVLib.getBitmap(8);                      // get uncropped, downsampled image from Vuforia
+            CameraLib.CameraImage frame = new CameraLib.CameraImage(bitmap);       // .. and wrap it in a CameraImage
+
+            if (bitmap != null && frame != null) {
+                // look for cryptobox columns
+                // get unfiltered view of colors (hues) by full-image-height column bands
+                final int bandSize = 4;
+                String colString = frame.columnHue(bandSize);
+
+                //colString = new StringBuilder(colString).reverse().toString();//if the phone is upside down, the string needs to be reversed
+
+                if(!blue){
+                    colString =new StringBuilder(colString).reverse().toString();//if we are on the red side we need to reverse the string because we are driving backwards
+                }
+
+                // log debug info ...
+                mOpMode.telemetry.addData("hue columns", colString);
+
+                // look for occurrences of given pattern of column colors
+                ArrayList<ColumnHit> columns = new ArrayList<ColumnHit>(8);       // array of column start/end indices
+
+                for (int i=0; i<colString.length(); i++) {
+                    // starting at position (i), look for the given pattern in the encoded (rgbcymw) scanline
+                    Matcher m = mPattern.matcher(colString.substring(i));
+                    if (m.lookingAt()) {
+                        // add start/end info about this hit to the array
+                        columns.add(new ColumnHit(i+m.start(), i+m.end()-1));
+
+                        // skip over this match
+                        i += m.end();
+                    }
+                }
+
+                // report the matches in telemetry
+                for (ColumnHit h : columns) {
+                    mOpMode.telemetry.addData("found ", "%s from %d to %d", mPattern.pattern(), h.start(), h.end());
+                }
+                if(columns!=null && mPrevColumns!=null) {
+
+                    if (columns.size() > 0 && mPrevColumns.size() > 0) {
+                        if (columns.get(0).start() == 0 && mPrevColumns.get(0).start() != 0) {
+                            currentColumn++;
+                        }
+                    }
+                }
+                if(mPrevColumns==null){
+                    mPrevColumns=columns;
+                }
+                columnList=columns;
+
+
+
+            }
+            //if not driving straight, straighten out
+            motors[0].setPower(motors[1].getPower()*(180+mImu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle)/180);
+            motors[1].setPower(motors[1].getPower()*(180+mImu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle)/180);
+            motors[2].setPower(motors[1].getPower()*(180-mImu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle)/180);
+            motors[3].setPower(motors[1].getPower()*(180-mImu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle)/180);
+
+
+            mOpMode.telemetry.addData("target", targetColumn);
+            mOpMode.telemetry.addData("current", currentColumn);
+
+            if(currentColumn==targetColumn){
+                motors[0].setPower(0);
+                motors[1].setPower(0);
+                motors[2].setPower(0);
+                motors[3].setPower(0);
+                return  true;
+            }
+
+
+            mPrevColumns=columnList;
+            return false;
+        }
+
+
+    }
     static public class GoToCryptoBoxGuideStep extends AutoLib.MotorGuideStep implements SetMark {
 
         VuforiaLib_FTC2017 mVLib;
