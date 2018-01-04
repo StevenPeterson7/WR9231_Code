@@ -956,12 +956,14 @@ static public class raiseLift extends Step{
     // this is a guide step that uses camera image data to
 // guide the robot to the indicated bin of the cryptobox
 //
+
     static public class driveUntilCryptoColumn extends Step{
 
         VuforiaLib_FTC2017 mVLib;
         OpMode mOpMode;
         int targetColumn;
         int currentColumn;
+        Timer mTimer=new Timer(3);
 
         String mVuMarkString;
         Pattern mPattern;
@@ -1001,87 +1003,123 @@ static public class raiseLift extends Step{
             super.loop();
 
 
-            if (firstLoopCall()){
-                motors[0].setPower(mPower);
-                motors[1].setPower(mPower);
-                motors[2].setPower(mPower);
-                motors[3].setPower(mPower);
+            if (firstLoopCall()) {
+                mTimer.start();
+
+
 
             }
-            Bitmap bitmap = mVLib.getBitmap(8);                      // get uncropped, downsampled image from Vuforia
-            CameraLib.CameraImage frame = new CameraLib.CameraImage(bitmap);       // .. and wrap it in a CameraImage
+            while(targetColumn==0){
+                switch (mVLib.getVuMark()){
+                    case LEFT:
+                        targetColumn=1;
+                        motors[0].setPower(mPower);
+                        motors[1].setPower(mPower);
+                        motors[2].setPower(mPower);
+                        motors[3].setPower(mPower);
+                        break;
+                    case CENTER:
+                        targetColumn=2;
+                        motors[0].setPower(mPower);
+                        motors[1].setPower(mPower);
+                        motors[2].setPower(mPower);
+                        motors[3].setPower(mPower);
+                        break;
+                    case RIGHT:
+                        targetColumn=3;
+                        motors[0].setPower(mPower);
+                        motors[1].setPower(mPower);
+                        motors[2].setPower(mPower);
+                        motors[3].setPower(mPower);
+                        break;
+                    case UNKNOWN:
+                        targetColumn=0;
+                        motors[0].setPower(-0.15);
+                        motors[1].setPower(-0.15);
+                        motors[2].setPower(-0.15);
+                        motors[3].setPower(-0.15);
+                        break;
 
-            if (bitmap != null && frame != null) {
-                // look for cryptobox columns
-                // get unfiltered view of colors (hues) by full-image-height column bands
-                final int bandSize = 4;
-                String colString = frame.columnHue(bandSize);
-
-                //colString = new StringBuilder(colString).reverse().toString();//if the phone is upside down, the string needs to be reversed
-
+                }
                 if(!blue){
-                    colString =new StringBuilder(colString).reverse().toString();//if we are on the red side we need to reverse the string because we are driving backwards
+                    targetColumn=4-targetColumn;
                 }
+            }
+            if (mTimer.done()) {
+                Bitmap bitmap = mVLib.getBitmap(8);                      // get uncropped, downsampled image from Vuforia
+                CameraLib.CameraImage frame = new CameraLib.CameraImage(bitmap);       // .. and wrap it in a CameraImage
 
-                // log debug info ...
-                mOpMode.telemetry.addData("hue columns", colString);
+                if (bitmap != null && frame != null) {
+                    // look for cryptobox columns
+                    // get unfiltered view of colors (hues) by full-image-height column bands
+                    final int bandSize = 4;
+                    String colString = frame.columnHue(bandSize);
 
-                // look for occurrences of given pattern of column colors
-                ArrayList<ColumnHit> columns = new ArrayList<ColumnHit>(8);       // array of column start/end indices
+                    //colString = new StringBuilder(colString).reverse().toString();//if the phone is upside down, the string needs to be reversed
 
-                for (int i=0; i<colString.length(); i++) {
-                    // starting at position (i), look for the given pattern in the encoded (rgbcymw) scanline
-                    Matcher m = mPattern.matcher(colString.substring(i));
-                    if (m.lookingAt()) {
-                        // add start/end info about this hit to the array
-                        columns.add(new ColumnHit(i+m.start(), i+m.end()-1));
-
-                        // skip over this match
-                        i += m.end();
+                    if (!blue) {
+                        colString = new StringBuilder(colString).reverse().toString();//if we are on the red side we need to reverse the string because we are driving backwards
                     }
-                }
 
-                // report the matches in telemetry
-                for (ColumnHit h : columns) {
-                    mOpMode.telemetry.addData("found ", "%s from %d to %d", mPattern.pattern(), h.start(), h.end());
-                }
-                if(columns!=null && mPrevColumns!=null) {
+                    // log debug info ...
+                    mOpMode.telemetry.addData("hue columns", colString);
 
-                    if (columns.size() > 0 && mPrevColumns.size() > 0) {
-                        if (columns.get(0).start() == 0 && mPrevColumns.get(0).start() != 0) {
-                            currentColumn++;
+                    // look for occurrences of given pattern of column colors
+                    ArrayList<ColumnHit> columns = new ArrayList<ColumnHit>(8);       // array of column start/end indices
+
+                    for (int i = 0; i < colString.length(); i++) {
+                        // starting at position (i), look for the given pattern in the encoded (rgbcymw) scanline
+                        Matcher m = mPattern.matcher(colString.substring(i));
+                        if (m.lookingAt()) {
+                            // add start/end info about this hit to the array
+                            columns.add(new ColumnHit(i + m.start(), i + m.end() - 1));
+
+                            // skip over this match
+                            i += m.end();
                         }
                     }
+
+                    // report the matches in telemetry
+                    for (ColumnHit h : columns) {
+                        mOpMode.telemetry.addData("found ", "%s from %d to %d", mPattern.pattern(), h.start(), h.end());
+                    }
+                    if (columns != null && mPrevColumns != null) {
+
+                        if (columns.size() > 0 && mPrevColumns.size() > 0) {
+                            if (columns.get(0).start() == 0 && mPrevColumns.get(0).start() != 0) {
+                                currentColumn++;
+                            }
+                        }
+                    }
+                    if (mPrevColumns == null) {
+                        mPrevColumns = columns;
+                    }
+                    columnList = columns;
+
+
                 }
-                if(mPrevColumns==null){
-                    mPrevColumns=columns;
+                //if not driving straight, straighten out
+                motors[0].setPower(motors[1].getPower() * (180 + mImu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle) / 180);
+                motors[1].setPower(motors[1].getPower() * (180 + mImu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle) / 180);
+                motors[2].setPower(motors[1].getPower() * (180 - mImu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle) / 180);
+                motors[3].setPower(motors[1].getPower() * (180 - mImu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle) / 180);
+
+
+                mOpMode.telemetry.addData("target", targetColumn);
+                mOpMode.telemetry.addData("current", currentColumn);
+
+                if (currentColumn == targetColumn) {
+                    motors[0].setPower(0);
+                    motors[1].setPower(0);
+                    motors[2].setPower(0);
+                    motors[3].setPower(0);
+                    return true;
                 }
-                columnList=columns;
 
 
-
+                mPrevColumns = columnList;
             }
-            //if not driving straight, straighten out
-            motors[0].setPower(motors[1].getPower()*(180+mImu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle)/180);
-            motors[1].setPower(motors[1].getPower()*(180+mImu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle)/180);
-            motors[2].setPower(motors[1].getPower()*(180-mImu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle)/180);
-            motors[3].setPower(motors[1].getPower()*(180-mImu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle)/180);
-
-
-            mOpMode.telemetry.addData("target", targetColumn);
-            mOpMode.telemetry.addData("current", currentColumn);
-
-            if(currentColumn==targetColumn){
-                motors[0].setPower(0);
-                motors[1].setPower(0);
-                motors[2].setPower(0);
-                motors[3].setPower(0);
-                return  true;
-            }
-
-
-            mPrevColumns=columnList;
-            return false;
+            return  false;
         }
 
 

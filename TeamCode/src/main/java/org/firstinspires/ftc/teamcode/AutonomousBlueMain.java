@@ -1,13 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode._Libs.AutoLib;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 @Autonomous(name="MainBlueAutonomous", group ="Autonomous")
-//@Disabled
+@Disabled
 public class AutonomousBlueMain extends OpMode {
 
     AutoLib.Sequence mSequence;     // the root of the sequence tree
@@ -22,6 +23,7 @@ public class AutonomousBlueMain extends OpMode {
     float KiCutoff = 3.0f;
     int color=2;
     Orientation angles;
+    int targetColumn=1;
 
 
     public AutonomousBlueMain() {
