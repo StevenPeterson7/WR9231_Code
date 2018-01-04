@@ -23,7 +23,6 @@ public class AutonomousBlueMain extends OpMode {
     float KiCutoff = 3.0f;
     int color=2;
     Orientation angles;
-    int targetColumn=1;
 
 
     public AutonomousBlueMain() {

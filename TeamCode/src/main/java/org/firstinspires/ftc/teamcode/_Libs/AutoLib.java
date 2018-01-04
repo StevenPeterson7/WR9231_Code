@@ -1001,6 +1001,8 @@ static public class raiseLift extends Step{
 
         public boolean loop() {
             super.loop();
+            mVLib.loop();
+
 
 
             if (firstLoopCall()) {
@@ -1009,10 +1011,15 @@ static public class raiseLift extends Step{
 
 
             }
-            while(targetColumn==0){
-                switch (mVLib.getVuMark()){
+            if(targetColumn==0){
+                RelicRecoveryVuMark vuMark = mVLib.getVuMark();
+
+                switch (vuMark){
                     case LEFT:
                         targetColumn=1;
+                        if(!blue){
+                            targetColumn=3;
+                        }
                         motors[0].setPower(mPower);
                         motors[1].setPower(mPower);
                         motors[2].setPower(mPower);
@@ -1020,6 +1027,9 @@ static public class raiseLift extends Step{
                         break;
                     case CENTER:
                         targetColumn=2;
+                        if(!blue){
+                            targetColumn=2;
+                        }
                         motors[0].setPower(mPower);
                         motors[1].setPower(mPower);
                         motors[2].setPower(mPower);
@@ -1027,6 +1037,9 @@ static public class raiseLift extends Step{
                         break;
                     case RIGHT:
                         targetColumn=3;
+                        if(!blue){
+                            targetColumn=1;
+                        }
                         motors[0].setPower(mPower);
                         motors[1].setPower(mPower);
                         motors[2].setPower(mPower);
@@ -1041,9 +1054,7 @@ static public class raiseLift extends Step{
                         break;
 
                 }
-                if(!blue){
-                    targetColumn=4-targetColumn;
-                }
+
             }
             if (mTimer.done()) {
                 Bitmap bitmap = mVLib.getBitmap(8);                      // get uncropped, downsampled image from Vuforia

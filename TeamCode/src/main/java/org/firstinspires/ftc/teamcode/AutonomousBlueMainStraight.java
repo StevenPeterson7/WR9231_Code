@@ -54,8 +54,8 @@ public class AutonomousBlueMainStraight extends AutonomousBlueMain {
 
         // create the root Sequence for this autonomous OpMode
         mSequence = new AutoLib.LinearSequence();
-       /* AutoLib.MotorGuideStep guideStep  = new AutoLib.GoToCryptoBoxGuideStep(this, mVLib, "^b+", 0.175f);
-        mSequence.add(new AutoLib.ServoStep(hw.whacker, 0.45));
+       // AutoLib.MotorGuideStep guideStep  = new AutoLib.GoToCryptoBoxGuideStep(this, mVLib, "^b+", 0.175f);
+      /*  mSequence.add(new AutoLib.ServoStep(hw.whacker, 0.45));
         mSequence.add(new AutoLib.wait(1.0));
         mSequence.add(new AutoLib.setColorB(hw.ColorSensor, this));
         mSequence.add(new AutoLib.wait(1.0));
@@ -68,8 +68,8 @@ public class AutonomousBlueMainStraight extends AutonomousBlueMain {
 
         mSequence.add(new AutoLib.ServoStep(hw.whacker, 1));
         mSequence.add(new AutoLib.wait(1.5));
-
-        mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, 100f));//turn 90 degrees to the left
+*/
+      /*[  mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, 100f));//turn 90 degrees to the left
         mSequence.add(new AutoLib.VuforiaGetMarkStep(this, mVLib, (AutoLib.SetMark)guideStep));
         mSequence.add(new AutoLib.wait(3));
         mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, -15f));//turn 105 degrees to the right
