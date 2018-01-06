@@ -74,7 +74,7 @@ public class AutonomousBlueMainLeft extends AutonomousBlueMain {
        // mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, 0.25, 3, true));
       //  mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, 90f));//turn 135 degrees to the l eft
         mSequence.add(new AutoLib.driveUntilCryptoColumn(this, mVLib, "^b+", 0.135f, 0, true, hw.imu, hw.motors));
-
+        mSequence.add(new AutoLib.placeGlyphFromSide(this, hw.placer));
         // make and add the Step that goes to the indicated Cryptobox bin
         //mSequence.add(new AutoLib.GuidedTerminatedDriveStep(this, guideStep, null, hw.motors));
         // make and add a step that tells us we're done

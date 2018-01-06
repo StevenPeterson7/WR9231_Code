@@ -782,6 +782,32 @@ static public class raiseLift extends Step{
     }
 }
 
+static public class placeGlyphFromSide extends Step{
+        private OpMode mOpMode;
+        Servo placer;
+        Timer mTimer=new Timer(1.5);
+
+        public placeGlyphFromSide( OpMode op, Servo p){
+            mOpMode=op;
+            placer=p;
+        }
+
+        public boolean loop() {
+            super.loop();
+            if(firstLoopCall()){
+                mTimer.start();
+                placer.setPosition(0.2);
+
+            }
+            if(mTimer.done()){
+                placer.setPosition(1);
+                return true;
+            }
+            return false;
+        }
+
+}
+
 
 
 /*static public class pickUpGlyph extends ConcurrentSequence {
@@ -1130,6 +1156,8 @@ static public class raiseLift extends Step{
 
                 mPrevColumns = columnList;
             }
+            mOpMode.telemetry.addData("target column", targetColumn);
+            mOpMode.telemetry.addData("current column", currentColumn);
             return  false;
         }
 

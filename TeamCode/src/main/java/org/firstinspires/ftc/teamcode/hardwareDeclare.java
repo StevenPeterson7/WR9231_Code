@@ -36,6 +36,7 @@ public class hardwareDeclare{
   //  public CRServo[] servos = new CRServo[2];
     // Declare the Color Sensor
     public ColorSensor ColorSensor;
+    public Servo placer;
   //  public ModernRoboticsI2cGyro gyroH;
     //public SensorLib.CorrectedMRGyro mGyro;
 
@@ -69,6 +70,8 @@ public class hardwareDeclare{
         glyphLiftArms[1].setDirection(REVERSE);
         glyphLiftArms[0].scaleRange(0,0.844);
         glyphLiftArms[1].scaleRange(0,0.8444);
+
+        placer=opmode.hardwareMap.servo.get("placer");
 
 
         // Ball Lifter and Launcher Motors
