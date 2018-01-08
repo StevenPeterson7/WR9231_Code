@@ -22,6 +22,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
+import org.firstinspires.ftc.teamcode.Autonomous2017;
 import org.firstinspires.ftc.teamcode.AutonomousBlueMain;
 import org.firstinspires.ftc.teamcode.AutonomousRedMain;
 
@@ -366,6 +367,26 @@ public class AutoLib {
     }
 
 }
+static public class setColor extends Step{
+        Timer t=new Timer (0.25);
+        boolean done;
+        public setColor (ColorSensor colorSensor, Autonomous2017 op){
+            op.rgb[0]=colorSensor.red();
+            op.rgb[1]=colorSensor.green();
+            op.rgb[2]=colorSensor.blue();
+        }
+    public boolean loop() {
+        super.loop();
+
+        if (firstLoopCall()){
+            t.start();
+        }
+
+        done = t.done();
+        return done;
+    }
+
+}
 
     int testColor( ColorSensor colorSensor){
         if (colorSensor.red()>= colorSensor.blue()*1.25){
@@ -379,7 +400,121 @@ public class AutoLib {
         }
         else return 2;
     }
+    static public class knockJewel extends Step{
+        ColorSensor colorSensor;
+        DcMotor [] motors;
+        Timer mTimer = new Timer(0.35);
+        Timer nTimer = new Timer (0.55);
+        boolean done = false;
+        boolean firstLoopStart=true;
+        boolean secondLoopStart = true;
+        int color=3;
+        private Autonomous2017 mOpMode;                             // needed so we can log output (may be null)
+        boolean onBlueTeam;
+        double power = 0.25;
+        public knockJewel(ColorSensor cs, DcMotor [] m, Autonomous2017 op, boolean blueTeam) {
 
+            colorSensor = cs;
+            motors = m;
+            mOpMode = op;
+            onBlueTeam=blueTeam;
+
+        }
+        public int ColorTest() {
+
+            if (colorSensor.red()-mOpMode.rgb[0]>= (colorSensor.blue()-mOpMode.rgb[2])*1.25){
+
+                mOpMode.telemetry.addData("color: ", "red");
+                return 0;
+            }
+            else if (colorSensor.blue()-mOpMode.rgb[2] >= (colorSensor.red()-mOpMode.rgb[0])*1.25){
+                mOpMode.telemetry.addData("color: ", "blue");
+                return 1;
+            }
+            else return 2;
+        }
+        public boolean loop() {
+            super.loop();
+
+            if (firstLoopStart){
+                if(!onBlueTeam){
+                    power=-power;
+                }
+
+                firstLoopStart=false;
+                color=ColorTest();
+                //0-red
+                //1-blue
+                //2-indeterminate
+                if (color == 0){
+
+                    motors[0].setPower(-power);
+                    motors[1].setPower(-power);
+                    motors[2].setPower(-power);
+                    motors[3].setPower(-power);
+                    // mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, .5, 1.3, true));
+
+                    mTimer.start();
+                }
+                else if (color ==1) {
+
+                    motors[0].setPower(power);
+                    motors[1].setPower(power);
+                    motors[2].setPower(power);
+                    motors[3].setPower(power);
+                    // mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, .5, 0.9, true));
+
+
+                    mTimer.start();
+                }else if(color == 2){
+                    mTimer.start();
+                }
+            }
+
+            if(mTimer.done()&&secondLoopStart){
+                secondLoopStart=false;
+                if (color == 1){
+                    motors[0].setPower(-power);
+                    motors[1].setPower(-power);
+
+                    motors[2].setPower(-power);
+                    motors[3].setPower(-power);
+                    //mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, -.5, 0.9, true));
+
+                    nTimer.start();
+                }
+                else if (color ==0){
+                    motors[0].setPower(power);
+                    motors[1].setPower(power);
+                    motors[2].setPower(power);
+                    motors[3].setPower(power);
+                    //mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, -.5, 1.3, true));
+
+                    nTimer.start();
+                }
+                else if (color==2){
+                    nTimer.start();
+                    //mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, -0.5, 1.0, true));
+                }
+            }
+
+            done = nTimer.done();
+
+            if (done && mTimer.done()) {
+                motors[0].setPower(0);
+                motors[1].setPower(0);
+                motors[2].setPower(0);
+                motors[3].setPower(0);
+                return true;
+            }
+            mOpMode.telemetry.addData("mTimer: ", mTimer.done());
+            mOpMode.telemetry.addData("nTimer: ", nTimer.done());
+
+            return false;
+        }
+
+
+    }
     static public class knockJewelRed extends Step {
         ColorSensor colorSensor;
         DcMotor [] motors;
@@ -808,8 +943,16 @@ static public class placeGlyphFromSide extends Step{
 
 }
 
+static public class pickUpGlyph extends Step{
 
 
+}
+static public class alignWhacker extends Step{
+
+}
+static public class placeGlyph extends Step{
+
+}
 /*static public class pickUpGlyph extends ConcurrentSequence {
         DcMotor [] motors;
         boolean done=false;
@@ -835,6 +978,9 @@ static public class placeGlyphFromSide extends Step{
 
 }
 */
+
+
+
 
 
     static public class turnToGyroHeading extends Step {
@@ -901,21 +1047,84 @@ static public class placeGlyphFromSide extends Step{
 
 
     static public class identifyVuMark extends Step {
-
+        VuforiaLib_FTC2017 mVLib;
+        DcMotor [] motors;
         boolean done = true;
-        private OpMode mOpMode;                             // needed so we can log output (may be null)
-        Timer mTimer= new Timer (0.5);
-        public identifyVuMark(OpMode op) {
+        private Autonomous2017 mOpMode;                             // needed so we can log output (may be null)
+        Timer mTimer=new Timer(3);
+        int targetColumn;
+
+        boolean blue;
+        public identifyVuMark(Autonomous2017 op, DcMotor [] m, VuforiaLib_FTC2017 VLib, boolean b) {
+            motors = m;
             mOpMode = op;
+            mVLib = VLib;
+
+            blue=b;
         }
         public boolean loop() {
             super.loop();
-            if (firstLoopCall()){
+            mVLib.loop();
+
+
+            if (firstLoopCall()) {
+                mTimer.start();
+
             }
-            if (done == true) {
+            if(targetColumn==0){
+                RelicRecoveryVuMark vuMark = mVLib.getVuMark();
+
+                switch (vuMark){
+                    case LEFT:
+                        targetColumn=1;
+                        if(!blue){
+                            targetColumn=3;
+                        }
+                        motors[0].setPower(0);
+                        motors[1].setPower(0);
+                        motors[2].setPower(0);
+                        motors[3].setPower(0);
+                        break;
+                    case CENTER:
+                        targetColumn=2;
+                        if(!blue){
+                            targetColumn=2;
+                        }
+                        motors[0].setPower(0);
+                        motors[1].setPower(0);
+                        motors[2].setPower(0);
+                        motors[3].setPower(0);
+                        break;
+                    case RIGHT:
+                        targetColumn=3;
+                        if(!blue){
+                            targetColumn=1;
+                        }
+                        motors[0].setPower(0);
+                        motors[1].setPower(0);
+                        motors[2].setPower(0);
+                        motors[3].setPower(0);
+                        break;
+                    case UNKNOWN:
+                        targetColumn=0;
+                        motors[0].setPower(-0.15);
+                        motors[1].setPower(-0.15);
+                        motors[2].setPower(-0.15);
+                        motors[3].setPower(-0.15);
+                        break;
+
+                }
+
+            }else{
+                mOpMode.targetColumn=targetColumn;
+                return true;
+            }
+            if(mTimer.done()){
+                return true;
             }
 
-            return done;
+
+            return false;
         }
     }
     /**
@@ -989,7 +1198,6 @@ static public class placeGlyphFromSide extends Step{
         OpMode mOpMode;
         int targetColumn;
         int currentColumn;
-        Timer mTimer=new Timer(3);
 
         String mVuMarkString;
         Pattern mPattern;
@@ -1031,131 +1239,81 @@ static public class placeGlyphFromSide extends Step{
 
 
 
-            if (firstLoopCall()) {
-                mTimer.start();
 
+
+            Bitmap bitmap = mVLib.getBitmap(8);                      // get uncropped, downsampled image from Vuforia
+            CameraLib.CameraImage frame = new CameraLib.CameraImage(bitmap);       // .. and wrap it in a CameraImage
+
+            if (bitmap != null && frame != null) {
+                // look for cryptobox columns
+                // get unfiltered view of colors (hues) by full-image-height column bands
+                final int bandSize = 4;
+                String colString = frame.columnHue(bandSize);
+
+                //colString = new StringBuilder(colString).reverse().toString();//if the phone is upside down, the string needs to be reversed
+
+                if (!blue) {
+                    colString = new StringBuilder(colString).reverse().toString();//if we are on the red side we need to reverse the string because we are driving backwards
+                }
+
+                // log debug info ...
+                mOpMode.telemetry.addData("hue columns", colString);
+
+                // look for occurrences of given pattern of column colors
+                ArrayList<ColumnHit> columns = new ArrayList<ColumnHit>(8);       // array of column start/end indices
+
+                for (int i = 0; i < colString.length(); i++) {
+                    // starting at position (i), look for the given pattern in the encoded (rgbcymw) scanline
+                    Matcher m = mPattern.matcher(colString.substring(i));
+                    if (m.lookingAt()) {
+                        // add start/end info about this hit to the array
+                        columns.add(new ColumnHit(i + m.start(), i + m.end() - 1));
+
+                        // skip over this match
+                        i += m.end();
+                    }
+                }
+
+                // report the matches in telemetry
+                for (ColumnHit h : columns) {
+                    mOpMode.telemetry.addData("found ", "%s from %d to %d", mPattern.pattern(), h.start(), h.end());
+                }
+                if (columns != null && mPrevColumns != null) {
+
+                    if (columns.size() > 0 && mPrevColumns.size() > 0) {
+                        if (columns.get(0).start() == 0 && mPrevColumns.get(0).start() != 0) {
+                            currentColumn++;
+                        }
+                    }
+                }
+                if (mPrevColumns == null) {
+                    mPrevColumns = columns;
+                }
+                columnList = columns;
 
 
             }
-            if(targetColumn==0){
-                RelicRecoveryVuMark vuMark = mVLib.getVuMark();
+            //if not driving straight, straighten out
+            motors[0].setPower(motors[1].getPower() * (180 + mImu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle) / 180);
+            motors[1].setPower(motors[1].getPower() * (180 + mImu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle) / 180);
+            motors[2].setPower(motors[1].getPower() * (180 - mImu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle) / 180);
+            motors[3].setPower(motors[1].getPower() * (180 - mImu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle) / 180);
 
-                switch (vuMark){
-                    case LEFT:
-                        targetColumn=1;
-                        if(!blue){
-                            targetColumn=3;
-                        }
-                        motors[0].setPower(mPower);
-                        motors[1].setPower(mPower);
-                        motors[2].setPower(mPower);
-                        motors[3].setPower(mPower);
-                        break;
-                    case CENTER:
-                        targetColumn=2;
-                        if(!blue){
-                            targetColumn=2;
-                        }
-                        motors[0].setPower(mPower);
-                        motors[1].setPower(mPower);
-                        motors[2].setPower(mPower);
-                        motors[3].setPower(mPower);
-                        break;
-                    case RIGHT:
-                        targetColumn=3;
-                        if(!blue){
-                            targetColumn=1;
-                        }
-                        motors[0].setPower(mPower);
-                        motors[1].setPower(mPower);
-                        motors[2].setPower(mPower);
-                        motors[3].setPower(mPower);
-                        break;
-                    case UNKNOWN:
-                        targetColumn=0;
-                        motors[0].setPower(-0.15);
-                        motors[1].setPower(-0.15);
-                        motors[2].setPower(-0.15);
-                        motors[3].setPower(-0.15);
-                        break;
 
-                }
+            mOpMode.telemetry.addData("target", targetColumn);
+            mOpMode.telemetry.addData("current", currentColumn);
 
+            if (currentColumn == targetColumn) {
+                motors[0].setPower(0);
+                motors[1].setPower(0);
+                motors[2].setPower(0);
+                motors[3].setPower(0);
+                return true;
             }
-            if (mTimer.done()) {
-                Bitmap bitmap = mVLib.getBitmap(8);                      // get uncropped, downsampled image from Vuforia
-                CameraLib.CameraImage frame = new CameraLib.CameraImage(bitmap);       // .. and wrap it in a CameraImage
-
-                if (bitmap != null && frame != null) {
-                    // look for cryptobox columns
-                    // get unfiltered view of colors (hues) by full-image-height column bands
-                    final int bandSize = 4;
-                    String colString = frame.columnHue(bandSize);
-
-                    //colString = new StringBuilder(colString).reverse().toString();//if the phone is upside down, the string needs to be reversed
-
-                    if (!blue) {
-                        colString = new StringBuilder(colString).reverse().toString();//if we are on the red side we need to reverse the string because we are driving backwards
-                    }
-
-                    // log debug info ...
-                    mOpMode.telemetry.addData("hue columns", colString);
-
-                    // look for occurrences of given pattern of column colors
-                    ArrayList<ColumnHit> columns = new ArrayList<ColumnHit>(8);       // array of column start/end indices
-
-                    for (int i = 0; i < colString.length(); i++) {
-                        // starting at position (i), look for the given pattern in the encoded (rgbcymw) scanline
-                        Matcher m = mPattern.matcher(colString.substring(i));
-                        if (m.lookingAt()) {
-                            // add start/end info about this hit to the array
-                            columns.add(new ColumnHit(i + m.start(), i + m.end() - 1));
-
-                            // skip over this match
-                            i += m.end();
-                        }
-                    }
-
-                    // report the matches in telemetry
-                    for (ColumnHit h : columns) {
-                        mOpMode.telemetry.addData("found ", "%s from %d to %d", mPattern.pattern(), h.start(), h.end());
-                    }
-                    if (columns != null && mPrevColumns != null) {
-
-                        if (columns.size() > 0 && mPrevColumns.size() > 0) {
-                            if (columns.get(0).start() == 0 && mPrevColumns.get(0).start() != 0) {
-                                currentColumn++;
-                            }
-                        }
-                    }
-                    if (mPrevColumns == null) {
-                        mPrevColumns = columns;
-                    }
-                    columnList = columns;
 
 
-                }
-                //if not driving straight, straighten out
-                motors[0].setPower(motors[1].getPower() * (180 + mImu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle) / 180);
-                motors[1].setPower(motors[1].getPower() * (180 + mImu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle) / 180);
-                motors[2].setPower(motors[1].getPower() * (180 - mImu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle) / 180);
-                motors[3].setPower(motors[1].getPower() * (180 - mImu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle) / 180);
+            mPrevColumns = columnList;
 
-
-                mOpMode.telemetry.addData("target", targetColumn);
-                mOpMode.telemetry.addData("current", currentColumn);
-
-                if (currentColumn == targetColumn) {
-                    motors[0].setPower(0);
-                    motors[1].setPower(0);
-                    motors[2].setPower(0);
-                    motors[3].setPower(0);
-                    return true;
-                }
-
-
-                mPrevColumns = columnList;
-            }
             mOpMode.telemetry.addData("target column", targetColumn);
             mOpMode.telemetry.addData("current column", currentColumn);
             return  false;
