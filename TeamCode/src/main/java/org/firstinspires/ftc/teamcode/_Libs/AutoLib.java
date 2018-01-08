@@ -944,13 +944,90 @@ static public class placeGlyphFromSide extends Step{
 }
 
 static public class pickUpGlyph extends Step{
+    private Autonomous2017 mOpMode;
+    DcMotor [] glyphLift;
+    DcMotor [] motors;
+    Servo [] arms;
+    Timer mTimer=new Timer(0.25);
+    boolean firstLoopDone=false;
+    int targetHeight;
+    int startHeight;
+    double power;
+    public pickUpGlyph(Autonomous2017 op,DcMotor [] gl, DcMotor [] m, Servo [] a, double p, int t){
+        mOpMode=op;
+        glyphLift=gl;
+        motors=m;
+        targetHeight=t;
+        startHeight=glyphLift[1].getCurrentPosition();
+        arms=a;
+        power=p;
+    }
+    public boolean loop(){
+        super.loop();
+        if(firstLoopCall()){
+            mTimer.start();
+            motors[0].setPower(power);
+            motors[1].setPower(power);
+            motors[2].setPower(power);
+            motors[3].setPower(power);
+            arms[0].setPosition(1);
+            arms[1].setPosition(1);
 
+        }
+        if(mTimer.done()){
+            firstLoopDone=false;
+            motors[0].setPower(0);
+            motors[1].setPower(0);
+            motors[2].setPower(0);
+            motors[3].setPower(0);
 
+        }
+        if(firstLoopDone){
+            if(glyphLift[1].getCurrentPosition()-startHeight < targetHeight-5){
+                glyphLift[1].setPower(0.15);
+            }else if(glyphLift[1].getCurrentPosition()-startHeight > targetHeight+5){
+                glyphLift[1].setPower(-0.15);
+            }else{
+                glyphLift[1].setPower(0);
+                arms[0].setPosition(0);
+                arms[1].setPosition(0);
+                return true;
+            }
+
+        }
+        return false;
+    }
 }
 static public class alignWhacker extends Step{
 
 }
 static public class placeGlyph extends Step{
+    private Autonomous2017 mOpMode;
+
+    Servo [] arms;
+    Timer mTimer=new Timer(0.35);
+
+    public placeGlyph( Autonomous2017 op,Servo [] a){
+        mOpMode=op;
+
+        arms=a;
+
+    }
+    public boolean loop(){
+        super.loop();
+        if(firstLoopCall()){
+            mTimer.start();
+            arms[0].setPosition(1);
+            arms[1].setPosition(1);
+
+        }
+        if(mTimer.done()){
+            return true;
+
+        }
+
+        return false;
+    }
 
 }
 /*static public class pickUpGlyph extends ConcurrentSequence {

@@ -64,22 +64,26 @@ public class Autonomous2017 extends OpMode {
         // create the root Sequence for this autonomous OpMode
         mSequence = new AutoLib.LinearSequence();
 
-        mSequence.add(new AutoLib.pickUpGlyph());
+        mSequence.add(new AutoLib.pickUpGlyph(this, hw.glyphLift, hw.motors, hw.glyphLiftArms, 0.2, -250));
         mSequence.add(new AutoLib.identifyVuMark(this, hw.motors, mVLib, onTeamBlue));
-        mSequence.add(new AutoLib.alignWhacker());
+
+
+        mSequence.add(new AutoLib.wait(2));
+        //mSequence.add(new AutoLib.alignWhacker());
+
         mSequence.add(new AutoLib.ServoStep(hw.whacker, 0.45));
-        mSequence.add(new AutoLib.wait(1.0));
+        mSequence.add(new AutoLib.wait(0.7));
         mSequence.add(new AutoLib.setColor(hw.ColorSensor, this));
-        mSequence.add(new AutoLib.wait(1.0));
+        mSequence.add(new AutoLib.wait(0.7));
         mSequence.add(new AutoLib.ServoStep(hw.whacker, 0.20));
 
 
-        mSequence.add(new AutoLib.wait(1.0));
+        mSequence.add(new AutoLib.wait(0.7));
         mSequence.add(new AutoLib.knockJewel(hw.ColorSensor, hw.motors, this, onTeamBlue));
-        mSequence.add(new AutoLib.wait(3.0));
+        mSequence.add(new AutoLib.wait(2.1));
 
         mSequence.add(new AutoLib.ServoStep(hw.whacker, 1));
-        mSequence.add(new AutoLib.wait(1.5));
+        mSequence.add(new AutoLib.wait(1));
 
         if(!straight){
             mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, movePower, 1, true));
@@ -97,7 +101,8 @@ public class Autonomous2017 extends OpMode {
         }else{
             mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, 90));
         }
-        mSequence.add(new AutoLib.placeGlyph());
+        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, movePower, 2, true));
+        mSequence.add(new AutoLib.placeGlyph(this, hw.glyphLiftArms));
         mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, movePower, 0.2, true));
 
         bDone = false;
