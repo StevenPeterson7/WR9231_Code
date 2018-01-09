@@ -999,6 +999,44 @@ static public class pickUpGlyph extends Step{
     }
 }
 static public class alignWhacker extends Step{
+        Autonomous2017 mOpMode;
+        double targetLocation=0;
+        VuforiaLib_FTC2017 mVLib;
+        DcMotor [] motors;
+        double power=0.2;
+
+
+        public alignWhacker(Autonomous2017 op, double tLocation, VuforiaLib_FTC2017 VLib, DcMotor [] m){
+            mOpMode=op;
+            targetLocation=tLocation;
+            mVLib=VLib;
+            motors=m;
+
+        }
+        public boolean loop(){
+            super.loop();
+            mVLib.loop();
+
+            if(mVLib.getLocation().get(0)>targetLocation+10){
+                motors[0].setPower(power);
+                motors[1].setPower(power);
+                motors[2].setPower(power);
+                motors[3].setPower(power);
+            }else if(mVLib.getLocation().get(0)<targetLocation-10){
+                motors[0].setPower(-power);
+                motors[1].setPower(-power);
+                motors[2].setPower(-power);
+                motors[3].setPower(-power);
+            }else{
+                motors[0].setPower(0);
+                motors[1].setPower(0);
+                motors[2].setPower(0);
+                motors[3].setPower(0);
+                return true;
+            }
+
+            return false;
+        }
 
 }
 static public class placeGlyph extends Step{
