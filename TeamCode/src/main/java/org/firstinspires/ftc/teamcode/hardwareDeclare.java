@@ -68,8 +68,8 @@ public class hardwareDeclare{
         glyphLiftArms[0] = opmode.hardwareMap.servo.get("leftArm");
         glyphLiftArms[1] = opmode.hardwareMap.servo.get("rightArm");
         glyphLiftArms[1].setDirection(REVERSE);
-        glyphLiftArms[0].scaleRange(0,0.844);
-        glyphLiftArms[1].scaleRange(0,0.8444);
+        //glyphLiftArms[0].scaleRange(0,0.844);
+        //glyphLiftArms[1].scaleRange(0,0.8444);
 
       //  placer=opmode.hardwareMap.servo.get("placer");
 

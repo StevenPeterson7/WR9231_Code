@@ -13,14 +13,11 @@ public class setUp extends OpMode {
     boolean bDone;                  // true when the programmed sequence is done
     hardwareDeclare hw;
     SensorLib.PID mPID;
-    public int [] rgb = {0, 0, 0};
 
     float Kp = 0.035f;
     float Ki = 0.02f;
     float Kd = 0;
     float KiCutoff = 3.0f;
-    int color=2;
-
 
     public setUp() {
     }

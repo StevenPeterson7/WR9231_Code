@@ -6,6 +6,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode._Libs.AutoLib;
 import org.firstinspires.ftc.teamcode._Libs.VuforiaLib_FTC2017;
@@ -30,7 +33,7 @@ public class Autonomous2017 extends OpMode {
     VuforiaLib_FTC2017 mVLib;               // Vuforia wrapper object used by Steps
     boolean onTeamBlue;
     double movePower=0.25;
-    public int targetColumn=1;
+    public int targetColumn=2;
     public void init() {}
 
 
@@ -66,13 +69,13 @@ public class Autonomous2017 extends OpMode {
 
 
         //these functions need to be tested
-        mSequence.add(new AutoLib.pickUpGlyph(this, hw.glyphLift, hw.motors, hw.glyphLiftArms, 0.2, -250));
+       // mSequence.add(new AutoLib.pickUpGlyph(this, hw.glyphLift, hw.motors, hw.glyphLiftArms, 0.2, -250));
         mSequence.add(new AutoLib.identifyVuMark(this, hw.motors, mVLib, onTeamBlue));
 
 
         //mSequence.add(new AutoLib.wait(2));
         //target position needs to be found
-        mSequence.add(new AutoLib.alignWhacker(this, 0, mVLib, hw.motors));
+        //mSequence.add(new AutoLib.alignWhacker(this, -80, mVLib, hw.motors));
 
         mSequence.add(new AutoLib.ServoStep(hw.whacker, 0.45));
         mSequence.add(new AutoLib.wait(0.7));
@@ -99,7 +102,7 @@ public class Autonomous2017 extends OpMode {
         }
 
         //this needs to be tested and fine-tuned
-        mSequence.add(new AutoLib.driveUntilCryptoColumn(this, mVLib, onTeamBlue ? "^b+" : "^r+", 0.135f, targetColumn, onTeamBlue, hw.imu, hw.motors));
+        mSequence.add(new AutoLib.driveUntilCryptoColumn(this, mVLib, onTeamBlue ? "^b+" : "^r+", 0.175f, targetColumn, onTeamBlue, hw.imu, hw.motors));
 
         //these instructions might need to be switched
         if(onTeamBlue){
@@ -110,7 +113,7 @@ public class Autonomous2017 extends OpMode {
 
         //these need to be fine tuned
         mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, movePower, 2, true));
-        mSequence.add(new AutoLib.placeGlyph(this, hw.glyphLiftArms));
+        //mSequence.add(new AutoLib.placeGlyph(this, hw.glyphLiftArms));
         mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, movePower, 0.2, true));
 
         bDone = false;
@@ -130,6 +133,7 @@ public class Autonomous2017 extends OpMode {
         telemetry.addData("important!!!0:", rgb[0]);
         telemetry.addData("important!!!2:", rgb[2]);
         telemetry.addData("target column", targetColumn);
+        telemetry.addData("orientation", hw.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle);
         // until we're done, keep looping through the current Step(s)
         if (!bDone)
             bDone = mSequence.loop();       // returns true when we're done
