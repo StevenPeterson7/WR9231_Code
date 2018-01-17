@@ -89,6 +89,11 @@ public class AutoLib {
             return this;
         }
 
+        public Step indexAdd(Step step, int index){
+            mSteps.add(index, step);
+            return this;
+        }
+
         // run the next time-slice of the Sequence; return true when the Sequence is completed.
         public boolean loop() {
             super.loop();
@@ -1176,17 +1181,20 @@ static public class placeGlyph extends Step{
     static public class identifyVuMark extends Step {
         VuforiaLib_FTC2017 mVLib;
         DcMotor [] motors;
-        boolean done = true;
         private Autonomous2017 mOpMode;// needed so we can log output (may be null)
         Timer fTimer=new Timer(1);
         Timer mTimer=new Timer(3);
         int targetColumn;
+        BNO055IMU imu;
+        double movePower;
 
         boolean blue;
-        public identifyVuMark(Autonomous2017 op, DcMotor [] m, VuforiaLib_FTC2017 VLib, boolean b) {
+        public identifyVuMark(Autonomous2017 op, DcMotor [] m, VuforiaLib_FTC2017 VLib, boolean b, BNO055IMU IMU, double mp) {
             motors = m;
             mOpMode = op;
             mVLib = VLib;
+            imu=IMU;
+            movePower=mp;
 
             blue=b;
         }
@@ -1208,6 +1216,7 @@ static public class placeGlyph extends Step{
                         if(!blue){
                             targetColumn=3;
                         }
+                        mOpMode.setTargetColumn(targetColumn);
                         motors[0].setPower(0);
                         motors[1].setPower(0);
                         motors[2].setPower(0);
@@ -1215,10 +1224,10 @@ static public class placeGlyph extends Step{
                         break;
                     case CENTER:
                         targetColumn=2;
-                        mOpMode.targetColumn=2;
                         if(!blue){
                             targetColumn=2;
                         }
+                        mOpMode.setTargetColumn(targetColumn);
 
                         motors[0].setPower(0);
                         motors[1].setPower(0);
@@ -1230,6 +1239,7 @@ static public class placeGlyph extends Step{
                         if(!blue){
                             targetColumn=1;
                         }
+                        mOpMode.setTargetColumn(targetColumn);
                         motors[0].setPower(0);
                         motors[1].setPower(0);
                         motors[2].setPower(0);
@@ -1249,15 +1259,29 @@ static public class placeGlyph extends Step{
                 }
 
             }else{
-                mOpMode.targetColumn=targetColumn;
+                mOpMode.mSequence.add(new driveUntilCryptoColumn(mOpMode, mVLib, blue ? "^b+" : "^r+", 0.175f, targetColumn, blue, imu, motors));
+                if(blue){
+                    mOpMode.mSequence.add(new AutoLib.turnToGyroHeading(motors, mOpMode, imu, 90));
+                }else{
+                    mOpMode.mSequence.add(new AutoLib.turnToGyroHeading(motors, mOpMode, imu, -90));
+                }
+                mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, movePower, 1.25, true));
+                //mSequence.add(new AutoLib.placeGlyph(this, hw.glyphLiftArms));
+                mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, movePower, 0.2, true));
                 return true;
             }
             if(mTimer.done()){
-                mOpMode.targetColumn=targetColumn;
-
+                mOpMode.mSequence.add(new driveUntilCryptoColumn(mOpMode, mVLib, blue ? "^b+" : "^r+", 0.175f, targetColumn, blue, imu, motors));
+                if(blue){
+                    mOpMode.mSequence.add(new AutoLib.turnToGyroHeading(motors, mOpMode, imu, 90));
+                }else{
+                    mOpMode.mSequence.add(new AutoLib.turnToGyroHeading(motors, mOpMode, imu, -90));
+                }
+                mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, movePower, 1.25, true));
+                //mSequence.add(new AutoLib.placeGlyph(this, hw.glyphLiftArms));
+                mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, movePower, 0.2, true));
                 return true;
             }
-            mOpMode.targetColumn=targetColumn;
 
             mOpMode.telemetry.addData("mark", mVLib.getVuMark());
 
@@ -1445,9 +1469,6 @@ static public class placeGlyph extends Step{
             motors[3].setPower(motors[3].getPower() * (180 - mImu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle) / 180);
 
 
-            mOpMode.telemetry.addData("target", targetColumn);
-            mOpMode.telemetry.addData("current", currentColumn);
-
             if (currentColumn == targetColumn) {
                 motors[0].setPower(0);
                 motors[1].setPower(0);
@@ -1461,7 +1482,7 @@ static public class placeGlyph extends Step{
 
             mOpMode.telemetry.addData("target column", targetColumn);
             mOpMode.telemetry.addData("current column", currentColumn);
-            mOpMode.telemetry.addData("DRIVE UNTIL CRYPTOBOX", true);
+            mOpMode.telemetry.addData("DRIVE UNTIL CRYPTOBOX ", true);
             return  false;
         }
 
