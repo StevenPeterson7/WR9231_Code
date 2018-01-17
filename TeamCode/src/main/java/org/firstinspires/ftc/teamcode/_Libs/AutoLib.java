@@ -1185,16 +1185,12 @@ static public class placeGlyph extends Step{
         Timer fTimer=new Timer(1);
         Timer mTimer=new Timer(3);
         int targetColumn;
-        BNO055IMU imu;
-        double movePower;
 
         boolean blue;
-        public identifyVuMark(Autonomous2017 op, DcMotor [] m, VuforiaLib_FTC2017 VLib, boolean b, BNO055IMU IMU, double mp) {
+        public identifyVuMark(Autonomous2017 op, DcMotor [] m, VuforiaLib_FTC2017 VLib, boolean b) {
             motors = m;
             mOpMode = op;
             mVLib = VLib;
-            imu=IMU;
-            movePower=mp;
 
             blue=b;
         }
@@ -1259,27 +1255,9 @@ static public class placeGlyph extends Step{
                 }
 
             }else{
-                mOpMode.mSequence.add(new driveUntilCryptoColumn(mOpMode, mVLib, blue ? "^b+" : "^r+", 0.175f, targetColumn, blue, imu, motors));
-                if(blue){
-                    mOpMode.mSequence.add(new AutoLib.turnToGyroHeading(motors, mOpMode, imu, 90));
-                }else{
-                    mOpMode.mSequence.add(new AutoLib.turnToGyroHeading(motors, mOpMode, imu, -90));
-                }
-                mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, movePower, 1.25, true));
-                //mSequence.add(new AutoLib.placeGlyph(this, hw.glyphLiftArms));
-                mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, movePower, 0.2, true));
                 return true;
             }
             if(mTimer.done()){
-                mOpMode.mSequence.add(new driveUntilCryptoColumn(mOpMode, mVLib, blue ? "^b+" : "^r+", 0.175f, targetColumn, blue, imu, motors));
-                if(blue){
-                    mOpMode.mSequence.add(new AutoLib.turnToGyroHeading(motors, mOpMode, imu, 90));
-                }else{
-                    mOpMode.mSequence.add(new AutoLib.turnToGyroHeading(motors, mOpMode, imu, -90));
-                }
-                mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, movePower, 1.25, true));
-                //mSequence.add(new AutoLib.placeGlyph(this, hw.glyphLiftArms));
-                mOpMode.mSequence.add(new AutoLib.MoveByTimeStep(motors, movePower, 0.2, true));
                 return true;
             }
 

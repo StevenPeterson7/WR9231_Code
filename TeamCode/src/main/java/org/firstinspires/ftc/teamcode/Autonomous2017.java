@@ -70,7 +70,7 @@ public class Autonomous2017 extends OpMode {
 
         //these functions need to be tested
        // mSequence.add(new AutoLib.pickUpGlyph(this, hw.glyphLift, hw.motors, hw.glyphLiftArms, 0.2, -250));
-        mSequence.add(new AutoLib.identifyVuMark(this, hw.motors, mVLib, onTeamBlue, hw.imu, movePower));
+        mSequence.add(new AutoLib.identifyVuMark(this, hw.motors, mVLib, onTeamBlue));
 
 
         //mSequence.add(new AutoLib.wait(2));
@@ -102,19 +102,19 @@ public class Autonomous2017 extends OpMode {
         }
 
         //this needs to be tested and fine-tuned
-        //mSequence.add(new AutoLib.driveUntilCryptoColumn(this, mVLib, onTeamBlue ? "^b+" : "^r+", 0.175f, targetColumn, onTeamBlue, hw.imu, hw.motors));
+        mSequence.add(new AutoLib.driveUntilCryptoColumn(this, mVLib, onTeamBlue ? "^b+" : "^r+", 0.175f, targetColumn, onTeamBlue, hw.imu, hw.motors));
 
         //these instructions might need to be switched
-        /*if(onTeamBlue){
+        if(onTeamBlue){
             mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, 90));
         }else{
             mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, -90));
-        }*/
+        }
 
         //these need to be fine tuned
-        //mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, movePower, 2, true));
+        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, movePower, 2, true));
         //mSequence.add(new AutoLib.placeGlyph(this, hw.glyphLiftArms));
-       // mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, movePower, 0.2, true));
+        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, movePower, 0.2, true));
 
         bDone = false;
     }
