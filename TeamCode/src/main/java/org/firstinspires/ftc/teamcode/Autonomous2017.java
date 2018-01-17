@@ -93,23 +93,16 @@ public class Autonomous2017 extends OpMode {
 
         //this be sketch, test it
         if(!straight){
-            mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, movePower, 1, true));
-            if(onTeamBlue){
-                mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, 90));
-            }else{
-                mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, -90));
-            }
+            mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, movePower, 1.2, true));
+            mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, -90));
+
         }
 
         //this needs to be tested and fine-tuned
-        mSequence.add(new AutoLib.driveUntilCryptoColumn(this, mVLib, onTeamBlue ? "^b+" : "^r+", 0.175f, targetColumn, onTeamBlue, hw.imu, hw.motors));
+        mSequence.add(new AutoLib.driveUntilCryptoColumn(this, mVLib, onTeamBlue ? "^b+" : "^r+", 0.175f, onTeamBlue, hw.imu, hw.motors));
 
         //these instructions might need to be switched
-        if(onTeamBlue){
-            mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, 90));
-        }else{
-            mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, -90));
-        }
+        mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, 90));
 
         //these need to be fine tuned
         mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, movePower, 2, true));

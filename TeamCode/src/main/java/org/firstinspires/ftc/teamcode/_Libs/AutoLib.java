@@ -1182,9 +1182,9 @@ static public class placeGlyph extends Step{
         VuforiaLib_FTC2017 mVLib;
         DcMotor [] motors;
         private Autonomous2017 mOpMode;// needed so we can log output (may be null)
-        Timer fTimer=new Timer(1);
+        Timer fTimer=new Timer(2);
         Timer mTimer=new Timer(3);
-        int targetColumn;
+        int targetColumn=0;
 
         boolean blue;
         public identifyVuMark(Autonomous2017 op, DcMotor [] m, VuforiaLib_FTC2017 VLib, boolean b) {
@@ -1197,7 +1197,7 @@ static public class placeGlyph extends Step{
         public boolean loop() {
             super.loop();
             mVLib.loop();
-            mOpMode.targetColumn=3;
+
 
 
             if (firstLoopCall()) {
@@ -1213,6 +1213,8 @@ static public class placeGlyph extends Step{
                             targetColumn=3;
                         }
                         mOpMode.setTargetColumn(targetColumn);
+                        mOpMode.targetColumn=targetColumn;
+
                         motors[0].setPower(0);
                         motors[1].setPower(0);
                         motors[2].setPower(0);
@@ -1224,6 +1226,7 @@ static public class placeGlyph extends Step{
                             targetColumn=2;
                         }
                         mOpMode.setTargetColumn(targetColumn);
+                        mOpMode.targetColumn=targetColumn;
 
                         motors[0].setPower(0);
                         motors[1].setPower(0);
@@ -1236,6 +1239,7 @@ static public class placeGlyph extends Step{
                             targetColumn=1;
                         }
                         mOpMode.setTargetColumn(targetColumn);
+                        mOpMode.targetColumn=targetColumn;
                         motors[0].setPower(0);
                         motors[1].setPower(0);
                         motors[2].setPower(0);
@@ -1257,9 +1261,7 @@ static public class placeGlyph extends Step{
             }else{
                 return true;
             }
-            if(mTimer.done()){
-                return true;
-            }
+
 
             mOpMode.telemetry.addData("mark", mVLib.getVuMark());
 
@@ -1333,11 +1335,12 @@ static public class placeGlyph extends Step{
 //
 
     static public class driveUntilCryptoColumn extends Step{
-
+        Timer mTimer= new Timer(0.5);
         VuforiaLib_FTC2017 mVLib;
-        OpMode mOpMode;
+        Autonomous2017 mOpMode;
         int targetColumn;
         int currentColumn;
+        boolean wait=true;
 
         String mVuMarkString;
         Pattern mPattern;
@@ -1352,7 +1355,7 @@ static public class placeGlyph extends Step{
         boolean blue;
         DcMotor [] motors;
 
-        public driveUntilCryptoColumn(OpMode op, VuforiaLib_FTC2017 VLib, String pattern, float power, int tColumn, boolean b, BNO055IMU imu, DcMotor [] m){
+        public driveUntilCryptoColumn(Autonomous2017 op, VuforiaLib_FTC2017 VLib, String pattern, float power, boolean b, BNO055IMU imu, DcMotor [] m){
             mOpMode=op;
             mVLib=VLib;
             motors=m;
@@ -1362,7 +1365,6 @@ static public class placeGlyph extends Step{
             }else {
                 mPower=-power;
             }
-            targetColumn=tColumn;
             mPattern=Pattern.compile(pattern);
             final float Kp = 0.2f;         // degree heading proportional term correction per degree of deviation
             final float Ki = 0.0f;         // ... integrator term
@@ -1376,6 +1378,7 @@ static public class placeGlyph extends Step{
         public boolean loop() {
             super.loop();
             mVLib.loop();
+            targetColumn=mOpMode.targetColumn;
 
             if(firstLoopCall()){
                 motors[0].setPower(mPower);
@@ -1447,7 +1450,12 @@ static public class placeGlyph extends Step{
             motors[3].setPower(motors[3].getPower() * (180 - mImu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle) / 180);
 
 
-            if (currentColumn == targetColumn) {
+            if (currentColumn == targetColumn+1 && wait) {
+                wait=false;
+                mTimer.start();
+            }
+
+            if(mTimer.done()&&!wait){
                 motors[0].setPower(0);
                 motors[1].setPower(0);
                 motors[2].setPower(0);
