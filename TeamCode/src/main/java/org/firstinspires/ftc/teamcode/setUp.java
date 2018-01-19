@@ -31,7 +31,10 @@ public class setUp extends OpMode {
         // create the root Sequence for this autonomous OpMode
         mSequence = new AutoLib.LinearSequence();
 
-       mSequence.add(new AutoLib.raiseLift(hw.glyphLift, 750, this));
+       mSequence.add(new AutoLib.raiseLift(hw.glyphLift, 1500, this));
+       mSequence.add(new AutoLib.ServoStep(hw.glyphLiftArms[0], 0));
+        mSequence.add(new AutoLib.ServoStep(hw.glyphLiftArms[1], 0));
+
         bDone = false;
     }
 

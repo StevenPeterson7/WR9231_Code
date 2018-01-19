@@ -23,7 +23,7 @@ public class Autonomous2017 extends OpMode {
 
     SensorLib.PID mPID;
     public int [] rgb = {0, 0, 0};
-
+    public int d =0;
     float Kp = 0.035f;
     float Ki = 0.02f;
     float Kd = 0;
@@ -69,8 +69,7 @@ public class Autonomous2017 extends OpMode {
 
 
         //these functions need to be tested
-       // mSequence.add(new AutoLib.pickUpGlyph(this, hw.glyphLift, hw.motors, hw.glyphLiftArms, 0.2, -250));
-        mSequence.add(new AutoLib.identifyVuMark(this, hw.motors, mVLib, onTeamBlue));
+        mSequence.add(new AutoLib.pickUpGlyph(this, hw.glyphLift, hw.glyphLiftArms, 0.2, -1500));
 
 
         //mSequence.add(new AutoLib.wait(2));
@@ -91,6 +90,10 @@ public class Autonomous2017 extends OpMode {
         mSequence.add(new AutoLib.ServoStep(hw.whacker, 1));
         mSequence.add(new AutoLib.wait(1));
 
+
+        mSequence.add(new AutoLib.identifyVuMark(this, hw.motors, mVLib, onTeamBlue));
+
+
         //this be sketch, test it
         if(!straight){
             mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, movePower, 1.2, true));
@@ -99,15 +102,15 @@ public class Autonomous2017 extends OpMode {
         }
 
         //this needs to be tested and fine-tuned
-        mSequence.add(new AutoLib.driveUntilCryptoColumn(this, mVLib, onTeamBlue ? "^b+" : "^r+", 0.175f, onTeamBlue, hw.imu, hw.motors));
+        mSequence.add(new AutoLib.driveUntilCryptoColumn(this, mVLib, onTeamBlue ? "^b+" : "^r+", 0.15f, onTeamBlue, hw.imu, hw.motors));
 
         //these instructions might need to be switched
         mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, 90));
 
         //these need to be fine tuned
-        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, movePower, 2, true));
-        //mSequence.add(new AutoLib.placeGlyph(this, hw.glyphLiftArms));
-        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, movePower, 0.2, true));
+        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, Math.abs(movePower), 1.5, true));
+        mSequence.add(new AutoLib.placeGlyph(this, hw.glyphLiftArms));
+        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, -Math.abs(movePower), 0.2, true));
 
         bDone = false;
     }
@@ -123,6 +126,7 @@ public class Autonomous2017 extends OpMode {
     }
 
     public void loop() {
+        telemetry.addData("distance", d);
         telemetry.addData("blue:", hw.ColorSensor.blue()-rgb[2]);
         telemetry.addData("red:", hw.ColorSensor.red()-rgb[0]);
         telemetry.addData("power", hw.motors[0].getPower());
