@@ -21,8 +21,8 @@ public class MainTeleOp_2p extends OpMode{
 
     hardwareDeclare hw;
     private float motorPower = 1.f;
-    double lPos=0;
-    double rPos=0;
+    double lPos=1;
+    double rPos=1;
 
     @Override
     public void init(){
@@ -60,29 +60,32 @@ public class MainTeleOp_2p extends OpMode{
         telemetry.addData("Motor power (%)", motorPower);
 
 
+        // Set left motor power
+        double powerToLeftMotor = -gamepad1.left_stick_y * motorPower;
+        //apply left motor power
+        hw.motors[2].setPower(powerToLeftMotor);
+        hw.motors[3].setPower(powerToLeftMotor);
 
-        // Loop through front and back motors96
-       // for(DcMotor motor : hw.motors) {
-            // Set left motor power
-            double powerToLeftMotor = -gamepad1.left_stick_y * motorPower;
-           // powerToLeftMotor=pow(powerToLeftMotor, 3);
-            telemetry.addData("power to  left motor:", powerToLeftMotor);
-            double powerToRightMotor = -gamepad1.right_stick_y* motorPower;
-            telemetry.addData("power to  right motor:", powerToRightMotor);
-          //  powerToRightMotor=pow(powerToRightMotor, 3);
 
-            hw.motors[2].setPower(powerToLeftMotor);
-            hw.motors[3].setPower(powerToLeftMotor);
+        // Set right motor power
+        double powerToRightMotor = -gamepad1.right_stick_y* motorPower;
+        //apply right motor power
+        hw.motors[0].setPower(powerToRightMotor);
+        hw.motors[1].setPower(powerToRightMotor);
 
-            hw.motors[0].setPower(powerToRightMotor);
-            // Set right motor power
-            hw.motors[1].setPower(powerToRightMotor);
+        telemetry.addData("power to  left motor:", powerToLeftMotor);
+        telemetry.addData("power to  right motor:", powerToRightMotor);
+
         //}
         telemetry.addData("glyph lift: ", gamepad2.left_stick_y );
         telemetry.addData("glyph lift pos: ", hw.glyphLift[1].getCurrentPosition());
 
         if(gamepad2.left_stick_y!=0){
-            hw.glyphLift[1].setPower(pow(gamepad2.left_stick_y,3));//goes up to 8600
+            /*the power to the glyph lift is cubed so that it will be easy to make fine adjustments
+            when the glyph lift is close to the desired destination but it can also be speed up to
+            full speed for bigger adjustments
+             */
+            hw.glyphLift[1].setPower(pow(gamepad2.left_stick_y,3));
         }else{
             hw.glyphLift[1].setPower(0);
         }
@@ -104,6 +107,8 @@ public class MainTeleOp_2p extends OpMode{
         //
          telemetry.addData("gyro: ", hw.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle);
 
+
+        //if the arm positions are not within set bounds, reset them
         if(lPos<0){
             lPos=0;
         }
@@ -112,10 +117,11 @@ public class MainTeleOp_2p extends OpMode{
         }
         if(lPos>1){
                 lPos=1;
-            }
+        }
         if(rPos>1){
                 rPos=1;
-            }
+        }
+        //slowly close the arm when the bumper is pushed
         if(gamepad2.right_bumper){
             rPos-=0.07;
         }
@@ -123,16 +129,39 @@ public class MainTeleOp_2p extends OpMode{
             lPos-=0.07;
         }
 
+        /*
+        when the left button is pressed, move the block to the left but
+        make sure that there is a constant pressure on the block
+         */
+        if(gamepad2.dpad_left){
+            if(rPos<1) {
+                rPos += 0.11;
+            }
+            if(lPos>0) {
+                lPos -= 0.07;
+            }
+        }
+        /*
+        do the opposite for the right side
+         */
+        if(gamepad2.dpad_right){
+            if(lPos<1) {
+                lPos += 0.11;
+            }
+            if(rPos>0) {
+                rPos -= 0.07;
+            }
+        }
 
+        //slowly open the arms when the trigger is pulled with the rate depending on how much the triggers are pulled
         lPos+=gamepad2.left_trigger/15;
         rPos+=gamepad2.right_trigger/15;
-                //we can change it to use the stick positions to either set position or set change in position
-                       //left stick could control the left arm
 
+        //apply the new positions
         hw.glyphLiftArms[0].setPosition(lPos);
         hw.glyphLiftArms[1].setPosition(rPos);
 
-                       telemetry.addData("right trigger", gamepad2.right_trigger);
+        telemetry.addData("right trigger", gamepad2.right_trigger);
 
 
       /*  if(gamepad1.a || gamepad2.a){
@@ -165,7 +194,9 @@ public class MainTeleOp_2p extends OpMode{
             hw.servos[0].setPower(0.0);
             hw.servos[1].setPower(0.0);
         }*/
-        
+
+
+
     }
     @Override
     public void stop(){
