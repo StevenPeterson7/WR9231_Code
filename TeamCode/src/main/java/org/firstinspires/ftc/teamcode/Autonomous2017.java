@@ -34,10 +34,17 @@ public class Autonomous2017 extends OpMode {
     boolean onTeamBlue;
     double movePower=0.25;
     public int targetColumn=2;
-    public void init() {}
+    public void init() {
+    }
 
 
     public Autonomous2017() {
+        /*super();
+        msStuckDetectInit     = 10000;
+        msStuckDetectInitLoop = 10000;
+        msStuckDetectStart    = 10000;
+        msStuckDetectLoop     = 10000;
+        msStuckDetectStop     = 6000;*/
     }
 
     public void init(boolean teamBlue, boolean straight) {
@@ -113,7 +120,7 @@ public class Autonomous2017 extends OpMode {
         }
 
         //this needs to be tested and fine-tuned
-        mSequence.add(new AutoLib.driveUntilCryptoColumn(this, mVLib, onTeamBlue ? "^b+" : "^r+", 0.14f, onTeamBlue, hw.imu, hw.motors, straight));
+        mSequence.add(new AutoLib.driveUntilCryptoColumn(this, mVLib, onTeamBlue ? "^b+" : "^r+", 0.13f, onTeamBlue, hw.imu, hw.motors, straight));
 
         //these instructions might need to be switched
         if( straight) {

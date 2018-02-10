@@ -521,23 +521,12 @@ static public class setColor extends Step{
 
             done = nTimer.done();
 
-            if (mTimer.done() && Math.abs(motors[3].getCurrentPosition()-sPosition)<20 && !secondLoopStart) {
+            if (mTimer.done()&&done) {
                 motors[0].setPower(0);
                 motors[1].setPower(0);
                 motors[2].setPower(0);
                 motors[3].setPower(0);
                 return true;
-            }else if(motors[3].getCurrentPosition()-sPosition<-10 && !secondLoopStart){
-                motors[0].setPower(power);
-                motors[1].setPower(power);
-                motors[2].setPower(power);
-                motors[3].setPower(power);
-
-            }else if(motors[3].getCurrentPosition()-sPosition>10 && !secondLoopStart){
-                motors[0].setPower(-power);
-                motors[1].setPower(-power);
-                motors[2].setPower(-power);
-                motors[3].setPower(-power);
             }
 
             mOpMode.telemetry.addData("mTimer: ", mTimer.done());
@@ -1526,14 +1515,14 @@ static public class placeGlyph extends Step{
 
             // get uncropped, downsampled image from Vuforia
             //mVLib is an instance of VuforiaLib_FTC2017 which allows us to use the camera
-            Bitmap bitmap = mVLib.getBitmap(8);
+            Bitmap bitmap = mVLib.getBitmap(16);
             // .. and wrap it in a CameraImage
             CameraLib.CameraImage frame = new CameraLib.CameraImage(bitmap);
 
             if (bitmap != null && frame != null) {
                 // look for cryptobox columns
                 // get unfiltered view of colors (hues) by full-image-height column bands
-                final int bandSize = 4;
+                final int bandSize = 1;
                 String colString = frame.columnHue(bandSize);
 
 
@@ -1564,9 +1553,11 @@ static public class placeGlyph extends Step{
 
                     if (columns.size() > 0 && mPrevColumns.size() > 0) {
                         //if there is now a column at the far left of the screen and there was not one there previously, we know
-                        if (columns.get(0).start() == 0 && mPrevColumns.get(0).start() != 0) {
+                        if (columns.get(0).start() == 0 && mPrevColumns.get(0).start() > 0) {
                             currentColumn++;
                         }
+                    }else if(columns.size()>0 && mPrevColumns.size()==0 && columns.get(0).start()==0){
+                        currentColumn++;
                     }
                 }
                 if (mPrevColumns == null) {
@@ -1630,7 +1621,7 @@ static public class placeGlyph extends Step{
 
                 startDistance = motors[3].getCurrentPosition();
             }
-            if (currentColumn == targetColumn +1&& wait && !blue) {
+            if (currentColumn == targetColumn +1&& wait &&!blue) {
                 wait = false;
 
 
