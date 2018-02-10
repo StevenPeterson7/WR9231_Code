@@ -77,48 +77,79 @@ public class Autonomous2017 extends OpMode {
         //mSequence.add(new AutoLib.alignWhacker(this, -80, mVLib, hw.motors));
 
         mSequence.add(new AutoLib.ServoStep(hw.whacker, 0.45));
-        mSequence.add(new AutoLib.wait(0.7));
+        mSequence.add(new AutoLib.wait(0.5));
         mSequence.add(new AutoLib.setColor(hw.ColorSensor, this));
-        mSequence.add(new AutoLib.wait(0.7));
+        mSequence.add(new AutoLib.wait(0.5));
         mSequence.add(new AutoLib.ServoStep(hw.whacker, 0.20));
 
 
-        mSequence.add(new AutoLib.wait(0.7));
+        mSequence.add(new AutoLib.wait(0.5));
         mSequence.add(new AutoLib.knockJewel(hw.ColorSensor, hw.motors, hw.whacker, this, onTeamBlue));
-        mSequence.add(new AutoLib.wait(2.1));
+        mSequence.add(new AutoLib.wait(1.5));
 
         mSequence.add(new AutoLib.ServoStep(hw.whacker, 1));
         mSequence.add(new AutoLib.wait(1));
 
 
-        mSequence.add(new AutoLib.identifyVuMark(this, hw.motors, mVLib, onTeamBlue));
+        mSequence.add(new AutoLib.identifyVuMark(this, hw.motors, mVLib, onTeamBlue, hw.imu));
+        //mSequence.add(new AutoLib.MoveByTimeStep(hw.motors,movePower*1.75, 0.2, true));
 
 
         //this be sketch, test it
         if(!straight){
-            mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu,25));
+            mSequence.add(new AutoLib.gyroStabilizedDrive(this, hw.motors, movePower, 1, 0, hw.imu));
+            if(onTeamBlue) {
+                mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, 25));
+            }else{
+                mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, -25));
+            }
             mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, movePower, 1.5, true));
-            mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, -90));
+            if(onTeamBlue) {
+                mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, -90));
+            }else{
+                mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, 90));
+            }
 
         }
 
         //this needs to be tested and fine-tuned
-        mSequence.add(new AutoLib.driveUntilCryptoColumn(this, mVLib, onTeamBlue ? "^b+" : "^r+", 0.175f, onTeamBlue, hw.imu, hw.motors, straight));
+        mSequence.add(new AutoLib.driveUntilCryptoColumn(this, mVLib, onTeamBlue ? "^b+" : "^r+", 0.14f, onTeamBlue, hw.imu, hw.motors, straight));
 
         //these instructions might need to be switched
         if( straight) {
             mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, 90));
+            mSequence.add(new AutoLib.gyroStabilizedDrive(this, hw.motors, Math.abs(movePower),0.5, 90,hw.imu));
+
         }else{
-            mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, 0));
+            if(onTeamBlue) {
+                mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, 0));
+                mSequence.add(new AutoLib.gyroStabilizedDrive(this, hw.motors, Math.abs(movePower), 0.5, 0, hw.imu));
+            }else{
+                mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, 0));
+                mSequence.add(new AutoLib.gyroStabilizedDrive(this, hw.motors, Math.abs(movePower), 0.5, 0, hw.imu));
+            }
+
 
         }
 
         //these need to be fine tuned
 
-        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, Math.abs(movePower), 1.5, false));
+       // mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, Math.abs(movePower), 0.5, false));
+
+
         mSequence.add(new AutoLib.placeGlyph(this, hw.glyphLiftArms));
-        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, Math.abs(movePower), 0.5, true));
-        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, -Math.abs(movePower), 0.3, true));
+        mSequence.add(new AutoLib.raiseLift(hw.glyphLift, -650,this));
+        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, -Math.abs(movePower), 1, true));
+        mSequence.add(new AutoLib.ServoStep(hw.glyphLiftArms[0],1));
+        mSequence.add(new AutoLib.ServoStep(hw.glyphLiftArms[1],1));
+        mSequence.add(new AutoLib.wait(0.5));
+        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, Math.abs(movePower), 1.2, true));
+        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, -Math.abs(movePower), 0.4, true));
+        mSequence.add(new AutoLib.placeGlyph(this, hw.glyphLiftArms));
+
+        mSequence.add(new AutoLib.raiseLift(hw.glyphLift, 600,this));
+
+
 
         bDone = false;
     }

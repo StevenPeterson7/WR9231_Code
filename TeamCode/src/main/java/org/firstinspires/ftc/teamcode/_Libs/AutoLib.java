@@ -410,7 +410,7 @@ static public class setColor extends Step{
         ColorSensor colorSensor;
         DcMotor [] motors;
         Timer mTimer = new Timer(0.45);
-        Timer nTimer = new Timer (0.60);
+        Timer nTimer = new Timer (0.65);
         boolean done = false;
         boolean firstLoopStart=true;
         boolean secondLoopStart = true;
@@ -521,16 +521,31 @@ static public class setColor extends Step{
 
             done = nTimer.done();
 
-            if (mTimer.done()&&done || mTimer.done() && Math.abs(motors[3].getCurrentPosition()-sPosition)<15 ) {
+            if (mTimer.done() && Math.abs(motors[3].getCurrentPosition()-sPosition)<20 && !secondLoopStart) {
                 motors[0].setPower(0);
                 motors[1].setPower(0);
                 motors[2].setPower(0);
                 motors[3].setPower(0);
                 return true;
+            }else if(motors[3].getCurrentPosition()-sPosition<-10 && !secondLoopStart){
+                motors[0].setPower(power);
+                motors[1].setPower(power);
+                motors[2].setPower(power);
+                motors[3].setPower(power);
+
+            }else if(motors[3].getCurrentPosition()-sPosition>10 && !secondLoopStart){
+                motors[0].setPower(-power);
+                motors[1].setPower(-power);
+                motors[2].setPower(-power);
+                motors[3].setPower(-power);
             }
 
             mOpMode.telemetry.addData("mTimer: ", mTimer.done());
             mOpMode.telemetry.addData("nTimer: ", nTimer.done());
+            mOpMode.telemetry.addData("currentPosition: ", motors[3].getCurrentPosition());
+            mOpMode.telemetry.addData("sPosition: ", sPosition);
+            mOpMode.telemetry.addData("distance: ", motors[3].getCurrentPosition()-sPosition);
+
 
             return false;
         }
@@ -971,7 +986,7 @@ static public class pickUpGlyph extends Step{
     boolean firstRaise=true;
     boolean lower=false;
     boolean secondRaise=false;
-    Timer nTimer=new Timer(1);
+    Timer nTimer=new Timer(1.5);
     DcMotor [] glyphLift;
     Servo [] arms;
     int targetHeight;
@@ -1095,6 +1110,45 @@ static public class alignWhacker extends Step{
         }
 
 }
+
+static public class gyroStabilizedDrive extends Step{
+        private Autonomous2017 mOpmode;
+        DcMotor [] motors;
+        Timer driveTimer;
+        BNO055IMU mIMU;
+        double motorPower;
+        double orientation;
+        double targetDirection;
+        public gyroStabilizedDrive(Autonomous2017 op, DcMotor [] m, double power, double time, double tDirection, BNO055IMU IMU){
+            mOpmode=op;
+            motors=m;
+            driveTimer=new Timer(time);
+            mIMU=IMU;
+            motorPower=power;
+            targetDirection=tDirection;
+        }
+        public boolean loop(){
+            super.loop();
+            if(firstLoopCall()){
+                motors[0].setPower(motorPower);
+                motors[1].setPower(motorPower);
+                motors[2].setPower(motorPower);
+                motors[3].setPower(motorPower);
+                driveTimer.start();
+            }
+            orientation=mIMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+
+            motors[0].setPower(motors[0].getPower() * (180 - (orientation - targetDirection)) / 180);
+            motors[1].setPower(motors[1].getPower() * (180 - (orientation - targetDirection)) / 180);
+            motors[2].setPower(motors[2].getPower() * (180 + (orientation - targetDirection)) / 180);
+            motors[3].setPower(motors[3].getPower() * (180 + (orientation - targetDirection)) / 180);
+
+
+            return driveTimer.done();
+
+
+        }
+}
 static public class placeGlyph extends Step{
     private Autonomous2017 mOpMode;
 
@@ -1189,10 +1243,10 @@ static public class placeGlyph extends Step{
 
            orientation=mIMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
            //turn until we have reached the target heading within a certain allowed error
-            if(orientation > mTargetHeading + 5) {
+            if(orientation > mTargetHeading + 2) {
                 turnRight();
 
-            }else if(orientation < mTargetHeading - 5){
+            }else if(orientation < mTargetHeading - 2){
                 turnLeft();
                 //left makes current heading bigger
 
@@ -1218,12 +1272,43 @@ static public class placeGlyph extends Step{
         Timer fTimer=new Timer(2);
         Timer mTimer=new Timer(3);
         int targetColumn=0;
+        boolean searching=true;
+        BNO055IMU mIMU;
+        boolean turningLeft=false;
 
         boolean blue;
-        public identifyVuMark(Autonomous2017 op, DcMotor [] m, VuforiaLib_FTC2017 VLib, boolean b) {
+        public boolean search(DcMotor[] motors, BNO055IMU mIMU){
+            if(turningLeft){
+                motors[0].setPower(0.2);
+                motors[1].setPower(0.2);
+                motors[2].setPower(-0.2);
+                motors[3].setPower(-0.2);
+
+            }else{
+                motors[0].setPower(-0.2);
+                motors[1].setPower(-0.2);
+                motors[2].setPower(0.2);
+                motors[3].setPower(0.2);
+
+            }
+            double orientation=mIMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+
+            if(orientation>30){
+                turningLeft=false;
+            }
+            if(orientation<-30){
+                turningLeft=true;
+            }
+            return true;
+
+
+
+        }
+        public identifyVuMark(Autonomous2017 op, DcMotor [] m, VuforiaLib_FTC2017 VLib, boolean b, BNO055IMU imu) {
             motors = m;
             mOpMode = op;
             mVLib = VLib;
+            mIMU=imu;
 
             blue=b;
         }
@@ -1237,10 +1322,7 @@ static public class placeGlyph extends Step{
                 fTimer.start();
             }
             if(targetColumn==0){
-                if(mTimer.done()){
-                    mOpMode.targetColumn=1;
-                    return true;
-                }
+
                 RelicRecoveryVuMark vuMark = mVLib.getVuMark();
 
                 switch (vuMark){
@@ -1285,13 +1367,21 @@ static public class placeGlyph extends Step{
                     case UNKNOWN:
                         targetColumn=0;
                         if(fTimer.done()) {
+                            if(searching){
+                                searching=search(motors, mIMU);
+                            }
                             mTimer.start();
+
                         }
                         break;
 
                 }
 
             }else{
+                return true;
+            }
+            if(mTimer.done() && targetColumn==0){
+                mOpMode.targetColumn=1;
                 return true;
             }
 
@@ -1369,7 +1459,7 @@ static public class placeGlyph extends Step{
 
     static public class driveUntilCryptoColumn extends Step{
         int startDistance;
-        int targetDistance=33;
+        int targetDistance;
         Timer mTimer= new Timer(0.5);
         VuforiaLib_FTC2017 mVLib;
         Autonomous2017 mOpMode;
@@ -1401,7 +1491,7 @@ static public class placeGlyph extends Step{
                 targetDistance=0;
             }else {
                 mPower=-power;
-                targetDistance=33;
+                targetDistance=-100;
             }
             mPattern=Pattern.compile(pattern);
             final float Kp = 0.2f;         // degree heading proportional term correction per degree of deviation
@@ -1419,7 +1509,12 @@ static public class placeGlyph extends Step{
             targetColumn=mOpMode.targetColumn;
 
             if(firstLoopCall()){
-                targetDistance*=targetColumn;
+               /* if(blue){
+                    targetDistance*=(4-targetColumn);
+
+                }else{
+                    targetDistance*=targetColumn;
+                }*/
                 motors[0].setPower(mPower);
                 motors[1].setPower(mPower);
                 motors[2].setPower(mPower);
@@ -1478,8 +1573,11 @@ static public class placeGlyph extends Step{
                     mPrevColumns = columns;
                 }
                 columnList = columns;
-
-
+                int nCol = columns.size();
+                mOpMode.telemetry.addData("NUM OF COLUMNS", nCol);
+                if(nCol>0) {
+                    mOpMode.telemetry.addData("Column end", columns.get(nCol - 1).end());
+                }
             }
 
             /*
@@ -1515,10 +1613,10 @@ static public class placeGlyph extends Step{
                     motors[2].setPower(motors[2].getPower() * (180 + (orientation+90)) / 180);
                     motors[3].setPower(motors[3].getPower() * (180 + (orientation+90)) / 180);
                 } else {
-                    motors[0].setPower(motors[0].getPower() * (180 + (orientation+90)) / 180);
-                    motors[1].setPower(motors[1].getPower() * (180 + (orientation+90)) / 180);
-                    motors[2].setPower(motors[2].getPower() * (180 - (orientation+90)) / 180);
-                    motors[3].setPower(motors[3].getPower() * (180 - (orientation+90)) / 180);
+                    motors[0].setPower(motors[0].getPower() * (180 - (orientation-90)) / 180);
+                    motors[1].setPower(motors[1].getPower() * (180 - (orientation-90)) / 180);
+                    motors[2].setPower(motors[2].getPower() * (180 + (orientation-90)) / 180);
+                    motors[3].setPower(motors[3].getPower() * (180 + (orientation-90)) / 180);
                 }
 
             }
@@ -1526,31 +1624,74 @@ static public class placeGlyph extends Step{
             mOpMode.telemetry.addData("motor 1", motors[1].getPower());
             mOpMode.telemetry.addData("motor 3", motors[3].getPower());
             mOpMode.telemetry.addData("orientation", mImu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle);
+            if (currentColumn == targetColumn && wait && blue) {
+                wait = false;
 
-            if (currentColumn == targetColumn+1 && wait) {
-                wait=false;
+
+                startDistance = motors[3].getCurrentPosition();
+            }
+            if (currentColumn == targetColumn +1&& wait && !blue) {
+                wait = false;
 
 
-                startDistance=motors[3].getCurrentPosition();
+                startDistance = motors[3].getCurrentPosition();
+            }
+
+            if(!wait){
+                if(blue) {
+                    if (motors[3].getCurrentPosition() - startDistance > targetDistance + 60) {
+                        motors[0].setPower(mPower);
+                        motors[1].setPower(mPower);
+                        motors[2].setPower(mPower);
+                        motors[3].setPower(mPower);
+
+                    } else if (motors[3].getCurrentPosition() - startDistance < targetDistance - 60) {
+
+                        motors[0].setPower(-mPower);
+                        motors[1].setPower(-mPower);
+                        motors[2].setPower(-mPower);
+                        motors[3].setPower(-mPower);
+                    } else {
+                        motors[0].setPower(0);
+                        motors[1].setPower(0);
+                        motors[2].setPower(0);
+                        motors[3].setPower(0);
+
+                        return true;
+                    }
+                }else{
+                    if (motors[3].getCurrentPosition() - startDistance > targetDistance + 60) {
+                        motors[0].setPower(mPower);
+                        motors[1].setPower(mPower);
+                        motors[2].setPower(mPower);
+                        motors[3].setPower(mPower);
+
+                    } else if (motors[3].getCurrentPosition() - startDistance < targetDistance - 60) {
+
+                        motors[0].setPower(-mPower);
+                        motors[1].setPower(-mPower);
+                        motors[2].setPower(-mPower);
+                        motors[3].setPower(-mPower);
+                    } else {
+                        motors[0].setPower(0);
+                        motors[1].setPower(0);
+                        motors[2].setPower(0);
+                        motors[3].setPower(0);
+
+                        return true;
+                    }
+
+                }
             }
 
 
-            if(Math.abs(Math.abs(startDistance)-Math.abs(motors[3].getCurrentPosition()))>targetDistance&&!wait){
-                motors[0].setPower(0);
-                motors[1].setPower(0);
-                motors[2].setPower(0);
-                motors[3].setPower(0);
-               // mOpMode.d=motors[1].getCurrentPosition()-startDistance;
-
-                return true;
-            }
 
 
             mPrevColumns = columnList;
-            mOpMode.telemetry.addData("distance",Math.abs(startDistance)-Math.abs(motors[3].getCurrentPosition()) );
-            mOpMode.telemetry.addData("start distance",Math.abs(startDistance) );
+            mOpMode.telemetry.addData("distance",motors[3].getCurrentPosition()-startDistance);
+            mOpMode.telemetry.addData("start distance",startDistance);
 
-            mOpMode.telemetry.addData("current distance 3",Math.abs(motors[3].getCurrentPosition()) );
+            mOpMode.telemetry.addData("current distance 3",motors[3].getCurrentPosition());
 
 
             mOpMode.telemetry.addData("target column", targetColumn);
@@ -1677,6 +1818,7 @@ static public class placeGlyph extends Step{
                 }
 
                 int nCol = columns.size();
+                mOpMode.telemetry.addData("NUM OF COLUMNS", nCol);
 
                 // compute average distance between columns = distance between outermost / #bins
                 float avgBinWidth = nCol>1 ? (float)(columns.get(nCol-1).end() - columns.get(0).start()) / (float)(nCol-1) : 0;

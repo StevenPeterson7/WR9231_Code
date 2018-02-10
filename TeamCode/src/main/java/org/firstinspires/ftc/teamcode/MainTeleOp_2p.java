@@ -65,7 +65,7 @@ public class MainTeleOp_2p extends OpMode{
         //apply left motor power
         hw.motors[2].setPower(powerToLeftMotor);
         hw.motors[3].setPower(powerToLeftMotor);
-
+        telemetry.addData("position motor 3", hw.motors[3].getCurrentPosition());
 
         // Set right motor power
         double powerToRightMotor = -gamepad1.right_stick_y* motorPower;

@@ -133,12 +133,12 @@ public class CameraLib {
             if (red(pix)>n*green(pix) && red(pix)>n*blue(pix))
                 domClr = eRed.ordinal();     // red
             else
-            if (green(pix)>n*red(pix) && green(pix)>n*blue(pix))
+           /* if (green(pix)>n*red(pix) && green(pix)>n*blue(pix))
                 domClr = eGreen.ordinal();     // green
-            else
+            else*/
             if (blue(pix)>n*red(pix) && blue(pix)>n*green(pix))
                 domClr = eBlue.ordinal();     // blue
-            else
+           /* else
             if (blue(pix)>n*red(pix) && green(pix)>n*red(pix))
                 domClr = eCyan.ordinal();     // cyan
             else
@@ -147,7 +147,7 @@ public class CameraLib {
             else
             if (red(pix)>n*blue(pix) && green(pix)>n*blue(pix))
                 domClr = eYellow.ordinal();     // yellow
-            // if it has no discernible hue, encode its gray level 0-7
+            // if it has no discernible hue, encode its gray level 0-7*/
             if (domClr == 0) {
                 float value = red(pix)*0.2f + green(pix)*0.7f + blue(pix)*0.1f; // 0..255
                 domClr = (int)(value / 32 + 7);  // return Value discretized to 8 levels (7..14)
