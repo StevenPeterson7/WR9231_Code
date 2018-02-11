@@ -1563,7 +1563,7 @@ static public class placeGlyph extends Step{
                 if (mPrevColumns == null) {
                     mPrevColumns = columns;
                 }
-                columnList = columns;
+                mPrevColumns = columns;
                 int nCol = columns.size();
                 mOpMode.telemetry.addData("NUM OF COLUMNS", nCol);
                 if(nCol>0) {
@@ -1678,7 +1678,7 @@ static public class placeGlyph extends Step{
 
 
 
-            mPrevColumns = columnList;
+            //mPrevColumns = columnList;
             mOpMode.telemetry.addData("distance",motors[3].getCurrentPosition()-startDistance);
             mOpMode.telemetry.addData("start distance",startDistance);
 
