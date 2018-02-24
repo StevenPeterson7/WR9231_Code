@@ -55,6 +55,8 @@ public class Autonomous2017 extends OpMode {
 
         // Get our hardware
         hw = new hardwareDeclare(this);
+        hw.armTwist[0].setPosition(0);
+        hw.armTwist[1].setPosition(1);
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
@@ -64,6 +66,8 @@ public class Autonomous2017 extends OpMode {
         parameters.loggingTag          = "IMU";
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
         hw.imu.initialize(parameters);
+        hw.armTwist[0].setPosition(0);
+        hw.armTwist[1].setPosition(0);
 
         mVLib = new VuforiaLib_FTC2017();
         mVLib.init(this, null);
@@ -104,13 +108,13 @@ public class Autonomous2017 extends OpMode {
 
         //this be sketch, test it
         if(!straight){
-            mSequence.add(new AutoLib.gyroStabilizedDrive(this, hw.motors, movePower, 1, 0, hw.imu));
+            mSequence.add(new AutoLib.gyroStabilizedDrive(this, hw.motors, movePower, 0.6, 0, hw.imu));
             if(onTeamBlue) {
                 mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, 25));
             }else{
                 mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, -25));
             }
-            mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, movePower, 1.5, true));
+            mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, movePower, 1.2, true));
             if(onTeamBlue) {
                 mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, -90));
             }else{
@@ -120,7 +124,7 @@ public class Autonomous2017 extends OpMode {
         }
 
         //this needs to be tested and fine-tuned
-        mSequence.add(new AutoLib.driveUntilCryptoColumn(this, mVLib, onTeamBlue ? "^b+" : "^r+", 0.13f, onTeamBlue, hw.imu, hw.motors, straight));
+        mSequence.add(new AutoLib.driveUntilCryptoColumn(this, mVLib, onTeamBlue ? "^b+" : "^r+", 0.15f, onTeamBlue, hw.imu, hw.motors, straight));
 
         //these instructions might need to be switched
         if( straight) {
@@ -132,8 +136,8 @@ public class Autonomous2017 extends OpMode {
                 mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, 0));
                 mSequence.add(new AutoLib.gyroStabilizedDrive(this, hw.motors, Math.abs(movePower), 0.5, 0, hw.imu));
             }else{
-                mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, 0));
-                mSequence.add(new AutoLib.gyroStabilizedDrive(this, hw.motors, Math.abs(movePower), 0.5, 0, hw.imu));
+                mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, 180));
+                mSequence.add(new AutoLib.gyroStabilizedDrive(this, hw.motors, Math.abs(movePower), 0.5, 180, hw.imu));
             }
 
 
@@ -145,12 +149,16 @@ public class Autonomous2017 extends OpMode {
 
 
         mSequence.add(new AutoLib.placeGlyph(this, hw.glyphLiftArms));
-        mSequence.add(new AutoLib.raiseLift(hw.glyphLift, -650,this));
+        mSequence.add(new AutoLib.raiseLift(hw.glyphLift, -800,this));
         mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, -Math.abs(movePower), 1, true));
         mSequence.add(new AutoLib.ServoStep(hw.glyphLiftArms[0],1));
         mSequence.add(new AutoLib.ServoStep(hw.glyphLiftArms[1],1));
+        mSequence.add(new AutoLib.ServoStep(hw.armTwist[0],1));
+        mSequence.add(new AutoLib.ServoStep(hw.armTwist[1],1));
         mSequence.add(new AutoLib.wait(0.5));
-        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, Math.abs(movePower), 1.2, true));
+        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, Math.abs(movePower)/0.8, 1, true));
+        mSequence.add(new AutoLib.ServoStep(hw.armTwist[0],0));
+        mSequence.add(new AutoLib.ServoStep(hw.armTwist[1],0));
         mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, -Math.abs(movePower), 0.4, true));
         mSequence.add(new AutoLib.placeGlyph(this, hw.glyphLiftArms));
 

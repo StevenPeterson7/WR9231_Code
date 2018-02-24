@@ -979,8 +979,8 @@ static public class pickUpGlyph extends Step{
     DcMotor [] glyphLift;
     Servo [] arms;
     int targetHeight;
-    int tStartHeight=150;
-    int tHeightEnd=300;
+    int tStartHeight=250;
+    int tHeightEnd=500;
     int startHeight;
     double power;
     public pickUpGlyph(Autonomous2017 op,DcMotor [] gl, Servo [] a, double p, int t){
@@ -1019,10 +1019,10 @@ static public class pickUpGlyph extends Step{
 
 
             if (glyphLift[1].getCurrentPosition() - startHeight < targetHeight - 15) {
-                glyphLift[1].setPower(0.35);
+                glyphLift[1].setPower(0.45);
 
             } else if (glyphLift[1].getCurrentPosition() - startHeight > targetHeight + 15) {
-                glyphLift[1].setPower(-0.35);
+                glyphLift[1].setPower(-0.45);
             } else {
                 glyphLift[1].setPower(0);
                 arms[0].setPosition(1);
@@ -1232,6 +1232,12 @@ static public class placeGlyph extends Step{
 
            orientation=mIMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
            //turn until we have reached the target heading within a certain allowed error
+            if(mTargetHeading>90&&orientation<-85){
+                mTargetHeading-=360;
+
+            }else if (mTargetHeading<-90 && orientation>85){
+                mTargetHeading+=360;
+            }
             if(orientation > mTargetHeading + 2) {
                 turnRight();
 
@@ -1480,7 +1486,7 @@ static public class placeGlyph extends Step{
                 targetDistance=0;
             }else {
                 mPower=-power;
-                targetDistance=-100;
+                targetDistance=-60;
             }
             mPattern=Pattern.compile(pattern);
             final float Kp = 0.2f;         // degree heading proportional term correction per degree of deviation
@@ -1524,14 +1530,18 @@ static public class placeGlyph extends Step{
                 // get unfiltered view of colors (hues) by full-image-height column bands
                 final int bandSize = 1;
                 String colString = frame.columnHue(bandSize);
-
-
+                if(!blue){
+                    //
+                    //
+                    // colString=new StringBuilder(colString).reverse().toString();
+                }
 
                 // log debug info ...
                 mOpMode.telemetry.addData("hue columns", colString);
 
                 // look for occurrences of given pattern of column colors
                 ArrayList<ColumnHit> columns = new ArrayList<ColumnHit>(8);       // array of column start/end indices
+                int nCol = columns.size();
 
                 for (int i = 0; i < colString.length(); i++) {
                     // starting at position (i), look for the given pattern in the encoded (rgbcymw) scanline
@@ -1550,22 +1560,33 @@ static public class placeGlyph extends Step{
                     mOpMode.telemetry.addData("found ", "%s from %d to %d", mPattern.pattern(), h.start(), h.end());
                 }
                 if (columns != null && mPrevColumns != null) {
+                    if(blue) {
 
-                    if (columns.size() > 0 && mPrevColumns.size() > 0) {
-                        //if there is now a column at the far left of the screen and there was not one there previously, we know
-                        if (columns.get(0).start() == 0 && mPrevColumns.get(0).start() > 0) {
-                            currentColumn++;
+                        if (columns.size() > 0 && mPrevColumns.size() > 0) {
+                            //if there is now a column at the far left of the screen and there was not one there previously, we know
+                            if (columns.get(0).start() == 0 && mPrevColumns.get(0).start() > 0) {
+                                currentColumn++;
+                            }
+                        } else if (columns.size() > 0 && mPrevColumns.size() == 0 && columns.get(0).start() == 0) {
+                            // currentColumn++;
                         }
-                    }else if(columns.size()>0 && mPrevColumns.size()==0 && columns.get(0).start()==0){
-                        currentColumn++;
+                    }else{
+                        if (columns.size() > 0 && mPrevColumns.size() > 0) {
+                            //if there is now a column at the far left of the screen and there was not one there previously, we know
+                            if (columns.get(columns.size()-1).end() >75 && mPrevColumns.get(mPrevColumns.size()-1).end()<75) {
+                                currentColumn++;
+                            }
+                        } else if (columns.size() > 0 && mPrevColumns.size() == 0 && columns.get(0).start() > 0) {
+                           // currentColumn++;
+                        }
+
                     }
                 }
                 if (mPrevColumns == null) {
                     mPrevColumns = columns;
                 }
                 mPrevColumns = columns;
-                int nCol = columns.size();
-                mOpMode.telemetry.addData("NUM OF COLUMNS", nCol);
+                mOpMode.telemetry.addData("NUM OF COLUMNS", columns.size());
                 if(nCol>0) {
                     mOpMode.telemetry.addData("Column end", columns.get(nCol - 1).end());
                 }
@@ -1621,7 +1642,7 @@ static public class placeGlyph extends Step{
 
                 startDistance = motors[3].getCurrentPosition();
             }
-            if (currentColumn == targetColumn +1&& wait &&!blue) {
+            if (currentColumn == targetColumn && wait &&!blue) {
                 wait = false;
 
 

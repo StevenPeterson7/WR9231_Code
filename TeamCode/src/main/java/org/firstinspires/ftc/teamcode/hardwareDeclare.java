@@ -18,6 +18,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
+import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 import static com.qualcomm.robotcore.hardware.Servo.Direction.REVERSE;
 
 public class hardwareDeclare{
@@ -32,6 +33,8 @@ public class hardwareDeclare{
     public DcMotor[] glyphLift = new DcMotor [2];
     public Servo[] glyphLiftArms = new Servo[2];
     public Servo whacker;
+
+    public Servo [] armTwist = new Servo[2];
     // Declare Servo Arm
   //  public CRServo[] servos = new CRServo[2];
     // Declare the Color Sensor
@@ -39,7 +42,9 @@ public class hardwareDeclare{
   //  public Servo placer;
   //  public ModernRoboticsI2cGyro gyroH;
     //public SensorLib.CorrectedMRGyro mGyro;
+    public DcMotor [] relicArm = new DcMotor[2];
 
+    public Servo relicGrabber;
 
     public hardwareDeclare(OpMode opmode) {
 
@@ -57,6 +62,13 @@ public class hardwareDeclare{
         glyphLift[0]=opmode.hardwareMap.dcMotor.get("glyphSpin");
         glyphLift[1]=opmode.hardwareMap.dcMotor.get("glyphLift");
 
+        relicGrabber=opmode.hardwareMap.servo.get("grabber");
+
+        relicArm[0]=opmode.hardwareMap.dcMotor.get("rotate");
+        relicArm[0].setZeroPowerBehavior(BRAKE);
+        relicArm[1]=opmode.hardwareMap.dcMotor.get("extend");
+
+
 
 
         imu = opmode.hardwareMap.get(BNO055IMU.class, "imu");
@@ -68,6 +80,11 @@ public class hardwareDeclare{
         glyphLiftArms[0] = opmode.hardwareMap.servo.get("leftArm");
         glyphLiftArms[1] = opmode.hardwareMap.servo.get("rightArm");
         glyphLiftArms[1].setDirection(REVERSE);
+        armTwist[0] = opmode.hardwareMap.servo.get("leftTwist");
+        armTwist[1] = opmode.hardwareMap.servo.get("rightTwist");
+        armTwist[0].scaleRange(0.41, 0.904);
+        armTwist[1].scaleRange(0.13, 0.631);
+        armTwist[1].setDirection(REVERSE);
         //glyphLiftArms[0].scaleRange(0,0.844);
         //glyphLiftArms[1].scaleRange(0,0.8444);
 

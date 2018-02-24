@@ -128,7 +128,7 @@ public class CameraLib {
 
         // return "dominant color" of an RGB pixel if it has one (or white if it doesn't)
         public static int dominantColor(int pix) {
-            final float n = 1.5F;    // dominance factor threshold
+            final float n = 1.7F;    // dominance factor threshold
             int domClr = 0;     // default is white (i.e. shades of gray)
             if (red(pix)>n*green(pix) && red(pix)>n*blue(pix))
                 domClr = eRed.ordinal();     // red

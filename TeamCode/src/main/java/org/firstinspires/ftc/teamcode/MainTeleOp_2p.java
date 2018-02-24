@@ -23,6 +23,8 @@ public class MainTeleOp_2p extends OpMode{
     private float motorPower = 1.f;
     double lPos=1;
     double rPos=1;
+    double lTwistPos=0;
+    double rTwistPos=0;
 
     @Override
     public void init(){
@@ -31,6 +33,8 @@ public class MainTeleOp_2p extends OpMode{
         hw = new hardwareDeclare(this);
         hw.glyphLiftArms[0].setPosition(lPos);
         hw.glyphLiftArms[1].setPosition(rPos);
+        hw.armTwist[0].setPosition(lTwistPos);
+        hw.armTwist[1].setPosition(rTwistPos);
         hw.ColorSensor.enableLed(false);
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
@@ -80,12 +84,12 @@ public class MainTeleOp_2p extends OpMode{
         telemetry.addData("glyph lift: ", gamepad2.left_stick_y );
         telemetry.addData("glyph lift pos: ", hw.glyphLift[1].getCurrentPosition());
 
-        if(gamepad2.left_stick_y!=0){
+        if(gamepad2.right_stick_y!=0){
             /*the power to the glyph lift is cubed so that it will be easy to make fine adjustments
             when the glyph lift is close to the desired destination but it can also be speed up to
             full speed for bigger adjustments
              */
-            hw.glyphLift[1].setPower(pow(gamepad2.left_stick_y,3));
+            hw.glyphLift[1].setPower(pow(gamepad2.right_stick_y,3));
         }else{
             hw.glyphLift[1].setPower(0);
         }
@@ -163,39 +167,65 @@ public class MainTeleOp_2p extends OpMode{
 
         telemetry.addData("right trigger", gamepad2.right_trigger);
 
-
-      /*  if(gamepad1.a || gamepad2.a){
-           // hw.testMotor[0].setPower(1.0);
-            hw.testMotor[0].setPower(1.0);
-        }
-        else{
-           hw.testMotor[0].setPower(0.0);
-        }*/
-        /*
-
-        if(gamepad1.b || gamepad2.b){
-            hw.liftMotors[0].setPower(1.0);
-            hw.liftMotors[1].setPower(1.0);
-        }
-        else{
-            hw.liftMotors[0].setPower(0.0);
-            hw.liftMotors[1].setPower(0.0);
+        if(gamepad2.a){
+            lTwistPos=1;
+            rTwistPos=1;
+        }else if (gamepad2.b){
+            lTwistPos=0;
+            rTwistPos=0;
         }
 
-        if(gamepad1.x){
-            hw.servos[0].setPower(-1.0);
-            hw.servos[1].setPower(-1.0);
+        if(gamepad2.dpad_up){
+            lTwistPos+=0.05;
+            rTwistPos+=0.05;
+
+        }else if(gamepad2.dpad_down){
+            lTwistPos-=0.05;
+            rTwistPos-=0.05;
+
         }
-        else if(gamepad1.y){
-            hw.servos[0].setPower(1.0);
-            hw.servos[1].setPower(1.0);
+        if(lTwistPos<0){
+            lTwistPos=0;
         }
-        else{
-            hw.servos[0].setPower(0.0);
-            hw.servos[1].setPower(0.0);
-        }*/
+        if(rTwistPos<0){
+            rTwistPos=0;
+        }
+        if(lTwistPos>1){
+            lTwistPos=1;
+        }
+        if(rTwistPos>1){
+            rTwistPos=1;
+        }
+
+        hw.armTwist[0].setPosition(lTwistPos);
+        hw.armTwist[1].setPosition(rTwistPos);
+
+        telemetry.addData("left twist", hw.armTwist[0].getPosition());
+        telemetry.addData("right twist", hw.armTwist[1].getPosition());
 
 
+
+        if(gamepad1.dpad_up){
+            hw.relicArm[1].setPower(0.3);
+        }else if (gamepad1.dpad_down){
+            hw.relicArm[1].setPower(-0.3);
+        }else{
+            hw.relicArm[1].setPower(0);
+        }
+        if(gamepad1.dpad_right){
+            hw.relicArm[0].setPower(0.3);
+        }else if (gamepad1.dpad_left){
+            hw.relicArm[0].setPower(-0.3);
+        }else{
+            hw.relicArm[0].setPower(0);
+        }
+
+        if(gamepad1.a){
+            hw.relicGrabber.setPosition(0);
+
+        }else if (gamepad1.b){
+            hw.relicGrabber.setPosition(1);
+        }
 
     }
     @Override
