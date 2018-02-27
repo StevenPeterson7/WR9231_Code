@@ -55,8 +55,7 @@ public class Autonomous2017 extends OpMode {
 
         // Get our hardware
         hw = new hardwareDeclare(this);
-        hw.armTwist[0].setPosition(0);
-        hw.armTwist[1].setPosition(1);
+
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
@@ -66,8 +65,7 @@ public class Autonomous2017 extends OpMode {
         parameters.loggingTag          = "IMU";
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
         hw.imu.initialize(parameters);
-        hw.armTwist[0].setPosition(0);
-        hw.armTwist[1].setPosition(0);
+
 
         mVLib = new VuforiaLib_FTC2017();
         mVLib.init(this, null);
@@ -80,12 +78,16 @@ public class Autonomous2017 extends OpMode {
 
 
         //these functions need to be tested
-        mSequence.add(new AutoLib.pickUpGlyph(this, hw.glyphLift, hw.glyphLiftArms, 0.2, -1500));
+        /*mSequence.add(new AutoLib.ServoStep(hw.armTwist[0], 0));
+        mSequence.add(new AutoLib.ServoStep(hw.armTwist[1], 0));*/
+        mSequence.add(new AutoLib.pickUpGlyph(this, hw.glyphLift, hw.glyphLiftArms, hw.armTwist, .2, -1500));
 
 
         //mSequence.add(new AutoLib.wait(2));
         //target position needs to be found
         //mSequence.add(new AutoLib.alignWhacker(this, -80, mVLib, hw.motors));
+
+
 
         mSequence.add(new AutoLib.ServoStep(hw.whacker, 0.45));
         mSequence.add(new AutoLib.wait(0.5));
@@ -107,8 +109,9 @@ public class Autonomous2017 extends OpMode {
 
 
         //this be sketch, test it
+        mSequence.add(new AutoLib.gyroStabilizedDrive(this, hw.motors, movePower, 0.40, 0, hw.imu));
+
         if(!straight){
-            mSequence.add(new AutoLib.gyroStabilizedDrive(this, hw.motors, movePower, 0.6, 0, hw.imu));
             if(onTeamBlue) {
                 mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, 25));
             }else{
@@ -137,7 +140,7 @@ public class Autonomous2017 extends OpMode {
                 mSequence.add(new AutoLib.gyroStabilizedDrive(this, hw.motors, Math.abs(movePower), 0.5, 0, hw.imu));
             }else{
                 mSequence.add(new AutoLib.turnToGyroHeading(hw.motors, this, hw.imu, 180));
-                mSequence.add(new AutoLib.gyroStabilizedDrive(this, hw.motors, Math.abs(movePower), 0.5, 180, hw.imu));
+                mSequence.add(new AutoLib.MoveByTimeStep( hw.motors, Math.abs(movePower), 0.5, true));
             }
 
 
@@ -149,17 +152,18 @@ public class Autonomous2017 extends OpMode {
 
 
         mSequence.add(new AutoLib.placeGlyph(this, hw.glyphLiftArms));
+        mSequence.add(new AutoLib.wait(0.25));
         mSequence.add(new AutoLib.raiseLift(hw.glyphLift, -800,this));
-        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, -Math.abs(movePower), 1, true));
+        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, -Math.abs(movePower)*1.2, 1, true));
         mSequence.add(new AutoLib.ServoStep(hw.glyphLiftArms[0],1));
         mSequence.add(new AutoLib.ServoStep(hw.glyphLiftArms[1],1));
         mSequence.add(new AutoLib.ServoStep(hw.armTwist[0],1));
         mSequence.add(new AutoLib.ServoStep(hw.armTwist[1],1));
         mSequence.add(new AutoLib.wait(0.5));
-        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, Math.abs(movePower)/0.8, 1, true));
+        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, Math.abs(movePower)/0.8, 0.7, true));
+        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, -Math.abs(movePower), 0.7, true));
         mSequence.add(new AutoLib.ServoStep(hw.armTwist[0],0));
         mSequence.add(new AutoLib.ServoStep(hw.armTwist[1],0));
-        mSequence.add(new AutoLib.MoveByTimeStep(hw.motors, -Math.abs(movePower), 0.4, true));
         mSequence.add(new AutoLib.placeGlyph(this, hw.glyphLiftArms));
 
         mSequence.add(new AutoLib.raiseLift(hw.glyphLift, 600,this));

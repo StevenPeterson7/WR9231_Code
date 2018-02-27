@@ -982,11 +982,13 @@ static public class pickUpGlyph extends Step{
     int tStartHeight=250;
     int tHeightEnd=500;
     int startHeight;
+    Servo [] twist;
     double power;
-    public pickUpGlyph(Autonomous2017 op,DcMotor [] gl, Servo [] a, double p, int t){
+    public pickUpGlyph(Autonomous2017 op,DcMotor [] gl, Servo [] a, Servo[] tw, double p, int t){
         mOpMode=op;
         glyphLift=gl;
         targetHeight=t;
+        twist=tw;
         startHeight=glyphLift[1].getCurrentPosition();
         arms=a;
         power=p;
@@ -994,6 +996,8 @@ static public class pickUpGlyph extends Step{
     public boolean loop(){
         super.loop();
         if(firstLoopCall()){
+            twist[0].setPosition(0);
+            twist[1].setPosition(0);
             arms[0].setPosition(0);
             arms[1].setPosition(0);
 
@@ -1636,13 +1640,13 @@ static public class placeGlyph extends Step{
             mOpMode.telemetry.addData("motor 1", motors[1].getPower());
             mOpMode.telemetry.addData("motor 3", motors[3].getPower());
             mOpMode.telemetry.addData("orientation", mImu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle);
-            if (currentColumn == targetColumn && wait && blue) {
+            if (currentColumn == targetColumn+1 && wait && blue) {
                 wait = false;
 
 
                 startDistance = motors[3].getCurrentPosition();
             }
-            if (currentColumn == targetColumn && wait &&!blue) {
+            if (currentColumn == targetColumn+1 && wait &&!blue) {
                 wait = false;
 
 
